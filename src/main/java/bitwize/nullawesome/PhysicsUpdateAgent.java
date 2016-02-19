@@ -14,6 +14,10 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	    if(Math.abs(mov.velocity.x) < 0.21f) { mov.velocity.x = 0.f; phys.gaccel = 0.f; }
 	    else { mov.acceleration.set((mov.velocity.x > 0.f) ? -0.2f : 0.2f, 0.f); }
 	}
+	if((map.getTileFlags(map.getTileWorldCoords(mov.position.x, mov.position.y + phys.radius)) &
+	    TileMap.FLAG_SOLID) == 0) {
+	    phys.state = WorldPhysics.State.FALLING;
+	}
     }
     private void doAir(SpriteMovement mov, WorldPhysics phys, TileMap map) {
 	if(mov.velocity.y < phys.fallmax) {

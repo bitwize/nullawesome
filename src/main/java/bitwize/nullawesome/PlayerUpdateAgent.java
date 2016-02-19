@@ -31,9 +31,11 @@ public class PlayerUpdateAgent implements UpdateAgent {
 		phys.gaccel = -0.2f;
 		phys.facingRight = false;
 	    }
-	    else if((pi.keyStatus & PlayerInfo.KEY_JUMP) != 0) {
+	    if((pi.keyStatus & PlayerInfo.KEY_JUMP) != 0) {
 		mov.position.y -= 2.0f;
 		mov.velocity.y = -3.f;
+		phys.gaccel = 0.f;
+		mov.acceleration.x = 0.f;
 		phys.state = WorldPhysics.State.FALLING;
 	    }
 	    else {
