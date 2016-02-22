@@ -24,22 +24,37 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	    mov = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
 	    phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
 	    if((pi.keyStatus & PlayerInfo.KEY_RIGHT) != 0) {
-		phys.gaccel = 0.2f;
-		phys.facingRight = true;
+		switch(phys.state) {
+		case GROUNDED:
+		    phys.gaccel = 0.2f;
+		    phys.facingRight = true;
+		    break;
+		case FALLING:
+		    phys.thrust.x = 0.04f;
+		    break;
+		}
 	    }
 	    else if((pi.keyStatus & PlayerInfo.KEY_LEFT) != 0) {
-		phys.gaccel = -0.2f;
-		phys.facingRight = false;
+		switch(phys.state) {
+		case GROUNDED:
+		    phys.gaccel = -0.2f;
+		    phys.facingRight = false;
+		    break;
+		case FALLING:
+		    phys.thrust.x = -0.04f;
+		    break;
+		}
 	    }
-	    if((pi.keyStatus & PlayerInfo.KEY_JUMP) != 0) {
+	    else {
+		phys.gaccel = 0.f;
+	    }
+	    if((phys.state == WorldPhysics.State.GROUNDED)
+	       && ((pi.keyStatus & PlayerInfo.KEY_JUMP) != 0)) {
 		mov.position.y -= 2.0f;
 		mov.velocity.y = -3.f;
 		phys.gaccel = 0.f;
 		mov.acceleration.x = 0.f;
 		phys.state = WorldPhysics.State.FALLING;
-	    }
-	    else {
-		phys.gaccel = 0.f;
 	    }
 	    shp.shapes = phys.facingRight ? rightBitmap : leftBitmap;
 	}

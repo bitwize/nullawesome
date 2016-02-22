@@ -34,6 +34,7 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	    phys.state = WorldPhysics.State.GROUNDED;
 	    mov.velocity.y = 0.f;
 	    mov.acceleration.y = 0.f;
+	    phys.thrust.set(0.f, 0.f);
 	    mov.position.y -= ((int)(mov.position.y + phys.radius) % TileMap.TILE_SIZE);
 	}
     }
