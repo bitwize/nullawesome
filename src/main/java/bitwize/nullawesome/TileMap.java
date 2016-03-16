@@ -52,9 +52,9 @@ public class TileMap {
 	b.eraseColor(Color.TRANSPARENT);
 	Canvas c = new Canvas(b);
 	Paint p = new Paint();
-	p.setColor(0xffffff00);
-	p.setStyle(Paint.Style.FILL);
-	c.drawRect(0, TILE_SIZE, TILE_SIZE, TILE_SIZE * 2, p);
+	p.setAntiAlias(false);
+	c.drawBitmap(ContentRepository.get().getBitmap("block1"), new Rect(0, 0, TILE_SIZE, TILE_SIZE),
+		     new Rect(0, TILE_SIZE, TILE_SIZE, TILE_SIZE * 2), p);
 	tm = new TileMap(b, 40, 25);
 	for(int i=0; i<40; i++) {
 	    tm.map[320+i] = 1;
