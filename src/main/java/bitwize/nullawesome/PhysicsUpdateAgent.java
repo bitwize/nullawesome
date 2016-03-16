@@ -1,5 +1,7 @@
 package bitwize.nullawesome;
 
+import android.util.Log;
+
 public class PhysicsUpdateAgent implements UpdateAgent {
     private EntityRepository repo;
     private EntityProcessor proc;
@@ -39,6 +41,32 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	}
     }
 
+    private void evictGround(SpriteMovement mov, WorldPhysics phys, TileMap map) {
+	// Test for collision with a solid piece of ground on either
+	// the left or right side and push the object out until the
+	// test fails, stopping horizontal movement in the process.
+
+	boolean collideLeft, collideRight;
+	collideLeft = ((map.getTileFlags(map.getTileWorldCoords(mov.position.x - (phys.radius * 0.6f), mov.position.y)) &
+			TileMap.FLAG_SOLID) != 0);
+	collideRight = ((map.getTileFlags(map.getTileWorldCoords(mov.position.x + (phys.radius * 0.6f), mov.position.y)) &
+			 TileMap.FLAG_SOLID) != 0);
+	if(collideLeft || collideRight) {
+	    mov.velocity.x = 0.f;
+	    mov.acceleration.x = 0.f;
+	    phys.gaccel = 0.f;
+	    phys.thrust.set(0.f, 0.f);
+	    float incr = collideRight ? -1.f : 1.f;
+	    while(collideLeft || collideRight) {
+		mov.position.x += incr;
+		collideLeft = ((map.getTileFlags(map.getTileWorldCoords(mov.position.x - (phys.radius * 0.6f), mov.position.y)) &
+				TileMap.FLAG_SOLID) != 0);
+		collideRight = ((map.getTileFlags(map.getTileWorldCoords(mov.position.x + (phys.radius * 0.6f), mov.position.y)) &
+				 TileMap.FLAG_SOLID) != 0);
+		Log.i("evictGround", "left: " + collideLeft + " right: " + collideRight);
+	    }
+	}
+    }
     public PhysicsUpdateAgent() {
 	repo = EntityRepository.get();
 	proc = new EntityProcessor() {
@@ -63,6 +91,7 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 			    doAir(mov, phys, info.map);
 			    break;
 			}
+			evictGround(mov, phys, info.map);
 		    }
 		}
 	    };

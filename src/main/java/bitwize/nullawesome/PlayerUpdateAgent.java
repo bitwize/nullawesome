@@ -51,7 +51,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	    if((phys.state == WorldPhysics.State.GROUNDED)
 	       && ((pi.keyStatus & PlayerInfo.KEY_JUMP) != 0)) {
 		mov.position.y -= 2.0f;
-		mov.velocity.y = -3.f;
+		mov.velocity.y = -4.f;
 		phys.gaccel = 0.f;
 		mov.acceleration.x = 0.f;
 		phys.state = WorldPhysics.State.FALLING;
