@@ -7,9 +7,31 @@ public class PlayerUpdateAgent implements UpdateAgent {
     private ContentRepository content = ContentRepository.get();
     private Bitmap rightBitmap;
     private Bitmap leftBitmap;
+    private SpriteShape standShape;
+    private SpriteShape walkShape;
     public PlayerUpdateAgent() {
 	rightBitmap = content.getBitmap("player_r");
 	leftBitmap = content.getBitmap("player_l");
+	standShape = SpriteShape.loadAnimation(content.getAnimation("player_stand"));
+	walkShape = SpriteShape.loadAnimation(content.getAnimation("player_walk"));
+    }
+
+    private void switchStanding(SpriteShape shp) {
+	if(shp.frames == standShape.frames) return;
+	shp.maxFrames = standShape.maxFrames;
+	shp.frames = standShape.frames;
+	shp.timings = standShape.timings;
+	shp.currentFrame = 0;
+	shp.currentTime = 0;
+    }
+
+    private void switchWalking(SpriteShape shp) {
+	if(shp.frames == walkShape.frames) return;
+	shp.maxFrames = standShape.maxFrames;
+	shp.frames = walkShape.frames;
+	shp.timings = walkShape.timings;
+	shp.currentFrame = 0;
+	shp.currentTime = 0;
     }
 
     public void update(long time) {
@@ -33,6 +55,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
 		    phys.thrust.x = 0.04f;
 		    break;
 		}
+		switchWalking(shp);
 	    }
 	    else if((pi.keyStatus & PlayerInfo.KEY_LEFT) != 0) {
 		switch(phys.state) {
@@ -44,9 +67,11 @@ public class PlayerUpdateAgent implements UpdateAgent {
 		    phys.thrust.x = -0.04f;
 		    break;
 		}
+		switchWalking(shp);
 	    }
 	    else {
 		phys.gaccel = 0.f;
+		switchStanding(shp);
 	    }
 	    if((phys.state == WorldPhysics.State.GROUNDED)
 	       && ((pi.keyStatus & PlayerInfo.KEY_JUMP) != 0)) {

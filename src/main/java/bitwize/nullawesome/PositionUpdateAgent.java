@@ -8,12 +8,30 @@ public class PositionUpdateAgent implements UpdateAgent {
 	proc = new EntityProcessor() {
 		public void process(int eid) {
 		    SpriteMovement mov;
+		    SpriteShape shp;
 		    try {
 			mov = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
 		    }
 		    catch(InvalidEntityException e) { return; }
 		    mov.position.offset(mov.velocity.x, mov.velocity.y);
 		    mov.velocity.offset(mov.acceleration.x, mov.acceleration.y);
+		    try {
+			shp = (SpriteShape)repo.getComponent(eid, SpriteShape.class);
+		    }
+		    catch(InvalidEntityException e) { return; }
+		    if(shp == null) return;
+		    if(shp.maxFrames > 0) {
+			int frameHeight = shp.shapes.getHeight() / shp.maxFrames;
+			shp.currentTime++;
+			if(shp.currentTime >= shp.timings[shp.currentFrame]) {
+			    shp.currentTime = 0;
+			    shp.currentFrame++;
+			    if(shp.currentFrame >= shp.frames.length) {
+				shp.currentFrame = 0;
+			    }
+			}
+			shp.subsection.set(0, shp.currentFrame * frameHeight, shp.shapes.getWidth(), (shp.currentFrame + 1) * frameHeight);
+		    }
 		}
 	    };
 

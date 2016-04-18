@@ -3,11 +3,17 @@ package bitwize.nullawesome;
 import android.graphics.*;
 import android.media.*;
 import android.content.Context;
+import android.content.res.Resources;
 import java.util.HashMap;
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import org.json.*;
 
 public class ContentRepository {
     private HashMap<String, Bitmap> bitmaps;
     private HashMap<String, Integer> sounds;
+    private HashMap<String, JSONObject> animations;
     private SoundPool spool;
     private Context ctx;
     private static ContentRepository theInstance;
@@ -15,6 +21,7 @@ public class ContentRepository {
 	ctx = c;
 	bitmaps = new HashMap<String, Bitmap>();
 	sounds = new HashMap<String, Integer>();
+	animations = new HashMap<String, JSONObject>();
 	spool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
     }
 
@@ -26,6 +33,10 @@ public class ContentRepository {
 
     public Bitmap getBitmap(String name) {
 	return bitmaps.get(name);
+    }
+
+    public JSONObject getAnimation(String name) {
+	return animations.get(name);
     }
 
     public int getSoundID(String name) {
@@ -45,6 +56,23 @@ public class ContentRepository {
 	sounds.put(name, spool.load(ctx, resID, 1));
     }
 
+    public void loadAnimation(String name, int resID)
+    {
+	try {
+	    byte[] buf = new byte[1024];
+	    InputStream strm = ctx.getResources().openRawResource(resID);
+	    ByteArrayOutputStream ostrm = new ByteArrayOutputStream(1024);
+	    while(strm.read(buf) > 0) {
+		ostrm.write(buf, 0, buf.length);
+	    }
+	    String s = ostrm.toString();
+	    JSONObject json = (JSONObject) new JSONTokener(s).nextValue();
+	    animations.put(name, json);	
+	}
+	catch(Exception e) {
+	    throw new RuntimeException(e);
+	}
+    }
     public void flipBitmap(String src, String dest) {
 	Bitmap b = bitmaps.get(src);
 	Matrix m = new Matrix();
