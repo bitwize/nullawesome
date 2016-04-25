@@ -29,23 +29,28 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	init();
     }
     private void init() {
-	buttonHitRect = new RectF();
-	this.getHolder().addCallback(this);
-	dagent = new DrawAgent(ragents);
-	dagent.setHolder(this.getHolder());
-	uagents.add(new PositionUpdateAgent());
-	uagents.add(new PhysicsUpdateAgent());
-	uagents.add(new PlayerUpdateAgent());
-	uagents.add(new CameraUpdateAgent());
-	ragents.add(new SceneryDisplayAgent(dagent));
-	ragents.add(new SpriteDisplayAgent(dagent));
-	ragents.add(new ButtonRenderAgent(dagent));
-	initStage();
-	initPlayer();
-	thr = new GameThread(dagent,uagents);
+	try {
+	    buttonHitRect = new RectF();
+	    this.getHolder().addCallback(this);
+	    dagent = new DrawAgent(ragents);
+	    dagent.setHolder(this.getHolder());
+	    uagents.add(new PositionUpdateAgent());
+	    uagents.add(new PhysicsUpdateAgent());
+	    uagents.add(new PlayerUpdateAgent());
+	    uagents.add(new CameraUpdateAgent());
+	    ragents.add(new SceneryDisplayAgent(dagent));
+	    ragents.add(new SpriteDisplayAgent(dagent));
+	    ragents.add(new ButtonRenderAgent(dagent));
+	    initStage();
+	    initPlayer();
+	    thr = new GameThread(dagent,uagents);
+	}
+	catch(Exception e) {
+	    throw new RuntimeException(e);
+	}
     }
 
-    private void initStage() {
+    private void initStage() throws InvalidEntityException {
 	try { stageEid = EntityRepository.get().newEntity(); }
 	catch(EntityTableFullException e) { return; }
 	StageInfo info = new StageInfo();
@@ -58,7 +63,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	EntityRepository.get().addComponent(stageEid, mv);
     }
 
-    private void initPlayer() {
+    private void initPlayer() throws InvalidEntityException {
 	try { playerEid = EntityRepository.get().newEntity(); }
 	catch(EntityTableFullException e) { return; }
 	WorldPhysics phys = new WorldPhysics();

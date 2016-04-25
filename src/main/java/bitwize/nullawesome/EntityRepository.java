@@ -39,7 +39,7 @@ public class EntityRepository {
 	return (componentArrays.get(kls))[eid];
     }
     
-    public int getNextEid() throws EntityTableFullException {
+    private int getNextEid() throws EntityTableFullException {
 	int marker = lastEid;
 	while(hasEntity(lastEid)) {
 	    lastEid++;
@@ -63,8 +63,12 @@ public class EntityRepository {
 	}
     }
 
-    public void addComponent(int eid, Object comp) {
+    public void addComponent(int eid, Object comp) 
+    throws InvalidEntityException {
 	Class<?> klass = comp.getClass();
+	if(!active.get(eid)) {
+	    throw new InvalidEntityException(eid);
+	}
 	if(!componentArrays.containsKey(klass)) {
 	    componentArrays.put(klass, new Object[MAX_ENTITIES]);
 	}
