@@ -61,4 +61,61 @@ public class EntityRepositoryTest {
 	EntityRepository.get().addComponent(42, tc);
     }
 
+    @Test
+    public void removeEntities() throws EntityTableFullException {
+	EntityRepository.createInstance();
+	for(int i=0; i<42; i++) {
+	    EntityRepository.get().newEntity();
+	}
+	assertTrue(EntityRepository.get().hasEntity(25));
+	EntityRepository.get().removeEntity(25);
+	assertFalse(EntityRepository.get().hasEntity(25));
+    }
+
+
+
+    // Test filling the entity table.
+    @Test(expected=EntityTableFullException.class)
+    public void fullEntityTable() throws EntityTableFullException {
+	EntityRepository.createInstance();
+	// first fill the entity table to the rim; the try/catch here
+	// will assert that the table gets filled without overflowing
+	// and raising an EntityTableFullException
+	try { 
+	    for(int i=0;i<EntityRepository.MAX_ENTITIES;i++) {
+		EntityRepository.get().newEntity();
+	    }
+	}
+	catch(EntityTableFullException e) {
+	    // wrap the exception before throwing so test will fail
+	    throw new RuntimeException(e);
+	}
+	// now add one more entity; this SHOULD fail
+	EntityRepository.get().newEntity();
+    }
+
+    // Test that "holes" in the entity table are properly filled once
+    // the current entity no. goes past MAX_ENTITIES.
+    @Test(expected=EntityTableFullException.class)
+    public void entityAllocWrapsAround() throws EntityTableFullException {
+    	EntityRepository.createInstance();
+    	int test = 1048;
+    	// first fill the entity table to the rim; the try/catch here
+    	// will assert that the table gets filled without overflowing
+    	// and raising an EntityTableFullException
+    	try { 
+    	    for(int i=0;i<EntityRepository.MAX_ENTITIES;i++) {
+    		EntityRepository.get().newEntity();
+    	    }
+    	}
+    	catch(EntityTableFullException e) {
+    	    // wrap the exception before throwing so test will fail
+    	    throw new RuntimeException(e);
+    	}
+	EntityRepository.get().removeEntity(test);
+	int newEid = EntityRepository.get().newEntity();
+	assertEquals(newEid, test);
+	EntityRepository.get().newEntity();
+    }
+
 }
