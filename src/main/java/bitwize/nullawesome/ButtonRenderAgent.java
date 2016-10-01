@@ -36,28 +36,28 @@ public class ButtonRenderAgent implements RenderAgent {
 	btnRect.right = (int)BUTTON_SIZE;
 	btnRect.bottom = (int)BUTTON_SIZE;
 	if((keyStatus & PlayerInfo.KEY_RIGHT) != 0) {
-	    dagent.drawSprite(c, pressedButtonBitmap, btnRect, rightButtonLoc);
+	    dagent.drawButton(c, pressedButtonBitmap, btnRect, rightButtonLoc);
 	} else {
-	    dagent.drawSprite(c, buttonBitmap, btnRect, rightButtonLoc);
+	    dagent.drawButton(c, buttonBitmap, btnRect, rightButtonLoc);
 	}
 	btnRect.offset(0, 64);
 	if((keyStatus & PlayerInfo.KEY_LEFT) != 0) {
-	    dagent.drawSprite(c, pressedButtonBitmap, btnRect, leftButtonLoc);
+	    dagent.drawButton(c, pressedButtonBitmap, btnRect, leftButtonLoc);
 	} else {
-	    dagent.drawSprite(c, buttonBitmap, btnRect, leftButtonLoc);
+	    dagent.drawButton(c, buttonBitmap, btnRect, leftButtonLoc);
 	}
 	btnRect.offset(0, 64);
 	if((keyStatus & PlayerInfo.KEY_JUMP) != 0) {
-	    dagent.drawSprite(c, pressedButtonBitmap, btnRect, jumpButtonLoc);
+	    dagent.drawButton(c, pressedButtonBitmap, btnRect, jumpButtonLoc);
 	} else {
-	    dagent.drawSprite(c, buttonBitmap, btnRect, jumpButtonLoc);
+	    dagent.drawButton(c, buttonBitmap, btnRect, jumpButtonLoc);
 	}
 	btnRect.left = 0;
 	btnRect.top = 0;
 	btnRect.right = (int)SMALL_BUTTON_SIZE;
 	btnRect.bottom = (int)SMALL_BUTTON_SIZE;
-	dagent.drawSprite(c, smallButtonBitmap, btnRect, hackButtonLoc);
+	dagent.drawButton(c, smallButtonBitmap, btnRect, hackButtonLoc);
 	btnRect.offset((int)SMALL_BUTTON_SIZE, 0);
-	dagent.drawSprite(c, smallButtonBitmap, btnRect, pauseButtonLoc);
+	dagent.drawButton(c, smallButtonBitmap, btnRect, pauseButtonLoc);
     }
 }

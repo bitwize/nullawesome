@@ -27,6 +27,7 @@ public class DrawAgent {
 	backBuffer = Bitmap.createBitmap(HRES, VRES, Bitmap.Config.ARGB_8888);
 	backBuffer.setDensity(Bitmap.DENSITY_NONE);
 	paint.setAntiAlias(false);
+	paint.setAlpha(255);
     }
     
     public void draw() {
@@ -72,6 +73,7 @@ public class DrawAgent {
 		int oy = j * TileMap.TILE_SIZE;
 		int ox = i * TileMap.TILE_SIZE;
 		short tile = map.getTile(i, j);
+		if(tile <= 0) continue;
 		src.left = 0;
 		src.top = TileMap.TILE_SIZE * tile;
 		src.right = TileMap.TILE_SIZE;
@@ -92,4 +94,10 @@ public class DrawAgent {
 	dst.bottom = dst.top + (subsection.bottom - subsection.top);
 	c.drawBitmap(b, subsection, dst, paint);
     }
+    public void drawButton(Canvas c, Bitmap b, Rect subsection, PointF location) {
+	paint.setAlpha(192);
+	drawSprite(c, b, subsection, location);
+	paint.setAlpha(255);
+    }
+
 }
