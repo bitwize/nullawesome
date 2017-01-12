@@ -27,8 +27,7 @@ public class ButtonRenderAgent implements RenderAgent {
 	int keyStatus = 0;
 	int playerEid = EntityRepository.get().findEntityWithComponent(PlayerInfo.class);
 	if(playerEid >= 0) {
-	    try { keyStatus = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class)).keyStatus; }
-	    catch(InvalidEntityException e) {}
+	    keyStatus = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class)).keyStatus;
 	}
 
 	btnRect.left = 0;

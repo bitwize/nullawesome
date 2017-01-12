@@ -14,10 +14,8 @@ public class CameraUpdateAgent implements UpdateAgent {
 
     private void moveCamera(int stageEid, int playerEid) {
 	SpriteMovement smov, pmov;
-	try {
-	    smov = (SpriteMovement)repo.getComponent(stageEid, SpriteMovement.class);
-	    pmov = (SpriteMovement)repo.getComponent(playerEid, SpriteMovement.class);
-	} catch(InvalidEntityException e) { return; }
+	smov = (SpriteMovement)repo.getComponent(stageEid, SpriteMovement.class);
+	pmov = (SpriteMovement)repo.getComponent(playerEid, SpriteMovement.class);
 	if(smov == null || pmov == null) return;
 	if(pmov.position.x > smov.position.x + windowRight) {
 	    smov.position.x = pmov.position.x - windowRight;

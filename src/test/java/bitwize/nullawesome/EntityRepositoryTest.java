@@ -45,11 +45,12 @@ public class EntityRepositoryTest {
 	assertEquals(tc.value, 39);
     }
 
-    // Test that repository barfs upon retrieval of invalid EID.
-    @Test(expected=InvalidEntityException.class)
-    public void fetchInvalidEid() throws InvalidEntityException {
+    // Test that repository returns null upon retrieval of invalid EID.
+    @Test
+    public void fetchInvalidEid() {
 	EntityRepository.createInstance();
-	EntityRepository.get().getComponent(42,TestComponent.class);
+	TestComponent tc = (TestComponent)EntityRepository.get().getComponent(42,TestComponent.class);
+	assertTrue(tc == null);
     }
 
     // Test that repository barfs upon attempted add to invalid EID.
@@ -116,6 +117,30 @@ public class EntityRepositoryTest {
 	int newEid = EntityRepository.get().newEntity();
 	assertEquals(newEid, test);
 	EntityRepository.get().newEntity();
+    }
+
+    @Test
+    public void entityFinding() throws EntityTableFullException {
+    	EntityRepository.createInstance();
+	int test = 75;
+	for(int i=0; i<test; i++) {
+	    EntityRepository.get().newEntity();
+	}
+	int i = insertTestComponent();
+	int j = EntityRepository.get().findEntityWithComponent(TestComponent.class);
+	assertEquals(j, i);
+    }
+
+    @Test
+    public void entityProcessing() throws EntityTableFullException {
+    	EntityRepository.createInstance();
+	EntityRepository repo = EntityRepository.get();
+	int ent0 = repo.newEntity();
+	int ent1 = repo.newEntity();
+	int ent2 = repo.newEntity();
+	int ent3 = repo.newEntity();
+	TestComponent tc1 = new TestComponent();
+	TestComponent tc2 = new TestComponent();
     }
 
 }

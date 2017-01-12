@@ -4,27 +4,29 @@ import android.graphics.*;
 import android.util.Log;
 public class SceneryDisplayAgent implements RenderAgent {
     public DrawAgent dagent;
-    private EntityRepository repo;
     private EntityProcessor proc;
+    private EntityRepository repo;
     private Point where;
     private Canvas cvs;
-    public SceneryDisplayAgent(DrawAgent a) {
+    private int myEid;
+    public SceneryDisplayAgent(DrawAgent a,int eid) {
 	dagent = a;
 	repo = EntityRepository.get();
 	where = new Point();
+	myEid = eid;
+	StageInfo info = (StageInfo)repo.getComponent(myEid, StageInfo.class);
 	proc = new EntityProcessor() {
 		public void process(int eid) {
-		    try {
-			StageInfo info = (StageInfo)repo.getComponent(eid, StageInfo.class);
-			SpriteMovement mv = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
-			where.set((int)mv.position.x, (int)mv.position.y);
-			dagent.drawMap(cvs, info.map, where);
-		    } catch(InvalidEntityException e) {}
+		    StageInfo info = (StageInfo)repo.getComponent(eid, StageInfo.class);
+		    SpriteMovement mv = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
+		    if(info == null || mv == null) return;
+		    where.set((int)mv.position.x, (int)mv.position.y);
+		    dagent.drawMap(cvs, info.map, where);
 		}
 	    };
     }
     public void drawOn(Canvas c) {
 	cvs = c;
-	repo.processEntitiesWithComponent(StageInfo.class, proc);
+	proc.process(myEid);
     }
 }

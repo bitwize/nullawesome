@@ -32,17 +32,17 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	try {
 	    buttonHitRect = new RectF();
 	    this.getHolder().addCallback(this);
+	    initStage();
+	    initPlayer();
 	    dagent = new DrawAgent(ragents);
 	    dagent.setHolder(this.getHolder());
 	    uagents.add(new PositionUpdateAgent());
 	    uagents.add(new PhysicsUpdateAgent());
 	    uagents.add(new PlayerUpdateAgent());
 	    uagents.add(new CameraUpdateAgent());
-	    ragents.add(new SceneryDisplayAgent(dagent));
+	    ragents.add(new SceneryDisplayAgent(dagent, stageEid));
 	    ragents.add(new SpriteDisplayAgent(dagent));
 	    ragents.add(new ButtonRenderAgent(dagent));
-	    initStage();
-	    initPlayer();
 	    thr = new GameThread(dagent,uagents);
 	}
 	catch(Exception e) {
@@ -53,8 +53,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     private void initStage() throws InvalidEntityException {
 	try { stageEid = EntityRepository.get().newEntity(); }
 	catch(EntityTableFullException e) { return; }
-	StageInfo info = new StageInfo();
-	info.map = TileMap.getTestMap();
+	StageInfo info = StageInfo.getTestInfo();
 	SpriteMovement mv = new SpriteMovement();
 	mv.position = new PointF();
 	mv.velocity = new PointF();
@@ -78,6 +77,10 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	phys.state = WorldPhysics.State.GROUNDED;
 	phys.gvelmax = 2.f;
 	phys.radius = 16;
+	phys.hitbox.left = -10;
+	phys.hitbox.top = -16;
+	phys.hitbox.right = 10;
+	phys.hitbox.bottom = 16;
 	EntityRepository.get().addComponent(playerEid, shp);
 	EntityRepository.get().addComponent(playerEid, mv);
 	EntityRepository.get().addComponent(playerEid, phys);
@@ -98,10 +101,8 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     public boolean onTouchEvent(MotionEvent ev) {
 	int a = 0;
 	PlayerInfo pi;
-	try {
-	    pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
-	}
-	catch(InvalidEntityException e) {return true;}
+	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
+	if(pi == null) return true;
 	if((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
 	   (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN ||
 	   (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE ||

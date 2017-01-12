@@ -28,10 +28,9 @@ public class EntityRepository {
 	return active.get(eid);
     }
 
-    public Object getComponent(int eid, Class<?> kls)
-	throws InvalidEntityException {
+    public Object getComponent(int eid, Class<?> kls) {
 	if(!active.get(eid)) {
-	    throw new InvalidEntityException(eid);
+	    return null;
 	}
 	if(!(componentArrays.containsKey(kls))) {
 	    return null;

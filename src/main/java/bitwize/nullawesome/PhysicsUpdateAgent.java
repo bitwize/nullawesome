@@ -39,6 +39,13 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	    phys.thrust.set(0.f, 0.f);
 	    mov.position.y -= ((int)(mov.position.y + phys.radius) % TileMap.TILE_SIZE);
 	}
+	if((map.getTileFlags(map.getTileWorldCoords(mov.position.x, mov.position.y - phys.radius)) &
+	    TileMap.FLAG_SOLID) != 0) {
+	    mov.velocity.y = 0.f;
+	    mov.acceleration.y = 0.f;
+	    phys.thrust.set(0.f, 0.f);
+	    mov.position.y += TileMap.TILE_SIZE - ((int)(mov.position.y - phys.radius) % TileMap.TILE_SIZE);
+	}
     }
 
     private void evictGround(SpriteMovement mov, WorldPhysics phys, TileMap map) {
@@ -47,24 +54,33 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	// test fails, stopping horizontal movement in the process.
 
 	boolean collideLeft, collideRight;
-	collideLeft = ((map.getTileFlags(map.getTileWorldCoords(mov.position.x - (phys.radius * 0.6f), mov.position.y)) &
+	float offset = phys.radius * 0.6f;
+	collideLeft = ((map.getTileFlags(map.getTileWorldCoords(mov.position.x - offset, mov.position.y)) &
 			TileMap.FLAG_SOLID) != 0);
-	collideRight = ((map.getTileFlags(map.getTileWorldCoords(mov.position.x + (phys.radius * 0.6f), mov.position.y)) &
+	collideRight = ((map.getTileFlags(map.getTileWorldCoords(mov.position.x + offset, mov.position.y)) &
 			 TileMap.FLAG_SOLID) != 0);
-	if(collideLeft || collideRight) {
+	if((collideLeft && (mov.velocity.x < 0.f)) || (collideRight && (mov.velocity.x > 0.f))) {
 	    mov.velocity.x = 0.f;
 	    mov.acceleration.x = 0.f;
 	    phys.gaccel = 0.f;
 	    phys.thrust.set(0.f, 0.f);
-	    float incr = collideRight ? -1.f : 1.f;
+	    if(collideLeft) {
+		mov.position.x -= ((int)(mov.position.x - offset) % TileMap.TILE_SIZE);
+		mov.position.x += TileMap.TILE_SIZE;
+	    }
+	    else {
+		mov.position.x -= ((int)(mov.position.x + offset) % TileMap.TILE_SIZE);
+	    }
+	    /*
 	    while(collideLeft || collideRight) {
 		mov.position.x += incr;
-		collideLeft = ((map.getTileFlags(map.getTileWorldCoords(mov.position.x - (phys.radius * 0.6f), mov.position.y)) &
+		collideLeft = ((map.getTileFlags(map.getTileWorldCoords(mov.position.x - offset + 1, mov.position.y)) &
 				TileMap.FLAG_SOLID) != 0);
-		collideRight = ((map.getTileFlags(map.getTileWorldCoords(mov.position.x + (phys.radius * 0.6f), mov.position.y)) &
+		collideRight = ((map.getTileFlags(map.getTileWorldCoords(mov.position.x + offset - 1, mov.position.y)) &
 				 TileMap.FLAG_SOLID) != 0);
-		Log.i("evictGround", "left: " + collideLeft + " right: " + collideRight);
 	    }
+	    mov.position.x -= incr;
+	    */
 	}
     }
     public PhysicsUpdateAgent() {
@@ -74,25 +90,20 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 		    SpriteMovement mov;
 		    WorldPhysics phys;
 		    StageInfo info = null;
-		    try {
-			mov = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
-			phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
-			if(phys != null) info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
+		    mov = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
+		    phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
+		    if(mov == null || phys == null) return;
+		    info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
+		    if(info == null) return;
+		    switch(phys.state) {
+		    case GROUNDED:
+			doGrounded(mov, phys, info.map);
+			break;
+		    case FALLING:
+			doAir(mov, phys, info.map);
+			break;
 		    }
-		    catch(InvalidEntityException e) { return; }
-		    if(mov == null) return;
-		    if(phys != null) {
-			if(info == null) return;
-			switch(phys.state) {
-			case GROUNDED:
-			    doGrounded(mov, phys, info.map);
-			    break;
-			case FALLING:
-			    doAir(mov, phys, info.map);
-			    break;
-			}
-			evictGround(mov, phys, info.map);
-		    }
+		    evictGround(mov, phys, info.map);
 		}
 	    };
     }

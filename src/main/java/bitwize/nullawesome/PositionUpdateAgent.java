@@ -9,16 +9,11 @@ public class PositionUpdateAgent implements UpdateAgent {
 		public void process(int eid) {
 		    SpriteMovement mov;
 		    SpriteShape shp;
-		    try {
-			mov = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
-		    }
-		    catch(InvalidEntityException e) { return; }
+		    mov = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
+		    if(mov == null) return;
 		    mov.position.offset(mov.velocity.x, mov.velocity.y);
 		    mov.velocity.offset(mov.acceleration.x, mov.acceleration.y);
-		    try {
-			shp = (SpriteShape)repo.getComponent(eid, SpriteShape.class);
-		    }
-		    catch(InvalidEntityException e) { return; }
+		    shp = (SpriteShape)repo.getComponent(eid, SpriteShape.class);
 		    if(shp == null) return;
 		    if(shp.maxFrames > 0) {
 			int frameHeight = shp.shapes.getHeight() / shp.maxFrames;
