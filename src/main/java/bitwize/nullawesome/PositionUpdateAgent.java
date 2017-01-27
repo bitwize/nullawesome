@@ -25,7 +25,13 @@ public class PositionUpdateAgent implements UpdateAgent {
 				shp.currentFrame = 0;
 			    }
 			}
-			shp.subsection.set(0, shp.currentFrame * frameHeight, shp.shapes.getWidth(), (shp.currentFrame + 1) * frameHeight);
+			
+			// Update the sprite's current shape with the
+			// rectangle corresponding to the current
+			// frame.
+
+			shp.subsection.set(0, shp.frames[shp.currentFrame] * frameHeight, 
+					   shp.shapes.getWidth(), (shp.frames[shp.currentFrame] + 1) * frameHeight);
 		    }
 		}
 	    };

@@ -1,6 +1,6 @@
 {
     "shapeName": "player_r",
     "maxFrames": 8,
-    "frames": [0],
+    "frames": [7],
     "timings": [6]
 }

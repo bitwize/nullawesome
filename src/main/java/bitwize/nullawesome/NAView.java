@@ -38,7 +38,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    dagent.setHolder(this.getHolder());
 	    uagents.add(new PositionUpdateAgent());
 	    uagents.add(new PhysicsUpdateAgent());
-	    uagents.add(new PlayerUpdateAgent());
+	    uagents.add(new PlayerUpdateAgent(playerEid));
 	    uagents.add(new CameraUpdateAgent());
 	    ragents.add(new SceneryDisplayAgent(dagent, stageEid));
 	    ragents.add(new SpriteDisplayAgent(dagent));
