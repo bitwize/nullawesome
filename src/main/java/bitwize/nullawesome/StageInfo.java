@@ -18,13 +18,15 @@ import java.io.IOException;
  */
 
 public class StageInfo {
-
-    public static final int TILE_EMPTY = 0;
-    public static final int TILE_GROUND = 1;
+	
+	public enum RegionType {
+		EMPTY,
+		GROUND
+	}
 
     public int width, height;
     public Rect[] regions;
-    public int[] regionTypes;
+    public StageInfo.RegionType[] regionTypes;
     public Point[] thingLocations;
     public int[] thingTypes;
     public String tileImageName;
@@ -38,7 +40,9 @@ public class StageInfo {
 	    info.height = o.getInt("height");
 	    info.tileImageName = o.getString("tileImageName");
 	    info.regions = new Rect[regionsArray.length()];
-	    info.regionTypes = new int[regionsArray.length()];
+	    info.regionTypes = new StageInfo.RegionType[regionsArray.length()];
+	    info.thingLocations = new Point[thingsArray.length()];
+	    info.thingTypes = new int[thingsArray.length()];
 	    for(int i=0; i<info.regions.length;i++) {
 		JSONObject rgnobj = regionsArray.getJSONObject(i);
 		int l = rgnobj.getInt("left");
@@ -57,8 +61,16 @@ public class StageInfo {
  		info.regions[i].top = t;
  		info.regions[i].right = r;
  		info.regions[i].bottom = b;
-		info.regionTypes[i] = rgnobj.getInt("type");
+		info.regionTypes[i] =
+			StageInfo.RegionType.values()[rgnobj.getInt("type")];
 		info.map = TileMap.createFromInfo(info);
+	    }
+	    for(int i=0; i<info.thingLocations.length;i++) {
+		    JSONObject thingObj = thingsArray.getJSONObject(i);
+		    info.thingLocations[i] = new Point();
+		    info.thingLocations[i].x = thingObj.getInt("x");
+		    info.thingLocations[i].y = thingObj.getInt("y");
+		    info.thingTypes[i] = thingObj.getInt("type");
 	    }
 	}
 	catch(JSONException je) {

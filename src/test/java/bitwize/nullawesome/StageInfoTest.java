@@ -24,11 +24,11 @@ public class StageInfoTest {
 	assertEquals(8, info.regions[0].top);
 	assertEquals(40, info.regions[0].right);
 	assertEquals(10, info.regions[0].bottom);
-	assertEquals(1, info.regionTypes[0]);
+	assertEquals(StageInfo.RegionType.GROUND, info.regionTypes[0]);
 	assertEquals(12, info.regions[1].left);
 	assertEquals(6, info.regions[1].top);
 	assertEquals(14, info.regions[1].right);
 	assertEquals(8, info.regions[1].bottom);
-	assertEquals(1, info.regionTypes[1]);
+	assertEquals(StageInfo.RegionType.GROUND, info.regionTypes[1]);
     }
 }

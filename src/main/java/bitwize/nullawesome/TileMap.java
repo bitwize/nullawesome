@@ -46,19 +46,19 @@ public class TileMap {
 	return tileImage;
     }
 
-    private void fillRect(Rect r, int type) {
+    private void fillRect(Rect r, StageInfo.RegionType type) {
 	Rect r2 = new Rect(r);
 	boolean result = r2.intersect(0, 0, width, height);
 	if(!result) return;
 	switch(type) {
-	case StageInfo.TILE_EMPTY:
+	case EMPTY:
 	    for(int j=r2.top; j<r2.bottom; j++) {
 		for(int i=r2.left; i<r2.right; i++) {
 		    map[j * width + i] = 0;
 		}
 	    }
 	    break;
-	case StageInfo.TILE_GROUND:
+	case GROUND:
 	    for(int j=r2.top; j<r2.bottom; j++) {
 		for(int i=r2.left; i<r2.right; i++) {
 		    map[j * width + i] = 1;
@@ -96,7 +96,8 @@ public class TileMap {
 			     info.width, info.height);
 	}
 	for(int i=0; i<info.regions.length; i++) {
-	    tm.fillRect(info.regions[i], info.regionTypes[i]);
+	    tm.fillRect(info.regions[i],
+			info.regionTypes[i]);
 	}
 	tm.tileFlags[1] = FLAG_SOLID;
 	return tm;
