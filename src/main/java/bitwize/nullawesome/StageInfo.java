@@ -19,18 +19,35 @@ import java.io.IOException;
 
 public class StageInfo {
 	
-	public enum RegionType {
-		EMPTY,
-		GROUND
-	}
-
+    public enum RegionType {
+	EMPTY,
+	GROUND
+    }
+    
+    public enum ThingType {
+	CONTROL_NODE,
+	DATA_TERMINAL,
+	DOOR_SLIDE,
+	ELEV_LR,
+	ELEV_UD
+    }
+	
     public int width, height;
     public Rect[] regions;
     public StageInfo.RegionType[] regionTypes;
     public Point[] thingLocations;
-    public int[] thingTypes;
+    public StageInfo.ThingType[] thingTypes;
+    public int[] thingIds;
     public String tileImageName;
     public TileMap map;
+
+    public void populateThing(EntityRepository repo,
+			      int eid,
+			      int thingIndex) {
+	// TODO: dispatch on thing type and populate the entity with
+	// appropriate components
+    }
+
     public static StageInfo loadStage(JSONObject o) {
 	StageInfo info = new StageInfo();
 	try {
@@ -42,7 +59,8 @@ public class StageInfo {
 	    info.regions = new Rect[regionsArray.length()];
 	    info.regionTypes = new StageInfo.RegionType[regionsArray.length()];
 	    info.thingLocations = new Point[thingsArray.length()];
-	    info.thingTypes = new int[thingsArray.length()];
+	    info.thingTypes = new StageInfo.ThingType[thingsArray.length()];
+	    info.thingIds = new int[thingsArray.length()];
 	    for(int i=0; i<info.regions.length;i++) {
 		JSONObject rgnobj = regionsArray.getJSONObject(i);
 		int l = rgnobj.getInt("left");
@@ -70,7 +88,9 @@ public class StageInfo {
 		    info.thingLocations[i] = new Point();
 		    info.thingLocations[i].x = thingObj.getInt("x");
 		    info.thingLocations[i].y = thingObj.getInt("y");
-		    info.thingTypes[i] = thingObj.getInt("type");
+		    info.thingTypes[i] =
+			    StageInfo.ThingType.values()[thingObj.getInt("type")];
+		    info.thingIds[i] = thingObj.getInt("id");
 	    }
 	}
 	catch(JSONException je) {
