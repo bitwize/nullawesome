@@ -16,6 +16,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     private DrawAgent dagent;
     private GameThread thr;
     private RectF buttonHitRect;
+    private InputState inputState;
     private ArrayList<UpdateAgent> uagents = new ArrayList<UpdateAgent>();
     private ArrayList<RenderAgent> ragents = new ArrayList<RenderAgent>();
     public NAView(Context ctx) {
@@ -30,6 +31,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     }
     private void init() {
 	try {
+	    inputState = InputState.MOVEMENT;
 	    buttonHitRect = new RectF();
 	    this.getHolder().addCallback(this);
 	    initStage();
@@ -97,58 +99,61 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 	synchronized(thr) { dagent.draw(); }
     }
+
+    private int checkButtonPress(MotionEvent ev, float left, float top, float xSize, float ySize, int buttonBit) {
+	buttonHitRect.left = left;
+	buttonHitRect.top = top;
+	buttonHitRect.right = left + xSize;
+	buttonHitRect.bottom = top + ySize;
+	scaleRectToScreen(buttonHitRect);
+	for(int i=0;i<ev.getPointerCount();i++) {
+	    if((((ev.getAction() & MotionEvent.ACTION_MASK) != MotionEvent.ACTION_POINTER_UP) ||
+		(((ev.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT)
+		 != i)) &&
+	       buttonHitRect.contains((float)ev.getX(i), (float)ev.getY(i))) {
+		return buttonBit;
+	    }
+	}
+	return 0;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
 	int a = 0;
 	PlayerInfo pi;
 	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
 	if(pi == null) return true;
-	if((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
-	   (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN ||
-	   (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE ||
-	   (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_UP) {
-	    buttonHitRect.left = ButtonRenderAgent.leftButtonLoc.x;
-	    buttonHitRect.top = ButtonRenderAgent.leftButtonLoc.y;
-	    buttonHitRect.right = buttonHitRect.left + ButtonRenderAgent.BUTTON_SIZE;
-	    buttonHitRect.bottom = buttonHitRect.top + ButtonRenderAgent.BUTTON_SIZE;
-	    scaleRectToScreen(buttonHitRect);
-	    for(int i=0;i<ev.getPointerCount();i++) {
-		if((((ev.getAction() & MotionEvent.ACTION_MASK) != MotionEvent.ACTION_POINTER_UP) ||
-		    (((ev.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT)
-		     != i)) &&
-		   buttonHitRect.contains((float)ev.getX(i), (float)ev.getY(i))) {
-		    a |= PlayerInfo.KEY_LEFT;
-		}
+
+	switch(inputState) {
+	case MOVEMENT:
+	    if((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
+	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN ||
+	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE ||
+	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_UP) {
+		a |= checkButtonPress(ev,
+				      ButtonRenderAgent.leftButtonLoc.x,
+				      ButtonRenderAgent.leftButtonLoc.y,
+				      ButtonRenderAgent.BUTTON_SIZE,
+				      ButtonRenderAgent.BUTTON_SIZE,
+				      PlayerInfo.KEY_LEFT);
+		a |= checkButtonPress(ev,
+				      ButtonRenderAgent.rightButtonLoc.x,
+				      ButtonRenderAgent.rightButtonLoc.y,
+				      ButtonRenderAgent.BUTTON_SIZE,
+				      ButtonRenderAgent.BUTTON_SIZE,
+				      PlayerInfo.KEY_RIGHT);
+		a |= checkButtonPress(ev,
+				      ButtonRenderAgent.jumpButtonLoc.x,
+				      ButtonRenderAgent.jumpButtonLoc.y,
+				      ButtonRenderAgent.BUTTON_SIZE,
+				      ButtonRenderAgent.BUTTON_SIZE,
+				      PlayerInfo.KEY_JUMP);
 	    }
-	    buttonHitRect.left = ButtonRenderAgent.rightButtonLoc.x;
-	    buttonHitRect.top = ButtonRenderAgent.rightButtonLoc.y;
-	    buttonHitRect.right = buttonHitRect.left + ButtonRenderAgent.BUTTON_SIZE;
-	    buttonHitRect.bottom = buttonHitRect.top + ButtonRenderAgent.BUTTON_SIZE;
-	    scaleRectToScreen(buttonHitRect);
-	    for(int i=0;i<ev.getPointerCount();i++) {
-		if((((ev.getAction() & MotionEvent.ACTION_MASK) != MotionEvent.ACTION_POINTER_UP) ||
-		    (((ev.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT)
-		     != i)) &&
-		   buttonHitRect.contains((float)ev.getX(i), (float)ev.getY(i))) {
-		    a |= PlayerInfo.KEY_RIGHT;
-		}
-	    }
-	    buttonHitRect.left = ButtonRenderAgent.jumpButtonLoc.x;
-	    buttonHitRect.top = ButtonRenderAgent.jumpButtonLoc.y;
-	    buttonHitRect.right = buttonHitRect.left + ButtonRenderAgent.BUTTON_SIZE;
-	    buttonHitRect.bottom = buttonHitRect.top + ButtonRenderAgent.BUTTON_SIZE;
-	    scaleRectToScreen(buttonHitRect);
-	    for(int i=0;i<ev.getPointerCount();i++) {
-		if((((ev.getAction() & MotionEvent.ACTION_MASK) != MotionEvent.ACTION_POINTER_UP) ||
-		    (((ev.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT)
-		     != i)) &&
-		   buttonHitRect.contains((float)ev.getX(i), (float)ev.getY(i))) {
-		    a |= PlayerInfo.KEY_JUMP;
-		}
-	    }
+	    pi.keyStatus = a;
+	    return true;
+	default:
+	    return true;
 	}
-	pi.keyStatus = a;
-	return true;
     }
     
     private void scaleRectToScreen(RectF r) {

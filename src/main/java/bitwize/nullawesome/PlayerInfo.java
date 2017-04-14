@@ -19,5 +19,6 @@ public class PlayerInfo {
     public static final int JUMPED = 1;
 
     public int keyStatus;
+    public InputState inputState;
     public int flags;
 }
