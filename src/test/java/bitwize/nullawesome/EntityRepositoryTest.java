@@ -53,15 +53,6 @@ public class EntityRepositoryTest {
 	assertTrue(tc == null);
     }
 
-    // Test that repository barfs upon attempted add to invalid EID.
-    @Test(expected=InvalidEntityException.class)
-    public void addToInvalidEid() throws InvalidEntityException {
-	EntityRepository.createInstance();
-	TestComponent tc = new TestComponent();
-	tc.value = 39;
-	EntityRepository.get().addComponent(42, tc);
-    }
-
     @Test
     public void removeEntities() throws EntityTableFullException {
 	EntityRepository.createInstance();
