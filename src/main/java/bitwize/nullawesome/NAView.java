@@ -16,7 +16,6 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     private DrawAgent dagent;
     private GameThread thr;
     private RectF buttonHitRect;
-    private InputState inputState;
     private ArrayList<UpdateAgent> uagents = new ArrayList<UpdateAgent>();
     private ArrayList<RenderAgent> ragents = new ArrayList<RenderAgent>();
     public NAView(Context ctx) {
@@ -31,7 +30,6 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     }
     private void init() {
 	try {
-	    inputState = InputState.MOVEMENT;
 	    buttonHitRect = new RectF();
 	    this.getHolder().addCallback(this);
 	    initStage();
@@ -124,7 +122,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
 	if(pi == null) return true;
 
-	switch(inputState) {
+	switch(pi.inputState) {
 	case MOVEMENT:
 	    if((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
 	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN ||
@@ -148,6 +146,26 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 				      ButtonRenderAgent.BUTTON_SIZE,
 				      ButtonRenderAgent.BUTTON_SIZE,
 				      PlayerInfo.KEY_JUMP);
+		a |= checkButtonPress(ev,
+				      ButtonRenderAgent.hackButtonLoc.x,
+				      ButtonRenderAgent.hackButtonLoc.y,
+				      ButtonRenderAgent.BUTTON_SIZE,
+				      ButtonRenderAgent.BUTTON_SIZE,
+				      PlayerInfo.KEY_HACK);
+	    }
+	    pi.keyStatus = a;
+	    return true;
+	case HACKING:
+	    if((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
+	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN ||
+	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE ||
+	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_UP) {
+		a |= checkButtonPress(ev,
+				      ButtonRenderAgent.backButtonLoc.x,
+				      ButtonRenderAgent.backButtonLoc.y,
+				      ButtonRenderAgent.BUTTON_SIZE,
+				      ButtonRenderAgent.BUTTON_SIZE,
+				      PlayerInfo.KEY_BACK);
 	    }
 	    pi.keyStatus = a;
 	    return true;

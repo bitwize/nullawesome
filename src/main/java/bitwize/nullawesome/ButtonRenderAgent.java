@@ -7,6 +7,7 @@ public class ButtonRenderAgent implements RenderAgent {
     public static PointF rightButtonLoc = new PointF(96, 240);
     public static PointF jumpButtonLoc = new PointF(400, 240);
     public static PointF pauseButtonLoc = new PointF(432, 0);
+    public static PointF backButtonLoc = new PointF(0, 0);
     public static PointF hackButtonLoc = new PointF(336, 256);
     public static float BUTTON_SIZE = 64.f;
     public static float SMALL_BUTTON_SIZE = 48.f;
@@ -23,13 +24,7 @@ public class ButtonRenderAgent implements RenderAgent {
 	dagent = a;
 	btnRect = new Rect();
     }
-    public void drawOn(Canvas c) {
-	int keyStatus = 0;
-	int playerEid = EntityRepository.get().findEntityWithComponent(PlayerInfo.class);
-	if(playerEid >= 0) {
-	    keyStatus = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class)).keyStatus;
-	}
-
+    public void drawMovementControls(Canvas c, int keyStatus) {
 	btnRect.left = 0;
 	btnRect.top = 0;
 	btnRect.right = (int)BUTTON_SIZE;
@@ -58,5 +53,23 @@ public class ButtonRenderAgent implements RenderAgent {
 	dagent.drawButton(c, smallButtonBitmap, btnRect, hackButtonLoc);
 	btnRect.offset((int)SMALL_BUTTON_SIZE, 0);
 	dagent.drawButton(c, smallButtonBitmap, btnRect, pauseButtonLoc);
+    }
+    public void drawHackingControls(Canvas c) {
+    }
+    public void drawOn(Canvas c) {
+	int keyStatus = 0;
+	PlayerInfo pi;
+	int playerEid = EntityRepository.get().findEntityWithComponent(PlayerInfo.class);
+	if(playerEid < 0) {
+	    return;
+	}
+	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
+	keyStatus = pi.keyStatus;
+	switch(pi.inputState) {
+	case MOVEMENT:
+	    drawMovementControls(c, keyStatus);
+	case HACKING:
+	    drawHackingControls(c);
+	}
     }
 }

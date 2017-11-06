@@ -9,7 +9,7 @@ public class PlayerInfo {
     public static final int KEY_JUMP = 4;
     public static final int KEY_HACK = 8;
     public static final int KEY_PAUSE = 16;
-
+    public static final int KEY_BACK = 128;
     // Player flag values
 
     //   Flag to track whether a jump was already made per jump button
@@ -18,7 +18,7 @@ public class PlayerInfo {
 
     public static final int JUMPED = 1;
 
-    public int keyStatus;
-    public InputState inputState;
-    public int flags;
+    public int keyStatus = 0;
+    public InputState inputState = InputState.MOVEMENT;
+    public int flags = 0;
 }
