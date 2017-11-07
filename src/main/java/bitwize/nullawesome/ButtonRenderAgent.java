@@ -47,14 +47,19 @@ public class ButtonRenderAgent implements RenderAgent {
 	    dagent.drawButton(c, buttonBitmap, btnRect, jumpButtonLoc);
 	}
 	btnRect.left = 0;
-	btnRect.top = 0;
+	btnRect.top = (int)SMALL_BUTTON_SIZE;
 	btnRect.right = (int)SMALL_BUTTON_SIZE;
-	btnRect.bottom = (int)SMALL_BUTTON_SIZE;
+	btnRect.bottom = (int)SMALL_BUTTON_SIZE * 2;
 	dagent.drawButton(c, smallButtonBitmap, btnRect, hackButtonLoc);
 	btnRect.offset((int)SMALL_BUTTON_SIZE, 0);
 	dagent.drawButton(c, smallButtonBitmap, btnRect, pauseButtonLoc);
     }
     public void drawHackingControls(Canvas c) {
+	btnRect.left = (int)SMALL_BUTTON_SIZE * 2;
+	btnRect.top = (int)SMALL_BUTTON_SIZE;
+	btnRect.right = (int)SMALL_BUTTON_SIZE * 3;
+	btnRect.bottom = (int)SMALL_BUTTON_SIZE * 2;
+	dagent.drawButton(c, smallButtonBitmap, btnRect, backButtonLoc);
     }
     public void drawOn(Canvas c) {
 	int keyStatus = 0;
@@ -68,8 +73,10 @@ public class ButtonRenderAgent implements RenderAgent {
 	switch(pi.inputState) {
 	case MOVEMENT:
 	    drawMovementControls(c, keyStatus);
+	    break;
 	case HACKING:
 	    drawHackingControls(c);
+	    break;
 	}
     }
 }
