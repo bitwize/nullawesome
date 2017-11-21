@@ -34,6 +34,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    this.getHolder().addCallback(this);
 	    initStage();
 	    initPlayer();
+	    initTestTarget();
 	    dagent = new DrawAgent(ragents);
 	    dagent.setHolder(this.getHolder());
 	    uagents.add(new PositionUpdateAgent());
@@ -86,7 +87,30 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	EntityRepository.get().addComponent(playerEid, phys);
 	EntityRepository.get().addComponent(playerEid, pli);
     }
+    private void initTestTarget() throws InvalidEntityException {
+	int targetEid;
+	try { targetEid = EntityRepository.get().newEntity(); }
+	catch(EntityTableFullException e) { return; }
+	WorldPhysics phys = new WorldPhysics();
+	SpriteMovement mv = new SpriteMovement();
+	HackTarget ht = new HackTarget();
+	ht.width = 64;
+	ht.height = 64;
+	mv.position.set(150, 240);
+	mv.hotspot.set(16, 16);
+	phys.stageEid = stageEid;
+	phys.state = WorldPhysics.State.GROUNDED;
+	phys.gvelmax = 2.f;
+	phys.radius = 16;
+	phys.hitbox.left = -10;
+	phys.hitbox.top = -16;
+	phys.hitbox.right = 10;
+	phys.hitbox.bottom = 16;
+	EntityRepository.get().addComponent(targetEid, mv);
+	EntityRepository.get().addComponent(targetEid, phys);
+	EntityRepository.get().addComponent(targetEid, ht);
 
+    }
     public void surfaceCreated(SurfaceHolder holder) {
 	thr = new GameThread(dagent,uagents);
 	thr.startRunning();

@@ -11,18 +11,30 @@ public class ButtonRenderAgent implements RenderAgent {
     public static PointF hackButtonLoc = new PointF(336, 256);
     public static float BUTTON_SIZE = 64.f;
     public static float SMALL_BUTTON_SIZE = 48.f;
+    public static float HACK_TARGET_SIZE = 32.f;
+    public static float HACK_TARGET_HALF_SIZE = 16.f;
 
     private Bitmap buttonBitmap;
     private Bitmap pressedButtonBitmap;
     private Bitmap smallButtonBitmap;
+    private Bitmap hackTargetBitmap;
     private DrawAgent dagent;
     private Rect btnRect;
+    private PointF where;
+    private Canvas cvs;
+    private EntityProcessor proc = new EntityProcessor() {
+	    public void process(int eid) {
+		drawHackTarget(cvs, eid);
+	    }
+	};
     public ButtonRenderAgent(DrawAgent a) {
 	buttonBitmap = ContentRepository.get().getBitmap("buttons");
 	pressedButtonBitmap = ContentRepository.get().getBitmap("buttons_pressed");
 	smallButtonBitmap = ContentRepository.get().getBitmap("smallbuttons");
+	hackTargetBitmap = ContentRepository.get().getBitmap("hacktarget");
 	dagent = a;
 	btnRect = new Rect();
+	where = new PointF();
     }
     public void drawMovementControls(Canvas c, int keyStatus) {
 	btnRect.left = 0;
@@ -60,7 +72,59 @@ public class ButtonRenderAgent implements RenderAgent {
 	btnRect.right = (int)SMALL_BUTTON_SIZE * 3;
 	btnRect.bottom = (int)SMALL_BUTTON_SIZE * 2;
 	dagent.drawButton(c, smallButtonBitmap, btnRect, backButtonLoc);
+	cvs = c;
+	EntityRepository.get().processEntitiesWithComponent(HackTarget.class, proc);
     }
+
+    public void drawHackTarget(Canvas c, int eid) {
+	SpriteMovement mv = (SpriteMovement)(EntityRepository.get().getComponent(eid, SpriteMovement.class));
+	HackTarget ht = (HackTarget)(EntityRepository.get().getComponent(eid, HackTarget.class));
+	WorldPhysics phys = (WorldPhysics)EntityRepository.get().getComponent(eid, WorldPhysics.class);
+	if(mv == null ||
+	   ht == null ||
+	   phys == null) return;
+	SpriteMovement wmv = (SpriteMovement)(EntityRepository.get().getComponent(phys.stageEid, SpriteMovement.class));
+	if(wmv == null) return;
+	float half_width = ht.width / 2.f;
+	float half_height = ht.height / 2.f;
+	where.set(wmv.position);
+	where.negate();
+	where.offset(mv.position.x, mv.position.y);
+	where.offset(-half_width, -half_height);
+	btnRect.left = 0;
+	btnRect.top = 0;
+	btnRect.right = (int)HACK_TARGET_HALF_SIZE;
+	btnRect.bottom = (int)HACK_TARGET_HALF_SIZE;
+	dagent.drawSprite(c, hackTargetBitmap, btnRect, where);
+	where.set(wmv.position);
+	where.negate();
+	where.offset(mv.position.x, mv.position.y);
+	where.offset(half_width - HACK_TARGET_HALF_SIZE, -half_height);
+	btnRect.left = (int)HACK_TARGET_HALF_SIZE;
+	btnRect.top = 0;
+	btnRect.right = (int)HACK_TARGET_SIZE;
+	btnRect.bottom = (int)HACK_TARGET_HALF_SIZE;
+	dagent.drawSprite(c, hackTargetBitmap, btnRect, where);
+	where.set(wmv.position);
+	where.negate();
+	where.offset(mv.position.x, mv.position.y);
+	where.offset(-half_width, half_height - HACK_TARGET_HALF_SIZE);
+	btnRect.left = 0;
+	btnRect.top = (int)HACK_TARGET_HALF_SIZE;
+	btnRect.right = (int)HACK_TARGET_HALF_SIZE;
+	btnRect.bottom = (int)HACK_TARGET_SIZE;
+	dagent.drawSprite(c, hackTargetBitmap, btnRect, where);
+	where.set(wmv.position);
+	where.negate();
+	where.offset(mv.position.x, mv.position.y);
+	where.offset(half_width - HACK_TARGET_HALF_SIZE, half_height - HACK_TARGET_HALF_SIZE);
+	btnRect.left = (int)HACK_TARGET_HALF_SIZE;
+	btnRect.top = (int)HACK_TARGET_HALF_SIZE;
+	btnRect.right = (int)HACK_TARGET_SIZE;
+	btnRect.bottom = (int)HACK_TARGET_SIZE;
+	dagent.drawSprite(c, hackTargetBitmap, btnRect, where);
+    }
+
     public void drawOn(Canvas c) {
 	int keyStatus = 0;
 	PlayerInfo pi;
