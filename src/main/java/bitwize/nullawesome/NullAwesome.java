@@ -30,6 +30,8 @@ public class NullAwesome extends Activity
 	ContentRepository.get().loadAnimation("player_stand", R.raw.player_stand);
 	ContentRepository.get().loadAnimation("player_walk", R.raw.player_walk);
 	ContentRepository.get().loadAnimation("player_jump", R.raw.player_jump);
+	ContentRepository.get().loadAnimation("player_hack", R.raw.player_hack);
+	ContentRepository.get().loadAnimation("player_putaway", R.raw.player_putaway);
 	nv = new NAView(this);
         setContentView(nv);
     }

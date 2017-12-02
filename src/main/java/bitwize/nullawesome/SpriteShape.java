@@ -12,7 +12,7 @@ public class SpriteShape {
     public int currentTime;
     public int[] frames;
     public int[] timings;
-
+    public boolean loop;
     public static SpriteShape loadAnimation(JSONObject o) {
 	SpriteShape s = new SpriteShape();
 	try {
@@ -22,6 +22,7 @@ public class SpriteShape {
 	    s.maxFrames = o.getInt("maxFrames");
 	    framesArray = o.getJSONArray("frames");
 	    timingsArray = o.getJSONArray("timings");
+	    s.loop = o.getBoolean("loop");
 	    if(framesArray.length() != timingsArray.length()) {
 		s.maxFrames = 0;
 		s.frames = null;

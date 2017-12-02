@@ -10,6 +10,8 @@ public class PlayerUpdateAgent implements UpdateAgent {
     private SpriteShape standShape;
     private SpriteShape walkShape;
     private SpriteShape jumpShape;
+    private SpriteShape hackShape;
+    private SpriteShape putAwayShape;
     private int player_eid;
     public PlayerUpdateAgent(int eid) {
 	player_eid = eid;
@@ -18,6 +20,8 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	standShape = SpriteShape.loadAnimation(content.getAnimation("player_stand"));
 	walkShape = SpriteShape.loadAnimation(content.getAnimation("player_walk"));
 	jumpShape = SpriteShape.loadAnimation(content.getAnimation("player_jump"));
+	hackShape = SpriteShape.loadAnimation(content.getAnimation("player_hack"));
+	putAwayShape = SpriteShape.loadAnimation(content.getAnimation("player_putaway"));
     }
 
     private void switchStanding(SpriteShape shp) {
@@ -25,6 +29,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	shp.maxFrames = standShape.maxFrames;
 	shp.frames = standShape.frames;
 	shp.timings = standShape.timings;
+	shp.loop = standShape.loop;
 	shp.currentFrame = 0;
 	shp.currentTime = 0;
     }
@@ -34,6 +39,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	shp.maxFrames = walkShape.maxFrames;
 	shp.frames = walkShape.frames;
 	shp.timings = walkShape.timings;
+	shp.loop = walkShape.loop;
 	shp.currentFrame = 0;
 	shp.currentTime = 0;
     }
@@ -43,6 +49,27 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	shp.maxFrames = jumpShape.maxFrames;
 	shp.frames = jumpShape.frames;
 	shp.timings = jumpShape.timings;
+	shp.loop = jumpShape.loop;
+	shp.currentFrame = 0;
+	shp.currentTime = 0;
+    }
+
+    private void switchHacking(SpriteShape shp) {
+	if(shp.frames == hackShape.frames) return;
+	shp.maxFrames = hackShape.maxFrames;
+	shp.frames = hackShape.frames;
+	shp.timings = hackShape.timings;
+	shp.loop = hackShape.loop;
+	shp.currentFrame = 0;
+	shp.currentTime = 0;
+    }
+    
+    private void switchPutAway(SpriteShape shp) {
+	if(shp.frames == putAwayShape.frames) return;
+	shp.maxFrames = putAwayShape.maxFrames;
+	shp.frames = putAwayShape.frames;
+	shp.timings = putAwayShape.timings;
+	shp.loop = putAwayShape.loop;
 	shp.currentFrame = 0;
 	shp.currentTime = 0;
     }
@@ -60,11 +87,12 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	if(pi == null || shp == null || mov == null || phys == null) return;
 	if(pi.inputState == InputState.HACKING && ((pi.keyStatus & PlayerInfo.KEY_BACK) != 0)) {
 	    pi.inputState = InputState.MOVEMENT;
-	}
-	if(pi.inputState == InputState.MOVEMENT) {
+	    switchPutAway(shp);
+	} else if(pi.inputState == InputState.MOVEMENT) {
 	    if((pi.keyStatus & PlayerInfo.KEY_HACK) != 0) {
 		pi.flags &= (~PlayerInfo.JUMPED); // reset JUMPED flag
 		pi.inputState = InputState.HACKING; // enter hacking state
+		switchHacking(shp);
 	    }
 	    if((pi.keyStatus & PlayerInfo.KEY_RIGHT) != 0) {
 		switch(phys.state) {
@@ -92,7 +120,10 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	    }
 	    else if(phys.state == WorldPhysics.State.GROUNDED) {
 		phys.gaccel = 0.f;
-		switchStanding(shp);
+		if(shp.frames != hackShape.frames &&
+		   shp.frames != putAwayShape.frames) {
+			switchStanding(shp);
+		}
 	    }
 	
 	    // The JUMPED PlayerInfo flag tracks whether we've already

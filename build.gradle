@@ -6,7 +6,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:1.5.0'
     }
 }
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
     repositories {
@@ -16,7 +16,7 @@ android {
     	unitTests.returnDefaultValues = true
     }
     compileSdkVersion 'android-14'
-    buildToolsVersion '23.0.2'
+    buildToolsVersion '25.0.2'
 
     defaultConfig {
         minSdkVersion 5

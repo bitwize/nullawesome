@@ -22,7 +22,9 @@ public class PositionUpdateAgent implements UpdateAgent {
 			    shp.currentTime = 0;
 			    shp.currentFrame++;
 			    if(shp.currentFrame >= shp.frames.length) {
-				shp.currentFrame = 0;
+				    shp.currentFrame = shp.loop
+					    ? 0
+					    : shp.frames.length - 1;
 			    }
 			}
 			
