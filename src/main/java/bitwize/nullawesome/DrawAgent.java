@@ -26,13 +26,13 @@ public class DrawAgent {
 	xform = new Matrix();
 	backBuffer = Bitmap.createBitmap(HRES, VRES, Bitmap.Config.ARGB_8888);
 	backBuffer.setDensity(Bitmap.DENSITY_NONE);
+	backCanvas = new Canvas(backBuffer);
 	paint.setAntiAlias(false);
 	paint.setAlpha(255);
     }
     
     public void draw() {
 	backBuffer.eraseColor(0xff000000);
-	backCanvas = new Canvas(backBuffer);
 	Canvas c2;
 	for(int i=0; i<rlist.size();i++) {
 	    rlist.get(i).drawOn(backCanvas);

@@ -46,6 +46,7 @@ public class ContentRepository {
 
     public void loadBitmap(String name, int resID) {
 	BitmapFactory.Options options = new BitmapFactory.Options();
+	options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 	options.inDensity = Bitmap.DENSITY_NONE;
 	options.inScaled = false;
 	Bitmap b =  BitmapFactory.decodeResource(ctx.getResources(), resID, options);
