@@ -81,7 +81,6 @@ public class StageInfo {
  		info.regions[i].bottom = b;
 		info.regionTypes[i] =
 			StageInfo.RegionType.values()[rgnobj.getInt("type")];
-		info.map = TileMap.createFromInfo(info);
 	    }
 	    for(int i=0; i<info.thingLocations.length;i++) {
 		    JSONObject thingObj = thingsArray.getJSONObject(i);
@@ -92,6 +91,7 @@ public class StageInfo {
 			    StageInfo.ThingType.values()[thingObj.getInt("type")];
 		    info.thingIds[i] = thingObj.getInt("id");
 	    }
+	    info.map = TileMap.createFromInfo(info);
 	}
 	catch(JSONException je) {
 	    throw new RuntimeException(je);
