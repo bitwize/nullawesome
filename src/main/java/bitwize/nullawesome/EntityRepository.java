@@ -9,6 +9,7 @@ public class EntityRepository {
     private HashMap<Class<?>, Object[]> componentArrays;
     private BitSet active;
     private int lastEid = 0;
+    private int maxEid = 0;
     private static EntityRepository theInstance = new EntityRepository();
 
     private EntityRepository() {
@@ -45,6 +46,9 @@ public class EntityRepository {
 	    if(lastEid >= MAX_ENTITIES) lastEid = 0;
 	    if(lastEid == marker) throw new EntityTableFullException();
 	}
+	if(maxEid < lastEid) {
+	    maxEid = lastEid;
+	}
 	return lastEid;
     }
 
@@ -60,6 +64,9 @@ public class EntityRepository {
 		(componentArrays.get(c))[eid] = null;
 	    }
 	}
+	for(int i=maxEid; i>=0; i--) {
+	    if(active.get(i)) { maxEid = i; break; }
+	}
     }
 
     public void addComponent(int eid, Object comp) {
@@ -74,7 +81,7 @@ public class EntityRepository {
     }
 
     public void processEntitiesWithComponent(Class<?> klass, EntityProcessor p) {
-	for(int i=0;i<MAX_ENTITIES;i++) {
+	for(int i=0;i<=maxEid;i++) {
 	    if(active.get(i) && ((componentArrays.get(klass))[i] != null)) {
 		p.process(i);
 	    }
@@ -82,7 +89,7 @@ public class EntityRepository {
     }
 
     public int findEntityWithComponent(Class<?> klass) {
-	for(int j=0;j<MAX_ENTITIES;j++) {
+	for(int j=0;j<=maxEid;j++) {
 	    if(active.get(j) && ((componentArrays.get(klass))[j] != null)) return j;
 	}
 	return -1;
