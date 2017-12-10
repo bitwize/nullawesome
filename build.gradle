@@ -19,7 +19,7 @@ android {
     testOptions { 
     	unitTests.returnDefaultValues = true
     }
-    compileSdkVersion 'android-14'
+    compileSdkVersion 'android-10'
     buildToolsVersion '26.0.2'
 
     defaultConfig {
