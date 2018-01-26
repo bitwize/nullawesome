@@ -18,6 +18,33 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     private RectF buttonHitRect;
     private ArrayList<UpdateAgent> uagents = new ArrayList<UpdateAgent>();
     private ArrayList<RenderAgent> ragents = new ArrayList<RenderAgent>();
+    public PointF checkPoint = new PointF();
+    public RectF checkRect = new RectF();
+    private PointF where = new PointF();
+    private EntityProcessor hackTargetProcessor = new EntityProcessor() {
+	    public void process(int eid) {
+		SpriteMovement mv = (SpriteMovement)(EntityRepository.get().getComponent(eid, SpriteMovement.class));
+		HackTarget ht = (HackTarget)(EntityRepository.get().getComponent(eid, HackTarget.class));
+		WorldPhysics phys = (WorldPhysics)EntityRepository.get().getComponent(eid, WorldPhysics.class);
+		if(mv == null ||
+		   ht == null ||
+		   phys == null) return;
+		if(ht.hacked) return;
+		SpriteMovement wmv = (SpriteMovement)(EntityRepository.get().getComponent(phys.stageEid, SpriteMovement.class));
+		if(wmv == null) return;
+		float half_width = ht.width / 2.f;
+		float half_height = ht.height / 2.f;
+		where.set(wmv.position);
+		where.negate();
+		where.offset(mv.position.x, mv.position.y);
+		checkRect.set(where.x - half_width, where.y - half_height,
+			      where.x + half_width, where.y + half_height);
+		scaleRectToScreen(checkRect);
+		if(checkRect.contains(checkPoint.x, checkPoint.y)) {
+		    ht.hacked = true;
+		}
+	    }
+	};
     public NAView(Context ctx) {
 	super(ctx);
 	myctx = ctx;
@@ -190,6 +217,14 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 				      ButtonRenderAgent.BUTTON_SIZE,
 				      ButtonRenderAgent.BUTTON_SIZE,
 				      PlayerInfo.KEY_BACK);
+		for(int i=0;i<ev.getPointerCount();i++) {
+		    if((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
+		       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN) {
+			checkPoint.x = ev.getX(i);
+			checkPoint.y = ev.getY(i);
+			EntityRepository.get().processEntitiesWithComponent(HackTarget.class, hackTargetProcessor);
+		    }
+		}
 	    }
 	    pi.keyStatus = a;
 	    return true;

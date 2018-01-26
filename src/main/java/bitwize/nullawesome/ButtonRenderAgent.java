@@ -85,6 +85,7 @@ public class ButtonRenderAgent implements RenderAgent {
 	   phys == null) return;
 	SpriteMovement wmv = (SpriteMovement)(EntityRepository.get().getComponent(phys.stageEid, SpriteMovement.class));
 	if(wmv == null) return;
+	if(ht.hacked) return;
 	float half_width = ht.width / 2.f;
 	float half_height = ht.height / 2.f;
 	where.set(wmv.position);
