@@ -90,11 +90,13 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	    switchPutAway(shp);
 	} else if(pi.inputState == InputState.MOVEMENT) {
 	    if((pi.keyStatus & PlayerInfo.KEY_HACK) != 0) {
-		pi.flags &= (~PlayerInfo.JUMPED); // reset JUMPED flag
+		pi.flags &= (~PlayerInfo.JUMPED); // reset JUMPED flag	
+		phys.gaccel = 0.f; // stop movement
+		mov.velocity.x = 0.f;
+		mov.acceleration.x = 0.f;
 		pi.inputState = InputState.HACKING; // enter hacking state
 		switchHacking(shp);
-	    }
-	    if((pi.keyStatus & PlayerInfo.KEY_RIGHT) != 0) {
+	    } else if((pi.keyStatus & PlayerInfo.KEY_RIGHT) != 0) {
 		switch(phys.state) {
 		case GROUNDED:
 		    phys.gaccel = 0.2f;
