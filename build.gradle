@@ -23,7 +23,7 @@ android {
     buildToolsVersion '26.0.2'
 
     defaultConfig {
-        minSdkVersion 5
+        minSdkVersion 8
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 

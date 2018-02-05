@@ -16,6 +16,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     private DrawAgent dagent;
     private GameThread thr;
     private RectF buttonHitRect;
+    private ThingFactory tf = new ThingFactory();
     private ArrayList<UpdateAgent> uagents = new ArrayList<UpdateAgent>();
     private ArrayList<RenderAgent> ragents = new ArrayList<RenderAgent>();
     public PointF checkPoint = new PointF();
@@ -61,7 +62,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    this.getHolder().addCallback(this);
 	    initStage();
 	    initPlayer();
-	    initTestTarget();
+	    tf.createTerminalNode(stageEid, new PointF(200.f, 240.f));
 	    dagent = new DrawAgent(ragents);
 	    dagent.setHolder(this.getHolder());
 	    uagents.add(new PositionUpdateAgent());
@@ -114,30 +115,6 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	EntityRepository.get().addComponent(playerEid, phys);
 	EntityRepository.get().addComponent(playerEid, pli);
     }
-    private void initTestTarget() throws InvalidEntityException {
-	int targetEid;
-	try { targetEid = EntityRepository.get().newEntity(); }
-	catch(EntityTableFullException e) { return; }
-	WorldPhysics phys = new WorldPhysics();
-	SpriteMovement mv = new SpriteMovement();
-	HackTarget ht = new HackTarget();
-	ht.width = 64;
-	ht.height = 64;
-	mv.position.set(150, 240);
-	mv.hotspot.set(16, 16);
-	phys.stageEid = stageEid;
-	phys.state = WorldPhysics.State.GROUNDED;
-	phys.gvelmax = 2.f;
-	phys.radius = 16;
-	phys.hitbox.left = -10;
-	phys.hitbox.top = -16;
-	phys.hitbox.right = 10;
-	phys.hitbox.bottom = 16;
-	EntityRepository.get().addComponent(targetEid, mv);
-	EntityRepository.get().addComponent(targetEid, phys);
-	EntityRepository.get().addComponent(targetEid, ht);
-
-    }
     public void surfaceCreated(SurfaceHolder holder) {
 	thr = new GameThread(dagent,uagents);
 	thr.startRunning();
@@ -156,14 +133,22 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	buttonHitRect.bottom = top + ySize;
 	scaleRectToScreen(buttonHitRect);
 	for(int i=0;i<ev.getPointerCount();i++) {
-	    if((((ev.getAction() & MotionEvent.ACTION_MASK) != MotionEvent.ACTION_POINTER_UP) ||
-		(((ev.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT)
-		 != i)) &&
+	    if(((ev.getActionMasked() != MotionEvent.ACTION_POINTER_UP) ||
+		(ev.getActionIndex() != i)) &&
 	       buttonHitRect.contains((float)ev.getX(i), (float)ev.getY(i))) {
 		return buttonBit;
 	    }
 	}
 	return 0;
+    }
+
+    private static boolean isPressOrRelease(MotionEvent ev) {
+	int action = ev.getActionMasked();
+	
+	return action == MotionEvent.ACTION_DOWN ||
+	    action == MotionEvent.ACTION_POINTER_DOWN ||
+	    action == MotionEvent.ACTION_MOVE ||
+	    action == MotionEvent.ACTION_POINTER_UP;
     }
 
     @Override
@@ -175,10 +160,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 
 	switch(pi.inputState) {
 	case MOVEMENT:
-	    if((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
-	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN ||
-	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE ||
-	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_UP) {
+	    if(isPressOrRelease(ev)) {
 		a |= checkButtonPress(ev,
 				      ButtonRenderAgent.leftButtonLoc.x,
 				      ButtonRenderAgent.leftButtonLoc.y,
@@ -207,10 +189,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    pi.keyStatus = a;
 	    return true;
 	case HACKING:
-	    if((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
-	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN ||
-	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE ||
-	       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_UP) {
+	    if(isPressOrRelease(ev)) {
 		a |= checkButtonPress(ev,
 				      ButtonRenderAgent.backButtonLoc.x,
 				      ButtonRenderAgent.backButtonLoc.y,
