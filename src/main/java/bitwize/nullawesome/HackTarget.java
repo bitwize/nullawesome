@@ -9,4 +9,5 @@ public class HackTarget {
     int requiresKeyMask;
     byte hasKey;
     boolean hacked;
+    EntityProcessor action;
 }

@@ -43,9 +43,77 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 		scaleRectToScreen(checkRect);
 		if(checkRect.contains(checkPoint.x, checkPoint.y)) {
 		    ht.hacked = true;
+		    ht.action.process(eid);
 		}
 	    }
 	};
+
+    public static interface StateEventCallback {
+	public int getKeyStatus(NAView view, MotionEvent ev);
+    };
+    private StateEventCallback eventCallTable[] = {
+	new StateEventCallback() {
+	    public int getKeyStatus(NAView view, MotionEvent ev) {
+		return 0;
+	    }
+	},
+	new StateEventCallback() {
+	    public int getKeyStatus(NAView view, MotionEvent ev) {
+		int a = 0;
+		if(view.isPressOrRelease(ev)) {
+		    a |= view.checkButtonPress(ev,
+					  ButtonRenderAgent.leftButtonLoc.x,
+					  ButtonRenderAgent.leftButtonLoc.y,
+					  ButtonRenderAgent.BUTTON_SIZE,
+					  ButtonRenderAgent.BUTTON_SIZE,
+					  PlayerInfo.KEY_LEFT);
+		    a |= view.checkButtonPress(ev,
+					  ButtonRenderAgent.rightButtonLoc.x,
+					  ButtonRenderAgent.rightButtonLoc.y,
+					  ButtonRenderAgent.BUTTON_SIZE,
+					  ButtonRenderAgent.BUTTON_SIZE,
+					  PlayerInfo.KEY_RIGHT);
+		    a |= view.checkButtonPress(ev,
+					  ButtonRenderAgent.jumpButtonLoc.x,
+					  ButtonRenderAgent.jumpButtonLoc.y,
+					  ButtonRenderAgent.BUTTON_SIZE,
+					  ButtonRenderAgent.BUTTON_SIZE,
+					  PlayerInfo.KEY_JUMP);
+		    a |= view.checkButtonPress(ev,
+					  ButtonRenderAgent.hackButtonLoc.x,
+					  ButtonRenderAgent.hackButtonLoc.y,
+					  ButtonRenderAgent.BUTTON_SIZE,
+					  ButtonRenderAgent.BUTTON_SIZE,
+					  PlayerInfo.KEY_HACK);
+		}
+		return a;
+	    }
+	},
+	new StateEventCallback() {
+	    public int getKeyStatus(NAView view, MotionEvent ev) {
+		int a = 0;
+		if(view.isPressOrRelease(ev)) {
+		    a |= view.checkButtonPress(ev,
+						ButtonRenderAgent.backButtonLoc.x,
+						ButtonRenderAgent.backButtonLoc.y,
+						ButtonRenderAgent.BUTTON_SIZE,
+						ButtonRenderAgent.BUTTON_SIZE,
+						PlayerInfo.KEY_BACK);
+		    for(int i=0;i<ev.getPointerCount();i++) {
+			if((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
+			   (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN) {
+			    checkPoint.x = ev.getX(i);
+			    checkPoint.y = ev.getY(i);
+			    EntityRepository.get().processEntitiesWithComponent(HackTarget.class,
+										view.hackTargetProcessor);
+			}
+		    }
+		}
+		return a;
+	    }
+	}
+    };
+    
     public NAView(Context ctx) {
 	super(ctx);
 	myctx = ctx;
@@ -157,59 +225,8 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	PlayerInfo pi;
 	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
 	if(pi == null) return true;
-
-	switch(pi.inputState) {
-	case MOVEMENT:
-	    if(isPressOrRelease(ev)) {
-		a |= checkButtonPress(ev,
-				      ButtonRenderAgent.leftButtonLoc.x,
-				      ButtonRenderAgent.leftButtonLoc.y,
-				      ButtonRenderAgent.BUTTON_SIZE,
-				      ButtonRenderAgent.BUTTON_SIZE,
-				      PlayerInfo.KEY_LEFT);
-		a |= checkButtonPress(ev,
-				      ButtonRenderAgent.rightButtonLoc.x,
-				      ButtonRenderAgent.rightButtonLoc.y,
-				      ButtonRenderAgent.BUTTON_SIZE,
-				      ButtonRenderAgent.BUTTON_SIZE,
-				      PlayerInfo.KEY_RIGHT);
-		a |= checkButtonPress(ev,
-				      ButtonRenderAgent.jumpButtonLoc.x,
-				      ButtonRenderAgent.jumpButtonLoc.y,
-				      ButtonRenderAgent.BUTTON_SIZE,
-				      ButtonRenderAgent.BUTTON_SIZE,
-				      PlayerInfo.KEY_JUMP);
-		a |= checkButtonPress(ev,
-				      ButtonRenderAgent.hackButtonLoc.x,
-				      ButtonRenderAgent.hackButtonLoc.y,
-				      ButtonRenderAgent.BUTTON_SIZE,
-				      ButtonRenderAgent.BUTTON_SIZE,
-				      PlayerInfo.KEY_HACK);
-	    }
-	    pi.keyStatus = a;
-	    return true;
-	case HACKING:
-	    if(isPressOrRelease(ev)) {
-		a |= checkButtonPress(ev,
-				      ButtonRenderAgent.backButtonLoc.x,
-				      ButtonRenderAgent.backButtonLoc.y,
-				      ButtonRenderAgent.BUTTON_SIZE,
-				      ButtonRenderAgent.BUTTON_SIZE,
-				      PlayerInfo.KEY_BACK);
-		for(int i=0;i<ev.getPointerCount();i++) {
-		    if((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
-		       (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN) {
-			checkPoint.x = ev.getX(i);
-			checkPoint.y = ev.getY(i);
-			EntityRepository.get().processEntitiesWithComponent(HackTarget.class, hackTargetProcessor);
-		    }
-		}
-	    }
-	    pi.keyStatus = a;
-	    return true;
-	default:
-	    return true;
-	}
+	pi.keyStatus = eventCallTable[pi.inputState.ordinal()].getKeyStatus(this, ev);
+	return true;
     }
     
     private void scaleRectToScreen(RectF r) {

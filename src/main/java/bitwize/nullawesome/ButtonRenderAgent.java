@@ -14,6 +14,7 @@ public class ButtonRenderAgent implements RenderAgent {
     public static float HACK_TARGET_SIZE = 32.f;
     public static float HACK_TARGET_HALF_SIZE = 16.f;
 
+    
     private Bitmap buttonBitmap;
     private Bitmap pressedButtonBitmap;
     private Bitmap smallButtonBitmap;
@@ -22,11 +23,31 @@ public class ButtonRenderAgent implements RenderAgent {
     private Rect btnRect;
     private PointF where;
     private Canvas cvs;
+    private int playerEid;
     private EntityProcessor proc = new EntityProcessor() {
 	    public void process(int eid) {
 		drawHackTarget(cvs, eid);
 	    }
 	};
+    private RenderAgent[] buttonRendererTable = {
+	new RenderAgent() {
+	    public void drawOn(Canvas c) {
+
+	    }
+	},
+	new RenderAgent() {
+	    public void drawOn(Canvas c) {
+		PlayerInfo pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
+		int keyStatus = pi.keyStatus;
+		drawMovementControls(c, keyStatus);
+	    }
+	},
+	new RenderAgent() {
+	    public void drawOn(Canvas c) {
+		drawHackingControls(c);
+	    }
+	}
+    };
     public ButtonRenderAgent(DrawAgent a) {
 	buttonBitmap = ContentRepository.get().getBitmap("buttons");
 	pressedButtonBitmap = ContentRepository.get().getBitmap("buttons_pressed");
@@ -35,6 +56,7 @@ public class ButtonRenderAgent implements RenderAgent {
 	dagent = a;
 	btnRect = new Rect();
 	where = new PointF();
+	playerEid = EntityRepository.get().findEntityWithComponent(PlayerInfo.class);
     }
     public void drawMovementControls(Canvas c, int keyStatus) {
 	btnRect.left = 0;
@@ -129,19 +151,11 @@ public class ButtonRenderAgent implements RenderAgent {
     public void drawOn(Canvas c) {
 	int keyStatus = 0;
 	PlayerInfo pi;
-	int playerEid = EntityRepository.get().findEntityWithComponent(PlayerInfo.class);
 	if(playerEid < 0) {
 	    return;
 	}
 	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
 	keyStatus = pi.keyStatus;
-	switch(pi.inputState) {
-	case MOVEMENT:
-	    drawMovementControls(c, keyStatus);
-	    break;
-	case HACKING:
-	    drawHackingControls(c);
-	    break;
-	}
+	buttonRendererTable[pi.inputState.ordinal()].drawOn(c);
     }
 }
