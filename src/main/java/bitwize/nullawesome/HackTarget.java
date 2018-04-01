@@ -8,6 +8,6 @@ public class HackTarget {
     float height;
     int requiresKeyMask;
     byte hasKey;
-    boolean hacked;
+    boolean hacked = false;
     EntityProcessor action;
 }

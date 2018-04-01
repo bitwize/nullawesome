@@ -2,14 +2,41 @@ package bitwize.nullawesome;
 
 import android.graphics.PointF;
 import android.graphics.Rect;
+import org.json.*;
 
 public class ThingFactory {
+
+    public enum ThingType {
+	TERMINAL_NODE,
+	DOOR_SLIDE,
+	ELEV_LR,
+	ELEV_UD
+    }
+
+    public ThingType[] allTypes = ThingType.values();
+
     private static EntityProcessor terminalNodeAction = new EntityProcessor() {
 	    public void process(int eid) {
-		SpriteOverlay ovl = (SpriteOverlay)EntityRepository.get().getComponent(eid, SpriteOverlay.class);
+		EntityRepository repo = EntityRepository.get();
+		SpriteOverlay ovl = (SpriteOverlay)repo.getComponent(eid, SpriteOverlay.class);
+		TimerAction ta = (TimerAction)repo.getComponent(eid, TimerAction.class);
 		ovl.draw.set(0, true);
+		if(ta != null) {
+		    ta.active = true;
+		}
 	    }
 	};
+
+    private static EntityProcessor terminalNodeReset = new EntityProcessor() {
+	    public void process(int eid) {
+		EntityRepository repo = EntityRepository.get();
+		HackTarget ht = (HackTarget)repo.getComponent(eid, HackTarget.class);
+		SpriteOverlay ovl = (SpriteOverlay)repo.getComponent(eid, SpriteOverlay.class);
+		if(ht != null) ht.hacked = false;
+		if(ovl != null) ovl.draw.set(0, false);
+	    }
+	};
+    
     public int createTerminalNode(int stageEid, PointF location)
 	throws EntityTableFullException {
 	EntityRepository repo = EntityRepository.get();
@@ -46,4 +73,54 @@ public class ThingFactory {
 	repo.addComponent(eid, ovl);
 	return eid;
     }
+
+    public int createResettingTerminalNode(int stageEid, PointF location, int resetTime)
+	throws EntityTableFullException {
+	EntityRepository repo = EntityRepository.get();
+	int nodeEid = createTerminalNode(stageEid, location);
+	TimerAction ta = new TimerAction();
+	ta.nTicks = resetTime;
+	ta.maxTicks = resetTime;
+	ta.action = terminalNodeReset;
+	repo.addComponent(nodeEid, ta);
+	return nodeEid;
+    }
+
+    private int createThing(int stageEid,
+			    int thingIndex)
+	throws EntityTableFullException, JSONException {
+	// TODO: dispatch on thing type and populate the entity with
+	// appropriate components
+	EntityRepository repo = EntityRepository.get();
+	StageInfo info = (StageInfo)repo.getComponent(stageEid, StageInfo.class);
+	if(info == null) return -1;
+	JSONObject obj = info.thingParams[thingIndex];
+	int x = obj.getInt("x");
+	int y = obj.getInt("y");
+	int type = obj.getInt("type");
+	PointF loc = new PointF(x, y);
+	switch(allTypes[type]) {
+	case TERMINAL_NODE:
+	    {
+		if(obj.has("reset_time")) {
+		    int resetTime = obj.getInt("reset_time");
+		    return createResettingTerminalNode(stageEid, loc, resetTime);
+		} else {
+		    return createTerminalNode(stageEid, loc);
+		}
+	    }
+	default:
+	    return -1;
+	}
+    }
+    public void createThings(int stageEid)
+    	throws EntityTableFullException, JSONException {
+	EntityRepository repo = EntityRepository.get();
+	StageInfo info = (StageInfo)repo.getComponent(stageEid, StageInfo.class);
+	if(info == null) return;
+	for(int i=0; i < info.thingIds.length; i++) {
+	    info.thingIds[i] = createThing(stageEid, i);
+	}
+    }
+    
 }

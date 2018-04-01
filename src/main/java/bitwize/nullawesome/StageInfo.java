@@ -24,29 +24,13 @@ public class StageInfo {
 	GROUND
     }
     
-    public enum ThingType {
-	CONTROL_NODE,
-	DATA_TERMINAL,
-	DOOR_SLIDE,
-	ELEV_LR,
-	ELEV_UD
-    }
-	
     public int width, height;
     public Rect[] regions;
     public StageInfo.RegionType[] regionTypes;
-    public Point[] thingLocations;
-    public StageInfo.ThingType[] thingTypes;
+    public JSONObject[] thingParams;
     public int[] thingIds;
     public String tileImageName;
     public TileMap map;
-
-    public void populateThing(EntityRepository repo,
-			      int eid,
-			      int thingIndex) {
-	// TODO: dispatch on thing type and populate the entity with
-	// appropriate components
-    }
 
     public static StageInfo loadStage(JSONObject o) {
 	StageInfo info = new StageInfo();
@@ -58,9 +42,8 @@ public class StageInfo {
 	    info.tileImageName = o.getString("tileImageName");
 	    info.regions = new Rect[regionsArray.length()];
 	    info.regionTypes = new StageInfo.RegionType[regionsArray.length()];
-	    info.thingLocations = new Point[thingsArray.length()];
-	    info.thingTypes = new StageInfo.ThingType[thingsArray.length()];
 	    info.thingIds = new int[thingsArray.length()];
+	    info.thingParams = new JSONObject[thingsArray.length()];
 	    for(int i=0; i<info.regions.length;i++) {
 		JSONObject rgnobj = regionsArray.getJSONObject(i);
 		int l = rgnobj.getInt("left");
@@ -82,14 +65,10 @@ public class StageInfo {
 		info.regionTypes[i] =
 			StageInfo.RegionType.values()[rgnobj.getInt("type")];
 	    }
-	    for(int i=0; i<info.thingLocations.length;i++) {
+	    for(int i=0; i<info.thingParams.length;i++) {
 		    JSONObject thingObj = thingsArray.getJSONObject(i);
-		    info.thingLocations[i] = new Point();
-		    info.thingLocations[i].x = thingObj.getInt("x");
-		    info.thingLocations[i].y = thingObj.getInt("y");
-		    info.thingTypes[i] =
-			    StageInfo.ThingType.values()[thingObj.getInt("type")];
-		    info.thingIds[i] = thingObj.getInt("id");
+		    info.thingParams[i] = thingObj;
+		    info.thingIds[i] = -1;
 	    }
 	    info.map = TileMap.createFromInfo(info);
 	}

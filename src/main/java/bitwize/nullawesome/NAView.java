@@ -22,11 +22,13 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     public PointF checkPoint = new PointF();
     public RectF checkRect = new RectF();
     private PointF where = new PointF();
+    private boolean somethingHacked;
     private EntityProcessor hackTargetProcessor = new EntityProcessor() {
 	    public void process(int eid) {
 		SpriteMovement mv = (SpriteMovement)(EntityRepository.get().getComponent(eid, SpriteMovement.class));
 		HackTarget ht = (HackTarget)(EntityRepository.get().getComponent(eid, HackTarget.class));
 		WorldPhysics phys = (WorldPhysics)EntityRepository.get().getComponent(eid, WorldPhysics.class);
+		PlayerInfo pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
 		if(mv == null ||
 		   ht == null ||
 		   phys == null) return;
@@ -42,8 +44,9 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 			      where.x + half_width, where.y + half_height);
 		scaleRectToScreen(checkRect);
 		if(checkRect.contains(checkPoint.x, checkPoint.y)) {
-		    ht.hacked = true;
-		    ht.action.process(eid);
+			ht.hacked = true;
+			somethingHacked = true;
+			ht.action.process(eid);
 		}
 	    }
 	};
@@ -104,8 +107,14 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 			   (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN) {
 			    checkPoint.x = ev.getX(i);
 			    checkPoint.y = ev.getY(i);
-			    EntityRepository.get().processEntitiesWithComponent(HackTarget.class,
-										view.hackTargetProcessor);
+			    synchronized(thr) {
+				somethingHacked = false;
+				EntityRepository.get().processEntitiesWithComponent(HackTarget.class,
+										    view.hackTargetProcessor);
+				if(somethingHacked) {
+				    a |= PlayerInfo.KEY_BACK;
+				}
+			    }
 			}
 		    }
 		}
@@ -130,13 +139,13 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    this.getHolder().addCallback(this);
 	    initStage();
 	    initPlayer();
-	    tf.createTerminalNode(stageEid, new PointF(200.f, 240.f));
 	    dagent = new DrawAgent(ragents);
 	    dagent.setHolder(this.getHolder());
 	    uagents.add(new PositionUpdateAgent());
 	    uagents.add(new PhysicsUpdateAgent());
 	    uagents.add(new PlayerUpdateAgent(playerEid));
 	    uagents.add(new CameraUpdateAgent());
+	    uagents.add(new TimerUpdateAgent());
 	    ragents.add(new SceneryDisplayAgent(dagent, stageEid));
 	    ragents.add(new SpriteDisplayAgent(dagent));
 	    ragents.add(new ButtonRenderAgent(dagent));
@@ -157,6 +166,11 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	mv.acceleration = new PointF();
 	EntityRepository.get().addComponent(stageEid, info);
 	EntityRepository.get().addComponent(stageEid, mv);
+	try {
+	    tf.createThings(stageEid);
+	} catch(Exception e) {
+	    throw new RuntimeException(e);
+	}
     }
 
     private void initPlayer() throws InvalidEntityException {
