@@ -29,6 +29,7 @@ public class NullAwesome extends Activity
 	ContentRepository.get().loadBitmap("hacktarget", R.drawable.hacktarget);
 	ContentRepository.get().loadBitmap("terminal", R.drawable.terminal);
 	ContentRepository.get().loadBitmap("terminal_greentext", R.drawable.terminal_greentext);
+	ContentRepository.get().loadBitmap("elevator1", R.drawable.elevator1);
 	ContentRepository.get().loadAnimation("player_stand", R.raw.player_stand);
 	ContentRepository.get().loadAnimation("player_walk", R.raw.player_walk);
 	ContentRepository.get().loadAnimation("player_jump", R.raw.player_jump);

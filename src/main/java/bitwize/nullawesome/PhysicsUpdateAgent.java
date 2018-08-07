@@ -1,12 +1,14 @@
 package bitwize.nullawesome;
 
 import android.util.Log;
+import android.graphics.RectF;
 
 public class PhysicsUpdateAgent implements UpdateAgent {
     private EntityRepository repo;
     private EntityProcessor proc;
-
+    private RectF elevRect = new RectF();
     private void doGrounded(SpriteMovement mov, WorldPhysics phys, TileMap map) {
+	boolean shouldFall;
 	if(Math.abs(phys.gaccel) > 0.00001f) {
 	    mov.acceleration.set(phys.gaccel, 0.f);
 	    if(mov.velocity.x > phys.gvelmax) mov.velocity.x = phys.gvelmax;
@@ -16,12 +18,27 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	    if(Math.abs(mov.velocity.x) < 0.21f) { mov.velocity.x = 0.f; phys.gaccel = 0.f; }
 	    else { mov.acceleration.set((mov.velocity.x > 0.f) ? -0.2f : 0.2f, 0.f); }
 	}
-	if((map.getTileFlags(map.getTileWorldCoords(mov.position.x, mov.position.y + phys.radius)) &
-	    TileMap.FLAG_SOLID) == 0) {
+	if(phys.currentElevatorEid == EntityRepository.NO_ENTITY) {
+	    shouldFall = (map.getTileFlags(map.getTileWorldCoords(mov.position.x, mov.position.y + phys.radius)) &
+			  TileMap.FLAG_SOLID) == 0;
+	} else {
+	    SpriteMovement movE = (SpriteMovement)repo.getComponent(phys.currentElevatorEid, SpriteMovement.class);
+	    WorldPhysics physE = (WorldPhysics)repo.getComponent(phys.currentElevatorEid, WorldPhysics.class);
+	    if(movE == null || physE == null) {
+		shouldFall = true;
+	    } else {
+		elevRect.set(physE.hitbox);
+		elevRect.offset(movE.position.x, movE.position.y);
+		shouldFall = !(elevRect.contains(mov.position.x, mov.position.y + phys.radius));
+	    }
+	}
+	if(shouldFall) {
 	    phys.state = WorldPhysics.State.FALLING;
+	    phys.currentElevatorEid = EntityRepository.NO_ENTITY;
 	}
     }
     private void doAir(SpriteMovement mov, WorldPhysics phys, TileMap map) {
+	phys.currentElevatorEid = EntityRepository.NO_ENTITY;
 	if(mov.velocity.y < phys.fallmax) {
 	    mov.acceleration.set(phys.gravity);
 	}

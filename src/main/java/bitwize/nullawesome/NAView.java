@@ -6,7 +6,6 @@ import android.graphics.*;
 import android.content.Context;
 import android.util.AttributeSet;
 
-
 public class NAView extends SurfaceView implements SurfaceHolder.Callback
 {
 
@@ -134,6 +133,8 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	init();
     }
     private void init() {
+	setFocusable(true);
+	requestFocus();
 	try {
 	    buttonHitRect = new RectF();
 	    this.getHolder().addCallback(this);
@@ -143,6 +144,8 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    dagent.setHolder(this.getHolder());
 	    uagents.add(new PositionUpdateAgent());
 	    uagents.add(new PhysicsUpdateAgent());
+	    uagents.add(new CollisionUpdateAgent());
+	    uagents.add(new ElevatorUpdateAgent());
 	    uagents.add(new PlayerUpdateAgent(playerEid));
 	    uagents.add(new CameraUpdateAgent());
 	    uagents.add(new TimerUpdateAgent());
@@ -168,6 +171,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	EntityRepository.get().addComponent(stageEid, mv);
 	try {
 	    tf.createThings(stageEid);
+	    tf.createElevator(stageEid, new PointF(300, 100), new PointF(240, 100), 0.001666f);
 	} catch(Exception e) {
 	    throw new RuntimeException(e);
 	}
@@ -188,10 +192,17 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	phys.state = WorldPhysics.State.GROUNDED;
 	phys.gvelmax = 2.f;
 	phys.radius = 16;
-	phys.hitbox.left = -10;
-	phys.hitbox.top = -16;
-	phys.hitbox.right = 10;
-	phys.hitbox.bottom = 16;
+	phys.hitbox.left = -10.f;
+	phys.hitbox.top = -16.f;
+	phys.hitbox.right = 10.f;
+	phys.hitbox.bottom = 16.f;
+	phys.collider = new ElevatorCollider();
+	phys.collisionCriterion = new CollisionUpdateAgent.Criterion() {
+		public boolean test(int eid) {
+		    return EntityRepository.get()
+			.getComponent(eid, ElevatorState.class) != null;
+		}
+	    };
 	EntityRepository.get().addComponent(playerEid, shp);
 	EntityRepository.get().addComponent(playerEid, mv);
 	EntityRepository.get().addComponent(playerEid, phys);
@@ -240,6 +251,56 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
 	if(pi == null) return true;
 	pi.keyStatus = eventCallTable[pi.inputState.ordinal()].getKeyStatus(this, ev);
+	return true;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent ke) {
+	PlayerInfo pi;
+	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
+	if(pi == null) return true;
+	switch(keyCode) {
+	case KeyEvent.KEYCODE_DPAD_LEFT:
+	case KeyEvent.KEYCODE_A:
+	    pi.keyStatus |= PlayerInfo.KEY_LEFT;
+	    break;
+	case KeyEvent.KEYCODE_DPAD_RIGHT:
+	case KeyEvent.KEYCODE_D:
+	    pi.keyStatus |= PlayerInfo.KEY_RIGHT;
+	    break;
+	case KeyEvent.KEYCODE_DPAD_CENTER:
+	case KeyEvent.KEYCODE_SPACE:
+	    pi.keyStatus |= PlayerInfo.KEY_JUMP;
+	    break;
+	case KeyEvent.KEYCODE_Z:
+	    pi.keyStatus |= PlayerInfo.KEY_HACK;
+	    break;
+	}
+	return true;
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent ke) {
+	PlayerInfo pi;
+	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
+	if(pi == null) return true;
+	switch(keyCode) {
+	case KeyEvent.KEYCODE_DPAD_LEFT:
+	case KeyEvent.KEYCODE_A:
+	    pi.keyStatus &= ~PlayerInfo.KEY_LEFT;
+	    break;
+	case KeyEvent.KEYCODE_DPAD_RIGHT:
+	case KeyEvent.KEYCODE_D:
+	    pi.keyStatus &= ~PlayerInfo.KEY_RIGHT;
+	    break;
+	case KeyEvent.KEYCODE_DPAD_CENTER:
+	case KeyEvent.KEYCODE_SPACE:
+	    pi.keyStatus &= ~PlayerInfo.KEY_JUMP;
+	    break;
+	case KeyEvent.KEYCODE_Z:
+	    pi.keyStatus &= ~PlayerInfo.KEY_HACK;
+	    break;
+	}
 	return true;
     }
     

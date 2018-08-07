@@ -62,10 +62,10 @@ public class ThingFactory {
 	phys.state = WorldPhysics.State.GROUNDED;
 	phys.gvelmax = 2.f;
 	phys.radius = 16;
-	phys.hitbox.left = -10;
-	phys.hitbox.top = -16;
-	phys.hitbox.right = 9;
-	phys.hitbox.bottom = 16;
+	phys.hitbox.left = -10.f;
+	phys.hitbox.top = -16.f;
+	phys.hitbox.right = 9.f;
+	phys.hitbox.bottom = 16.f;
 	repo.addComponent(eid, shp);
 	repo.addComponent(eid, mv);
 	repo.addComponent(eid, ht);
@@ -84,6 +84,37 @@ public class ThingFactory {
 	ta.action = terminalNodeReset;
 	repo.addComponent(nodeEid, ta);
 	return nodeEid;
+    }
+
+    public int createElevator(int stageEid, PointF fulcrum, PointF start, float springc)
+	throws EntityTableFullException {
+	EntityRepository repo = EntityRepository.get();
+	int eid = repo.newEntity();
+	SpriteShape shp = new SpriteShape();
+	shp.shapes = ContentRepository.get().getBitmap("elevator1");
+	shp.subsection = new Rect(0, 0, 64, 16);
+	SpriteMovement mv = new SpriteMovement();
+	WorldPhysics phys = new WorldPhysics();
+	phys.stageEid = stageEid;
+	phys.state = WorldPhysics.State.FALLING;
+	phys.gvelmax = 999.f;
+	phys.gravity.y = 0.f;
+	phys.radius = 16;
+	phys.hitbox.left = -32.f;
+	phys.hitbox.top = -8.f;
+	phys.hitbox.right = 32.f;
+	phys.hitbox.bottom = 8.f;
+	ElevatorState est = new ElevatorState();
+	est.fulcrum.set(fulcrum);
+	est.startPoint.set(start);
+	mv.position.set(start);
+	mv.hotspot.set(32.f, 8.f);
+	est.springConstant = springc;
+	repo.addComponent(eid, shp);
+	repo.addComponent(eid, mv);
+	repo.addComponent(eid, phys);
+	repo.addComponent(eid, est);
+	return eid;
     }
 
     private int createThing(int stageEid,

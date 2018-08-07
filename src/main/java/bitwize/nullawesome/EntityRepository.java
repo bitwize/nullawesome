@@ -6,6 +6,7 @@ import java.util.BitSet;
 
 public class EntityRepository {
     public static final int MAX_ENTITIES = 8192;
+    public static final int NO_ENTITY = -1;
     private HashMap<Class<?>, Object[]> componentArrays;
     private BitSet active;
     private int lastEid = 0;
@@ -92,6 +93,6 @@ public class EntityRepository {
 	for(int j=0;j<=maxEid;j++) {
 	    if(active.get(j) && ((componentArrays.get(klass))[j] != null)) return j;
 	}
-	return -1;
+	return NO_ENTITY;
     }
 }
