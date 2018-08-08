@@ -13,6 +13,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
     private SpriteShape hackShape;
     private SpriteShape putAwayShape;
     private int player_eid;
+    public static final float WALK_ACCEL = 0.2f;
     public PlayerUpdateAgent(int eid) {
 	player_eid = eid;
 	rightBitmap = content.getBitmap("player_r");
@@ -99,7 +100,9 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	    } else if((pi.keyStatus & PlayerInfo.KEY_RIGHT) != 0) {
 		switch(phys.state) {
 		case GROUNDED:
-		    phys.gaccel = 0.2f;
+		    phys.gaccel = (mov.velocity.x < 0
+				   ? PhysicsUpdateAgent.BASE_FRIC * 1.2f
+				   : WALK_ACCEL);
 		    phys.facingRight = true;
 		    switchWalking(shp);
 		    break;
@@ -111,7 +114,9 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	    else if((pi.keyStatus & PlayerInfo.KEY_LEFT) != 0) {
 		switch(phys.state) {
 		case GROUNDED:
-		    phys.gaccel = -0.2f;
+		    phys.gaccel = -(mov.velocity.x > 0
+				   ? PhysicsUpdateAgent.BASE_FRIC * 1.2f
+				   : WALK_ACCEL);
 		    phys.facingRight = false;
 		    switchWalking(shp);
 		    break;

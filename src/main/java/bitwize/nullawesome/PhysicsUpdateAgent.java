@@ -7,6 +7,7 @@ public class PhysicsUpdateAgent implements UpdateAgent {
     private EntityRepository repo;
     private EntityProcessor proc;
     private RectF elevRect = new RectF();
+    public static final float BASE_FRIC = 0.5f;
     private void doGrounded(SpriteMovement mov, WorldPhysics phys, TileMap map) {
 	boolean shouldFall;
 	if(Math.abs(phys.gaccel) > 0.00001f) {
@@ -15,8 +16,11 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	    if(mov.velocity.x < -phys.gvelmax) mov.velocity.x = -phys.gvelmax;
 	}
 	else {
-	    if(Math.abs(mov.velocity.x) < 0.21f) { mov.velocity.x = 0.f; phys.gaccel = 0.f; }
-	    else { mov.acceleration.set((mov.velocity.x > 0.f) ? -0.2f : 0.2f, 0.f); }
+	    if(Math.abs(mov.velocity.x) < (BASE_FRIC + 0.01f)) {
+		mov.velocity.x = 0.f; phys.gaccel = 0.f;
+	    } else {
+		mov.acceleration.set((mov.velocity.x > 0.f) ? -BASE_FRIC  : BASE_FRIC, 0.f);
+	    }
 	}
 	if(phys.currentElevatorEid == EntityRepository.NO_ENTITY) {
 	    shouldFall = (map.getTileFlags(map.getTileWorldCoords(mov.position.x, mov.position.y + phys.radius)) &
