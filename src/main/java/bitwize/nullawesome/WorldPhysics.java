@@ -21,8 +21,8 @@ public class WorldPhysics {
     public float fallmax = 8.f;
     public RectF hitbox = new RectF(0.f, 0.f, 0.f, 0.f);
     public float radius = 0.f;
-    public int currentElevatorEid = EntityRepository.NO_ENTITY;
-    public PointF currentElevatorPosition = new PointF();
+    public int sticksToEid = EntityRepository.NO_ENTITY;
+    public PointF sticksToPosition = new PointF();
     public CollisionUpdateAgent.Criterion collisionCriterion = CollisionUpdateAgent.nullCriterion;
     public CollisionUpdateAgent.Collider collider = CollisionUpdateAgent.nullCollider;
 }

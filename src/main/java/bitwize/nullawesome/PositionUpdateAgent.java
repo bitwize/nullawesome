@@ -13,14 +13,14 @@ public class PositionUpdateAgent implements UpdateAgent {
 		    WorldPhysics phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
 		    if(mov == null) return;
 		    mov.position.offset(mov.velocity.x, mov.velocity.y);
-		    if(phys != null && phys.currentElevatorEid != EntityRepository.NO_ENTITY) {
-			SpriteMovement movE = (SpriteMovement)repo.getComponent(phys.currentElevatorEid, SpriteMovement.class);
+		    if(phys != null && phys.sticksToEid != EntityRepository.NO_ENTITY) {
+			SpriteMovement movE = (SpriteMovement)repo.getComponent(phys.sticksToEid, SpriteMovement.class);
 			if(movE != null) {
 			    mov.position.x +=
-				movE.position.x - phys.currentElevatorPosition.x;
+				movE.position.x - phys.sticksToPosition.x;
 			    mov.position.y +=
-				movE.position.y - phys.currentElevatorPosition.y;
-			    phys.currentElevatorPosition.set(movE.position);
+				movE.position.y - phys.sticksToPosition.y;
+			    phys.sticksToPosition.set(movE.position);
 			}
 		    }
 		    mov.velocity.offset(mov.acceleration.x, mov.acceleration.y);

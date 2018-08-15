@@ -22,12 +22,12 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 		mov.acceleration.set((mov.velocity.x > 0.f) ? -BASE_FRIC  : BASE_FRIC, 0.f);
 	    }
 	}
-	if(phys.currentElevatorEid == EntityRepository.NO_ENTITY) {
+	if(phys.sticksToEid == EntityRepository.NO_ENTITY) {
 	    shouldFall = (map.getTileFlags(map.getTileWorldCoords(mov.position.x, mov.position.y + phys.radius)) &
 			  TileMap.FLAG_SOLID) == 0;
 	} else {
-	    SpriteMovement movE = (SpriteMovement)repo.getComponent(phys.currentElevatorEid, SpriteMovement.class);
-	    WorldPhysics physE = (WorldPhysics)repo.getComponent(phys.currentElevatorEid, WorldPhysics.class);
+	    SpriteMovement movE = (SpriteMovement)repo.getComponent(phys.sticksToEid, SpriteMovement.class);
+	    WorldPhysics physE = (WorldPhysics)repo.getComponent(phys.sticksToEid, WorldPhysics.class);
 	    if(movE == null || physE == null) {
 		shouldFall = true;
 	    } else {
@@ -38,11 +38,11 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	}
 	if(shouldFall) {
 	    phys.state = WorldPhysics.State.FALLING;
-	    phys.currentElevatorEid = EntityRepository.NO_ENTITY;
+	    phys.sticksToEid = EntityRepository.NO_ENTITY;
 	}
     }
     private void doAir(SpriteMovement mov, WorldPhysics phys, TileMap map) {
-	phys.currentElevatorEid = EntityRepository.NO_ENTITY;
+	phys.sticksToEid = EntityRepository.NO_ENTITY;
 	if(mov.velocity.y < phys.fallmax) {
 	    mov.acceleration.set(phys.gravity);
 	}

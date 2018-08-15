@@ -24,8 +24,8 @@ public class ElevatorCollider implements CollisionUpdateAgent.Collider {
 	    movO.velocity.y = 0.f;
 	    movO.acceleration.y = 0.f;
 	    physO.thrust.set(0.f, 0.f);
-	    physO.currentElevatorEid = eid2;
-	    physO.currentElevatorPosition.set(movE.position);
+	    physO.sticksToEid = eid2;
+	    physO.sticksToPosition.set(movE.position);
 	    movO.position.y = hitboxE.top + 1 - physO.hitbox.bottom;
 	}
     }
