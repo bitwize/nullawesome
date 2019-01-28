@@ -3,17 +3,23 @@ package bitwize.nullawesome;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import org.json.*;
+import java.util.HashMap;
 
 public class ThingFactory {
 
+    public static final int NO_THING=-1;
+    
     public enum ThingType {
 	TERMINAL_NODE,
 	DOOR_SLIDE,
-	ELEV_LR,
-	ELEV_UD
+	ELEVATOR
     }
-
-    public ThingType[] allTypes = ThingType.values();
+    private static HashMap<String, ThingType> namedTypes = new HashMap<String, ThingType>();
+    static {
+	for(ThingType t : ThingType.values()) {
+	    namedTypes.put(t.toString().toLowerCase(), t);
+	}
+    }
 
     private static EntityProcessor terminalNodeAction = new EntityProcessor() {
 	    public void process(int eid) {
@@ -86,7 +92,8 @@ public class ThingFactory {
 	return nodeEid;
     }
 
-    public int createElevator(int stageEid, PointF fulcrum, PointF start, float springc)
+    public int createElevator(int stageEid, ElevatorState.Type type, PointF fulcrum, PointF start, float springc,
+			      ElevatorState.Type altType, PointF altFulcrum, PointF altStart, float altSpringc)
 	throws EntityTableFullException {
 	EntityRepository repo = EntityRepository.get();
 	int eid = repo.newEntity();
@@ -104,12 +111,17 @@ public class ThingFactory {
 	phys.hitbox.top = -8.f;
 	phys.hitbox.right = 32.f;
 	phys.hitbox.bottom = 8.f;
-	ElevatorState est = new ElevatorState();
-	est.fulcrum.set(fulcrum);
-	est.startPoint.set(start);
+	ElevatorStates est = new ElevatorStates();
+	est.primaryState.type = type;
+	est.primaryState.fulcrum.set(fulcrum);
+	est.primaryState.startPoint.set(start);
 	mv.position.set(start);
 	mv.hotspot.set(32.f, 8.f);
-	est.springConstant = springc;
+	est.primaryState.springConstant = springc;
+	est.alternateState.type = altType;
+	est.alternateState.fulcrum.set(altFulcrum);
+	est.alternateState.startPoint.set(altStart);
+	est.alternateState.springConstant = altSpringc;
 	repo.addComponent(eid, shp);
 	repo.addComponent(eid, mv);
 	repo.addComponent(eid, phys);
@@ -128,9 +140,12 @@ public class ThingFactory {
 	JSONObject obj = info.thingParams[thingIndex];
 	int x = obj.getInt("x");
 	int y = obj.getInt("y");
-	int type = obj.getInt("type");
+	String type = obj.getString("type");
+	if(namedTypes.get(type) == null) {
+	    throw new RuntimeException("invalid thing type");
+	}
 	PointF loc = new PointF(x, y);
-	switch(allTypes[type]) {
+	switch(namedTypes.get(type)) {
 	case TERMINAL_NODE:
 	    {
 		if(obj.has("reset_time")) {
@@ -140,9 +155,30 @@ public class ThingFactory {
 		    return createTerminalNode(stageEid, loc);
 		}
 	    }
+	case ELEVATOR:
+	    if(obj.has("normal_state") && obj.has("alt_state")) {
+		JSONObject normalState = obj.getJSONObject("normal_state");
+		JSONObject alternateState = obj.getJSONObject("alt_state");
+		return createElevator(stageEid,
+				      ElevatorState.Type.byName(normalState.getString("type")),
+				      new PointF((float)normalState.getInt("fulcrum_x"),
+						 (float)normalState.getInt("fulcrum_y")),
+				      new PointF((float)obj.getInt("x"),
+						 (float)obj.getInt("y")),
+				      (float)normalState.getDouble("spring_constant"),
+				      ElevatorState.Type.byName(alternateState.getString("type")),
+				      new PointF((float)alternateState.getInt("fulcrum_x"),
+						 (float)alternateState.getInt("fulcrum_y")),
+				      new PointF((float)alternateState.getInt("x"),
+						 (float)alternateState.getInt("y")),
+				      (float)alternateState.getDouble("spring_constant"));
+	    } else {
+		return -1;
+	    }
 	default:
 	    return -1;
 	}
+	
     }
     public void createThings(int stageEid)
     	throws EntityTableFullException, JSONException {

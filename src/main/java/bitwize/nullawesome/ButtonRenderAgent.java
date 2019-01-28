@@ -24,28 +24,21 @@ public class ButtonRenderAgent implements RenderAgent {
     private PointF where;
     private Canvas cvs;
     private int playerEid;
-    private EntityProcessor proc = new EntityProcessor() {
-	    public void process(int eid) {
-		drawHackTarget(cvs, eid);
-	    }
-	};
+    private RelevantEntitiesHolder reh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(HackTarget.class));
+    private EntityProcessor proc = (eid) -> {
+	drawHackTarget(cvs, eid);
+    };
     private RenderAgent[] buttonRendererTable = {
-	new RenderAgent() {
-	    public void drawOn(Canvas c) {
+	(c) -> {
 
-	    }
 	},
-	new RenderAgent() {
-	    public void drawOn(Canvas c) {
-		PlayerInfo pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
-		int keyStatus = pi.keyStatus;
-		drawMovementControls(c, keyStatus);
-	    }
+	(c) -> {
+	    PlayerInfo pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
+	    int keyStatus = pi.keyStatus;
+	    drawMovementControls(c, keyStatus);
 	},
-	new RenderAgent() {
-	    public void drawOn(Canvas c) {
-		drawHackingControls(c);
-	    }
+	(c) -> {
+	    drawHackingControls(c);
 	}
     };
     public ButtonRenderAgent(DrawAgent a) {
@@ -57,6 +50,7 @@ public class ButtonRenderAgent implements RenderAgent {
 	btnRect = new Rect();
 	where = new PointF();
 	playerEid = EntityRepository.get().findEntityWithComponent(PlayerInfo.class);
+	reh.register();
     }
     public void drawMovementControls(Canvas c, int keyStatus) {
 	btnRect.left = 0;
@@ -95,7 +89,7 @@ public class ButtonRenderAgent implements RenderAgent {
 	btnRect.bottom = (int)SMALL_BUTTON_SIZE * 2;
 	dagent.drawButton(c, smallButtonBitmap, btnRect, backButtonLoc);
 	cvs = c;
-	EntityRepository.get().processEntitiesWithComponent(HackTarget.class, proc);
+	reh.processAll(proc);
     }
 
     public void drawHackTarget(Canvas c, int eid) {

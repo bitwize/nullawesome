@@ -5,7 +5,26 @@ import android.graphics.RectF;
 
 public class PhysicsUpdateAgent implements UpdateAgent {
     private EntityRepository repo;
-    private EntityProcessor proc;
+    private EntityProcessor proc = (eid) -> {
+	SpriteMovement mov;
+	WorldPhysics phys;
+	StageInfo info = null;
+	mov = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
+	phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
+	if(mov == null || phys == null) return;
+	info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
+	if(info == null) return;
+	switch(phys.state) {
+	case GROUNDED:
+	    doGrounded(mov, phys, info.map);
+	    break;
+	case FALLING:
+	    doAir(mov, phys, info.map);
+	    break;
+	}
+	evictGround(mov, phys, info.map);
+    };
+    private RelevantEntitiesHolder reh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(WorldPhysics.class));
     private RectF elevRect = new RectF();
     public static final float BASE_FRIC = 0.5f;
     private void doGrounded(SpriteMovement mov, WorldPhysics phys, TileMap map) {
@@ -106,29 +125,9 @@ public class PhysicsUpdateAgent implements UpdateAgent {
     }
     public PhysicsUpdateAgent() {
 	repo = EntityRepository.get();
-	proc = new EntityProcessor() {
-		public void process(int eid) {
-		    SpriteMovement mov;
-		    WorldPhysics phys;
-		    StageInfo info = null;
-		    mov = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
-		    phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
-		    if(mov == null || phys == null) return;
-		    info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
-		    if(info == null) return;
-		    switch(phys.state) {
-		    case GROUNDED:
-			doGrounded(mov, phys, info.map);
-			break;
-		    case FALLING:
-			doAir(mov, phys, info.map);
-			break;
-		    }
-		    evictGround(mov, phys, info.map);
-		}
-	    };
+	reh.register();
     }
     public void update(long time) {
-	repo.processEntitiesWithComponent(WorldPhysics.class, proc);
+	reh.processAll(proc);
     }
 }

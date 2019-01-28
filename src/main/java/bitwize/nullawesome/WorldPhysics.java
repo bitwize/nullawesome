@@ -23,6 +23,6 @@ public class WorldPhysics {
     public float radius = 0.f;
     public int sticksToEid = EntityRepository.NO_ENTITY;
     public PointF sticksToPosition = new PointF();
-    public CollisionUpdateAgent.Criterion collisionCriterion = CollisionUpdateAgent.nullCriterion;
+    public Criterion collisionCriterion = Criterion.nullCriterion;
     public CollisionUpdateAgent.Collider collider = CollisionUpdateAgent.nullCollider;
 }

@@ -1,21 +1,25 @@
 package bitwize.nullawesome;
 
+import android.util.Log;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.BitSet;
+import java.util.HashSet;
+import java.util.ArrayList;
 
 public class EntityRepository {
     public static final int MAX_ENTITIES = 8192;
     public static final int NO_ENTITY = -1;
-    private HashMap<Class<?>, Object[]> componentArrays;
-    private BitSet active;
+    private HashMap<Class<?>, Object[]> componentArrays = new HashMap<Class<?>, Object[]>();;
+    private BitSet active = new BitSet();
     private int lastEid = 0;
     private int maxEid = 0;
+    private HashSet<EntityProcessor> addHooks = new HashSet<EntityProcessor>();
+    private HashSet<EntityProcessor> removeHooks = new HashSet<EntityProcessor>();
     private static EntityRepository theInstance = new EntityRepository();
-
+    
     private EntityRepository() {
-	componentArrays = new HashMap<Class<?>, Object[]>();
-	active = new BitSet();
     }
 
     public static EntityRepository get() {
@@ -68,30 +72,64 @@ public class EntityRepository {
 	for(int i=maxEid; i>=0; i--) {
 	    if(active.get(i)) { maxEid = i; break; }
 	}
+	for(EntityProcessor h : removeHooks) {
+	    h.process(eid);
+	}
     }
 
+    public void clearHooks() {
+	addHooks.clear();
+	removeHooks.clear();
+    }
+
+    public void registerHooks(EntityProcessor adder, EntityProcessor remover) {
+	addHooks.add(adder);
+	removeHooks.add(remover);
+    }
+
+    public void unregisterHooks(EntityProcessor adder, EntityProcessor remover) {
+	addHooks.remove(adder);
+	removeHooks.remove(remover);
+    }
+    
     public void addComponent(int eid, Object comp) {
-	Class<?> klass = comp.getClass();
+	Class<?> compClass = comp.getClass();
+	Log.e("EntityRepository", "adding component of type " + compClass.getName());
 	if(!active.get(eid)) {
 	    return;
 	}
-	if(!componentArrays.containsKey(klass)) {
-	    componentArrays.put(klass, new Object[MAX_ENTITIES]);
+	if(!componentArrays.containsKey(compClass)) {
+	    Log.e("EntityRepository", "creating component array for " + compClass.getName());
+	    componentArrays.put(compClass, new Object[MAX_ENTITIES]);
 	}
-	(componentArrays.get(klass))[eid] = comp;
+	(componentArrays.get(compClass))[eid] = comp;
+	for(EntityProcessor h : addHooks) {
+	    h.process(eid);
+	}
     }
 
-    public void processEntitiesWithComponent(Class<?> klass, EntityProcessor p) {
+    public void processEntities(EntityProcessor p) {
 	for(int i=0;i<=maxEid;i++) {
-	    if(active.get(i) && ((componentArrays.get(klass))[i] != null)) {
+	    if(active.get(i)) {
+		p.process(i);
+	    }
+	}
+    }
+    
+    public void processEntitiesWithComponent(Class<?> aClass, EntityProcessor p) {
+	if(componentArrays.get(aClass) == null) {
+	    return;
+	}
+	for(int i=0;i<=maxEid;i++) {
+	    if(active.get(i) && ((componentArrays.get(aClass))[i] != null)) {
 		p.process(i);
 	    }
 	}
     }
 
-    public int findEntityWithComponent(Class<?> klass) {
+    public int findEntityWithComponent(Class<?> aClass) {
 	for(int j=0;j<=maxEid;j++) {
-	    if(active.get(j) && ((componentArrays.get(klass))[j] != null)) return j;
+	    if(active.get(j) && ((componentArrays.get(aClass))[j] != null)) return j;
 	}
 	return NO_ENTITY;
     }

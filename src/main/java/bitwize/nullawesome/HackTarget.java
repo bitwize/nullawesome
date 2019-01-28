@@ -10,4 +10,5 @@ public class HackTarget {
     byte hasKey;
     boolean hacked = false;
     EntityProcessor action;
+    int linkedThingIndex;
 }
