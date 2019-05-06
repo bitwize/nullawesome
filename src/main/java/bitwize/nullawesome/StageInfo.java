@@ -68,7 +68,7 @@ public class StageInfo {
 	    for(int i=0; i<info.thingParams.length;i++) {
 		    JSONObject thingObj = thingsArray.getJSONObject(i);
 		    info.thingParams[i] = thingObj;
-		    info.thingIds[i] = -1;
+		    info.thingIds[i] = EntityRepository.NO_ENTITY;
 	    }
 	    info.map = TileMap.createFromInfo(info);
 	}
@@ -89,5 +89,10 @@ public class StageInfo {
 	catch(IOException e) {
 	    throw new RuntimeException(e);
 	}
+    }
+    public static int getEidForThing(StageInfo info, int thingNum) {
+	if(thingNum <  0) return EntityRepository.NO_ENTITY;
+	if(thingNum >= info.thingIds.length) return EntityRepository.NO_ENTITY;
+	return info.thingIds[thingNum];
     }
 }

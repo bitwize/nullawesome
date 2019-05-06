@@ -1,5 +1,6 @@
 package bitwize.nullawesome;
 
+import android.util.Log;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import org.json.*;
@@ -21,29 +22,59 @@ public class ThingFactory {
 	}
     }
 
-    private static EntityProcessor terminalNodeAction = new EntityProcessor() {
-	    public void process(int eid) {
-		EntityRepository repo = EntityRepository.get();
-		SpriteOverlay ovl = (SpriteOverlay)repo.getComponent(eid, SpriteOverlay.class);
-		TimerAction ta = (TimerAction)repo.getComponent(eid, TimerAction.class);
-		ovl.draw.set(0, true);
-		if(ta != null) {
-		    ta.active = true;
-		}
-	    }
-	};
+    private static EntityProcessor elevatorAction = (eid) -> {
+	EntityRepository repo = EntityRepository.get();
+	ElevatorStates es = (ElevatorStates)repo.getComponent(eid, ElevatorStates.class);
+	es.isAlternate = true;
+	es.transitioning = true;
+    };
 
-    private static EntityProcessor terminalNodeReset = new EntityProcessor() {
-	    public void process(int eid) {
-		EntityRepository repo = EntityRepository.get();
-		HackTarget ht = (HackTarget)repo.getComponent(eid, HackTarget.class);
-		SpriteOverlay ovl = (SpriteOverlay)repo.getComponent(eid, SpriteOverlay.class);
-		if(ht != null) ht.hacked = false;
-		if(ovl != null) ovl.draw.set(0, false);
-	    }
-	};
+    private static EntityProcessor elevatorReset = (eid) -> {
+	EntityRepository repo = EntityRepository.get();
+	ElevatorStates es = (ElevatorStates)repo.getComponent(eid, ElevatorStates.class);
+	es.isAlternate = false;
+	es.transitioning = true;
+    };
     
-    public int createTerminalNode(int stageEid, PointF location)
+    private static EntityProcessor terminalNodeAction = (eid) -> {
+	EntityRepository repo = EntityRepository.get();
+	HackTarget ht = (HackTarget)repo.getComponent(eid, HackTarget.class);
+	SpriteOverlay ovl = (SpriteOverlay)repo.getComponent(eid, SpriteOverlay.class);
+	TimerAction ta = (TimerAction)repo.getComponent(eid, TimerAction.class);
+	WorldPhysics phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
+	StageInfo info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
+	ovl.draw.set(0, true);
+	if(ta != null) {
+	    ta.active = true;
+	}
+	int linkedEid = StageInfo.getEidForThing(info, ht.linkedThingIndex);
+	if(linkedEid == EntityRepository.NO_ENTITY) return;
+	// TODO: replace this with a new component type
+	ElevatorStates es = (ElevatorStates)repo.getComponent(linkedEid, ElevatorStates.class);
+	if(es != null) {
+	    elevatorAction.process(linkedEid);
+	}
+    };
+
+    private static EntityProcessor terminalNodeReset = (eid) -> {
+	EntityRepository repo = EntityRepository.get();
+	HackTarget ht = (HackTarget)repo.getComponent(eid, HackTarget.class);
+	SpriteOverlay ovl = (SpriteOverlay)repo.getComponent(eid, SpriteOverlay.class);
+	WorldPhysics phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
+	StageInfo info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
+	if(ovl != null) ovl.draw.set(0, false);
+	if(ht == null) return;
+	ht.hacked = false;
+	int linkedEid = StageInfo.getEidForThing(info, ht.linkedThingIndex);
+	if(linkedEid == EntityRepository.NO_ENTITY) return;
+	// TODO: replace this with a new component type
+	ElevatorStates es = (ElevatorStates)repo.getComponent(linkedEid, ElevatorStates.class);
+	if(es != null) {
+	    elevatorReset.process(linkedEid);
+	}
+    };
+    
+    public int createTerminalNode(int stageEid, PointF location, int link)
 	throws EntityTableFullException {
 	EntityRepository repo = EntityRepository.get();
 	int eid = repo.newEntity();
@@ -64,6 +95,7 @@ public class ThingFactory {
 	ht.width = 48;
 	ht.height = 48;
 	ht.action = terminalNodeAction;
+	ht.linkedThingIndex = link;
 	phys.stageEid = stageEid;
 	phys.state = WorldPhysics.State.GROUNDED;
 	phys.gvelmax = 2.f;
@@ -80,10 +112,10 @@ public class ThingFactory {
 	return eid;
     }
 
-    public int createResettingTerminalNode(int stageEid, PointF location, int resetTime)
+    public int createResettingTerminalNode(int stageEid, PointF location, int link, int resetTime)
 	throws EntityTableFullException {
 	EntityRepository repo = EntityRepository.get();
-	int nodeEid = createTerminalNode(stageEid, location);
+	int nodeEid = createTerminalNode(stageEid, location, link);
 	TimerAction ta = new TimerAction();
 	ta.nTicks = resetTime;
 	ta.maxTicks = resetTime;
@@ -148,11 +180,12 @@ public class ThingFactory {
 	switch(namedTypes.get(type)) {
 	case TERMINAL_NODE:
 	    {
+		int link = obj.has("link") ? obj.getInt("link") : -1;
 		if(obj.has("reset_time")) {
 		    int resetTime = obj.getInt("reset_time");
-		    return createResettingTerminalNode(stageEid, loc, resetTime);
+		    return createResettingTerminalNode(stageEid, loc, link, resetTime);
 		} else {
-		    return createTerminalNode(stageEid, loc);
+		    return createTerminalNode(stageEid, loc, link);
 		}
 	    }
 	case ELEVATOR:

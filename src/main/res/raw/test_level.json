@@ -7,7 +7,7 @@
   ],
   "things": [
       {"x": 200, "y": 240, "type": "terminal_node"},
-      {"x": 256, "y": 240, "type": "terminal_node", "reset_time": 120},
+      {"x": 256, "y": 240, "type": "terminal_node", "reset_time": 480, "link": 2},
       {"x": 300, "y": 100, "type": "elevator", "normal_state": {
 	  "type": "oscillating",
 	  "fulcrum_x": 240,
@@ -16,8 +16,8 @@
       },
        "alt_state": {
 	   "type": "stationary",
-	   "x": 540,
-	   "y": 200,
+	   "x": 340,
+	   "y": 100,
 	   "fulcrum_x": 0,
 	   "fulcrum_y": 0,
 	   "spring_constant": 0.0
