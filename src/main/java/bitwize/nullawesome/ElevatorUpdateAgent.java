@@ -19,15 +19,15 @@ public class ElevatorUpdateAgent implements UpdateAgent {
 	float coef = Math.abs(targetState.springConstant);
 	if(es.transitioning) {
 	    phys.thrust.set(0.f, 0.f);
-	    float dx = sourceState.startPoint.x - mv.position.x;
-	    float dy = sourceState.startPoint.y - mv.position.y;
+	    float dx = targetState.startPoint.x - mv.position.x;
+	    float dy = targetState.startPoint.y - mv.position.y;
 	    float dist = (float)Math.sqrt((dx * dx) + (dy * dy));
 	    float distrat;
 	    // once we've arrived, stop transitioning
 	    if(dist < es.transitionSpeed * 2) {
 		es.transitioning = false;
-		mv.position.x = sourceState.startPoint.x;
-		mv.position.y = sourceState.startPoint.y;
+		mv.position.x = targetState.startPoint.x;
+		mv.position.y = targetState.startPoint.y;
 		mv.velocity.x = 0.f;
 		mv.velocity.y = 0.f;
 		mv.acceleration.x = 0.f;
