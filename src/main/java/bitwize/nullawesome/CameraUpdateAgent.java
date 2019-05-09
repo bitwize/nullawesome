@@ -8,8 +8,8 @@ public class CameraUpdateAgent implements UpdateAgent {
 
     public CameraUpdateAgent() {
 	repo = EntityRepository.get();
-	windowRight = DrawAgent.HRES - 100;
-	windowLeft = 100;
+	windowRight = DrawAgent.HRES * 6 / 10;
+	windowLeft = DrawAgent.HRES * 4 / 10;
     }
 
     private void moveCamera(int stageEid, int playerEid) {
