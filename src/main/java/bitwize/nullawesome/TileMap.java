@@ -10,12 +10,20 @@ public class TileMap {
     public static final int FLAG_SOLID = 1;
 
     private Bitmap tileImage;
+    private Bitmap backgroundImage;
+    private Rect backgroundImageSection;
     private int[] tileFlags;
     private short[] map;
     private int width, height;
     
-    private TileMap(Bitmap i, int w, int h) {
+    private TileMap(Bitmap i, Bitmap b,int w, int h) {
 	tileImage = i;
+	backgroundImage = b;
+	if(b != null) {
+	    backgroundImageSection = new Rect(0, 0, b.getWidth(), b.getHeight());
+	} else {
+	    backgroundImageSection = new Rect(0, 0, 0, 0);
+	}
 	tileFlags = new int[1024];
 	width = w; height = h;
 	map = new short[w * h];
@@ -45,6 +53,12 @@ public class TileMap {
     public Bitmap getTileImage() {
 	return tileImage;
     }
+    public Bitmap getBackgroundImage() {
+	return backgroundImage;
+    }
+    public Rect getBackgroundImageSection() {
+	return backgroundImageSection;
+    }
 
     private void fillRect(Rect r, StageInfo.RegionType type) {
 	Rect r2 = new Rect(r);
@@ -68,31 +82,16 @@ public class TileMap {
 	}
     }
 
-    public static TileMap getTestMap() {
-	TileMap tm;
-	Bitmap b = ContentRepository.get().getBitmap("block1");
-	Canvas c = new Canvas(b);
-	Paint p = new Paint();
-	p.setAntiAlias(false);
-	tm = new TileMap(b, 40, 25);
-	for(int i=0; i<40; i++) {
-	    tm.map[320+i] = 1;
-	    tm.map[360+i] = 1;
-	}
-	tm.map[292] = 1;
-	tm.map[252] = 1;
-	tm.tileFlags[1] = FLAG_SOLID;
-	return tm;
-    }
     public static TileMap createFromInfo(StageInfo info) {
 	ContentRepository repo = ContentRepository.get();
 	TileMap tm;
 	if(repo != null) {
 	    tm = new TileMap(repo.getBitmap(info.tileImageName),
+			     repo.getBitmap(info.backgroundImageName),
 			     info.width, info.height);
 	}
 	else {
-	    tm = new TileMap(null,
+	    tm = new TileMap(null, null,
 			     info.width, info.height);
 	}
 	for(int i=0; i<info.regions.length; i++) {

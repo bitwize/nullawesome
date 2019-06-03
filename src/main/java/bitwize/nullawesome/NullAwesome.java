@@ -21,6 +21,7 @@ public class NullAwesome extends Activity
 	EntityRepository.createInstance();
 	ContentRepository.createInstance(this);
 	ContentRepository.get().loadBitmap("player_r", R.drawable.player);
+	ContentRepository.get().loadBitmap("test_bg", R.drawable.test_bg);
 	ContentRepository.get().loadBitmap("testTiles", R.drawable.test_tiles);
 	ContentRepository.get().flipBitmap("player_r", "player_l");
 	ContentRepository.get().loadBitmap("buttons", R.drawable.buttons);

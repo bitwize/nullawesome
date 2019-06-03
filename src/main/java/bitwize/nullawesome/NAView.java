@@ -131,7 +131,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	init();
     }
     private void init() {
-	setFocusable(true);
+	setFocusableInTouchMode(true);
 	requestFocus();
 	try {
 	    buttonHitRect = new RectF();
@@ -146,6 +146,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    uagents.add(new PlayerUpdateAgent(playerEid));
 	    uagents.add(new CameraUpdateAgent());
 	    uagents.add(new TimerUpdateAgent());
+	    ragents.add(new BackgroundRenderAgent(dagent, stageEid));
 	    ragents.add(new SceneryDisplayAgent(dagent, stageEid));
 	    ragents.add(new SpriteDisplayAgent(dagent));
 	    ragents.add(new ButtonRenderAgent(dagent));
@@ -270,7 +271,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    pi.keyStatus |= PlayerInfo.KEY_HACK;
 	    break;
 	}
-	return true;
+	return super.onKeyDown(keyCode, ke);
     }
 
     @Override
@@ -295,7 +296,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    pi.keyStatus &= ~PlayerInfo.KEY_HACK;
 	    break;
 	}
-	return true;
+	return super.onKeyUp(keyCode, ke);
     }
     
     private void scaleRectToScreen(RectF r) {

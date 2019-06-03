@@ -10,17 +10,15 @@ public class ThingFactory {
 
     public static final int NO_THING=-1;
     
-    public enum ThingType {
-	TERMINAL_NODE,
-	DOOR_SLIDE,
-	ELEVATOR
-    }
     private static HashMap<String, ThingType> namedTypes = new HashMap<String, ThingType>();
     static {
 	for(ThingType t : ThingType.values()) {
 	    namedTypes.put(t.toString().toLowerCase(), t);
 	}
     }
+    
+    private static HashMap<ThingType, EntityProcessor> linkedThingTriggers;
+    private static HashMap<ThingType, EntityProcessor> linkedThingResets;
 
     private static EntityProcessor elevatorAction = (eid) -> {
 	EntityRepository repo = EntityRepository.get();
@@ -35,6 +33,15 @@ public class ThingFactory {
 	es.isAlternate = false;
 	es.transitioning = true;
     };
+
+    
+    static {
+	linkedThingTriggers = new HashMap<ThingType, EntityProcessor>();
+	linkedThingResets = new HashMap<ThingType, EntityProcessor>();
+	linkedThingTriggers.put(ThingType.ELEVATOR, elevatorAction);
+	linkedThingResets.put(ThingType.ELEVATOR, elevatorReset);
+    }
+    
     
     private static EntityProcessor terminalNodeAction = (eid) -> {
 	EntityRepository repo = EntityRepository.get();
@@ -48,11 +55,11 @@ public class ThingFactory {
 	    ta.active = true;
 	}
 	int linkedEid = StageInfo.getEidForThing(info, ht.linkedThingIndex);
+	ThingType linkedThingType = info.thingTypes[ht.linkedThingIndex];
 	if(linkedEid == EntityRepository.NO_ENTITY) return;
-	// TODO: replace this with a new component type
-	ElevatorStates es = (ElevatorStates)repo.getComponent(linkedEid, ElevatorStates.class);
-	if(es != null) {
-	    elevatorAction.process(linkedEid);
+	if(linkedThingTriggers.containsKey(linkedThingType)) {
+		EntityProcessor action = linkedThingTriggers.get(linkedThingType);
+		action.process(linkedEid);
 	}
     };
 
@@ -67,13 +74,14 @@ public class ThingFactory {
 	ht.hacked = false;
 	int linkedEid = StageInfo.getEidForThing(info, ht.linkedThingIndex);
 	if(linkedEid == EntityRepository.NO_ENTITY) return;
-	// TODO: replace this with a new component type
-	ElevatorStates es = (ElevatorStates)repo.getComponent(linkedEid, ElevatorStates.class);
-	if(es != null) {
-	    elevatorReset.process(linkedEid);
+	ThingType linkedThingType = info.thingTypes[ht.linkedThingIndex];
+	if(linkedEid == EntityRepository.NO_ENTITY) return;
+	if(linkedThingTriggers.containsKey(linkedThingType)) {
+		EntityProcessor action = linkedThingResets.get(linkedThingType);
+		action.process(linkedEid);
 	}
     };
-    
+
     public int createTerminalNode(int stageEid, PointF location, int link)
 	throws EntityTableFullException {
 	EntityRepository repo = EntityRepository.get();
@@ -172,12 +180,12 @@ public class ThingFactory {
 	JSONObject obj = info.thingParams[thingIndex];
 	int x = obj.getInt("x");
 	int y = obj.getInt("y");
-	String type = obj.getString("type");
-	if(namedTypes.get(type) == null) {
+	ThingType type = namedTypes.get(obj.getString("type"));
+	if(type == null) {
 	    throw new RuntimeException("invalid thing type");
 	}
 	PointF loc = new PointF(x, y);
-	switch(namedTypes.get(type)) {
+	switch(type) {
 	case TERMINAL_NODE:
 	    {
 		int link = obj.has("link") ? obj.getInt("link") : -1;
@@ -220,6 +228,7 @@ public class ThingFactory {
 	if(info == null) return;
 	for(int i=0; i < info.thingIds.length; i++) {
 	    info.thingIds[i] = createThing(stageEid, i);
+	    info.thingTypes[i] = namedTypes.get(info.thingParams[i].getString("type"));
 	}
     }
     

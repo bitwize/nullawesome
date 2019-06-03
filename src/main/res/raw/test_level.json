@@ -24,4 +24,6 @@
        }
       }
   ],
-  "tileImageName": "testTiles"}
+  "tileImageName": "testTiles",
+  "backgroundImageName": "test_bg"
+}

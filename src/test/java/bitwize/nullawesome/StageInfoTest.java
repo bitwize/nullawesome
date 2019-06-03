@@ -10,7 +10,7 @@ import org.json.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StageInfoTest {
-    private static String testJson1 = "{ \"width\": 40, \"height\": 10, \"regions\": [{ \"left\": 2, \"top\": 8, \"right\": 40, \"bottom\": 10, \"type\": 1}, { \"left\": 12, \"top\": 6, \"right\": 14, \"bottom\": 8, \"type\": 1}], \"things\": [], \"tileImageName\": \"testTiles\"}";
+    private static String testJson1 = "{ \"width\": 40, \"height\": 10, \"regions\": [{ \"left\": 2, \"top\": 8, \"right\": 40, \"bottom\": 10, \"type\": 1}, { \"left\": 12, \"top\": 6, \"right\": 14, \"bottom\": 8, \"type\": 1}], \"things\": [], \"tileImageName\": \"testTiles\", \"backgroundImageName\": \"test_bg\"}";
 
     @Test
     public void regionsFromJSON() throws JSONException {

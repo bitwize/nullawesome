@@ -94,6 +94,23 @@ public class DrawAgent {
 	dst.bottom = dst.top + (subsection.bottom - subsection.top);
 	c.drawBitmap(b, subsection, dst, paint);
     }
+    public void drawTileBG(Canvas c, Bitmap b, Rect subsection, PointF location) {
+	int w = subsection.width();
+	int h = subsection.height();
+	int startx = -(((int)location.x) % w);
+	int starty = -(((int)location.y) % h);
+	if(startx > 0) startx -= w;
+	if(starty > 0) starty -= h;
+	for(; starty < VRES; starty += h) {
+	    for(; startx < HRES; startx += w) {
+		dst.left = startx;
+		dst.top = starty;
+		dst.right = dst.left + w;
+		dst.bottom = dst.top + h;
+		c.drawBitmap(b, subsection, dst, paint);
+	    }
+	}
+    }
     public void drawButton(Canvas c, Bitmap b, Rect subsection, PointF location) {
 	paint.setAlpha(192);
 	drawSprite(c, b, subsection, location);

@@ -29,9 +29,11 @@ public class StageInfo {
     public StageInfo.RegionType[] regionTypes;
     public JSONObject[] thingParams;
     public int[] thingIds;
+    public ThingType[] thingTypes;
     public String tileImageName;
+    public String backgroundImageName;
+    public float bgMoveScaleX = 0.5f, bgMoveScaleY = 0.5f;
     public TileMap map;
-
     public static StageInfo loadStage(JSONObject o) {
 	StageInfo info = new StageInfo();
 	try {
@@ -40,10 +42,12 @@ public class StageInfo {
 	    info.width = o.getInt("width");
 	    info.height = o.getInt("height");
 	    info.tileImageName = o.getString("tileImageName");
+	    info.backgroundImageName = o.getString("backgroundImageName");
 	    info.regions = new Rect[regionsArray.length()];
 	    info.regionTypes = new StageInfo.RegionType[regionsArray.length()];
 	    info.thingIds = new int[thingsArray.length()];
 	    info.thingParams = new JSONObject[thingsArray.length()];
+	    info.thingTypes = new ThingType[thingsArray.length()];
 	    for(int i=0; i<info.regions.length;i++) {
 		JSONObject rgnobj = regionsArray.getJSONObject(i);
 		int l = rgnobj.getInt("left");
@@ -71,6 +75,7 @@ public class StageInfo {
 		    info.thingIds[i] = EntityRepository.NO_ENTITY;
 	    }
 	    info.map = TileMap.createFromInfo(info);
+	    
 	}
 	catch(JSONException je) {
 	    throw new RuntimeException(je);
