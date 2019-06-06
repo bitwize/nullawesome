@@ -55,8 +55,8 @@ public class ThingFactory {
 	    ta.active = true;
 	}
 	int linkedEid = StageInfo.getEidForThing(info, ht.linkedThingIndex);
-	ThingType linkedThingType = info.thingTypes[ht.linkedThingIndex];
 	if(linkedEid == EntityRepository.NO_ENTITY) return;
+	ThingType linkedThingType = info.thingTypes[ht.linkedThingIndex];
 	if(linkedThingTriggers.containsKey(linkedThingType)) {
 		EntityProcessor action = linkedThingTriggers.get(linkedThingType);
 		action.process(linkedEid);
