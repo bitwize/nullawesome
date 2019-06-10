@@ -10,8 +10,12 @@ public class WorldPhysics {
 	GROUNDED,
 	FALLING
     }
+
+    public static final int FACING_RIGHT = 1;
+    public static final int SOLID_COLLISION = 2;
+    public static final int BELOW_DEATH_FLOOR = 4;
     public int stageEid;
-    public boolean facingRight;
+    public int flags = FACING_RIGHT | SOLID_COLLISION;
     public State state = State.GROUNDED;
     public PointF gravity = new PointF(0.f, 0.2f);
     public PointF thrust = new PointF(0.f, 0.f);

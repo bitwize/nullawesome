@@ -117,6 +117,9 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 		}
 		return a;
 	    }
+	},
+	(view, ev) -> {
+	    return 0;
 	}
     };
     

@@ -33,6 +33,7 @@ public class StageInfo {
     public String tileImageName;
     public String backgroundImageName;
     public float bgMoveScaleX = 0.5f, bgMoveScaleY = 0.5f;
+    public float deathFloorY = 384.f;
     public TileMap map;
     public static StageInfo loadStage(JSONObject o) {
 	StageInfo info = new StageInfo();

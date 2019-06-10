@@ -14,15 +14,20 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	if(mov == null || phys == null) return;
 	info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
 	if(info == null) return;
-	switch(phys.state) {
-	case GROUNDED:
-	    doGrounded(mov, phys, info.map);
-	    break;
-	case FALLING:
+	if((phys.flags & WorldPhysics.SOLID_COLLISION) != 0) {
+	    switch(phys.state) {
+	    case GROUNDED:
+		doGrounded(mov, phys, info.map);
+		break;
+	    case FALLING:
+		doAir(mov, phys, info.map);
+		break;
+	    }
+	    evictGround(mov, phys, info.map);
+	    checkDeathFloor(phys, mov, info);
+	} else {
 	    doAir(mov, phys, info.map);
-	    break;
 	}
-	evictGround(mov, phys, info.map);
     };
     private RelevantEntitiesHolder reh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(WorldPhysics.class));
     private RectF elevRect = new RectF();
@@ -64,6 +69,7 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	phys.sticksToEid = EntityRepository.NO_ENTITY;
 	if(mov.velocity.y < phys.fallmax) {
 	    mov.acceleration.set(phys.gravity);
+	    Log.i("PhysicsUpdateAgent", "setting to gravity, flags = " + phys.flags + ", accel.y = " + mov.acceleration.y + ", velocity.y = " + mov.velocity.y);
 	}
 	else {
 	    mov.acceleration.set(0.f, 0.f);
@@ -71,6 +77,8 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	mov.acceleration.offset(phys.thrust.x, phys.thrust.y);
 	if(mov.velocity.x > phys.gvelmax) mov.velocity.x = phys.gvelmax;
 	if(mov.velocity.x < -phys.gvelmax) mov.velocity.x = -phys.gvelmax;
+	if((phys.flags & WorldPhysics.SOLID_COLLISION) == 0) { return; }
+	// tile collision stuff. We skip over this if the SOLID_COLLISION flag is off.
 	if((map.getTileFlags(map.getTileWorldCoords(mov.position.x, mov.position.y + phys.radius)) &
 	    TileMap.FLAG_SOLID) != 0) {
 	    phys.state = WorldPhysics.State.GROUNDED;
@@ -121,6 +129,16 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	    }
 	    mov.position.x -= incr;
 	    */
+	}
+    }
+
+    private void checkDeathFloor(WorldPhysics phys,
+				 SpriteMovement mov,
+				 StageInfo info) {
+	if(mov.position.y > info.deathFloorY) {
+	    phys.flags |= WorldPhysics.BELOW_DEATH_FLOOR;
+	} else {
+	    phys.flags &= ~WorldPhysics.BELOW_DEATH_FLOOR;
 	}
     }
     public PhysicsUpdateAgent() {

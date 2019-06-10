@@ -18,6 +18,11 @@ public class PlayerInfo {
 
     public static final int JUMPED = 1;
 
+    //   This flag is set if Lorn is dead (he took a hit or a fatal
+    //   fall)
+    
+    public static final int DEAD = 2;
+
     public int keyStatus = 0;
     public InputState inputState = InputState.MOVEMENT;
     public int flags = 0;

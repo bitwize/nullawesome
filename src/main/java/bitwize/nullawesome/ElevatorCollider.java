@@ -14,6 +14,7 @@ public class ElevatorCollider implements CollisionUpdateAgent.Collider {
 	physO = (WorldPhysics)repo.getComponent(eid1, WorldPhysics.class);
 	physE = (WorldPhysics)repo.getComponent(eid2, WorldPhysics.class);
 	if(movO == null || physO == null || movE == null || physE == null) { return; }
+	if((physO.flags & WorldPhysics.SOLID_COLLISION) == 0) { return; }
 	hitboxO.set(physO.hitbox);
 	hitboxO.offset(movO.position.x, movO.position.y);
 	hitboxE.set(physE.hitbox);

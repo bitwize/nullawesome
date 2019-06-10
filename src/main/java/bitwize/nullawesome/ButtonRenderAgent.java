@@ -39,6 +39,9 @@ public class ButtonRenderAgent implements RenderAgent {
 	},
 	(c) -> {
 	    drawHackingControls(c);
+	},
+	(c) -> {
+
 	}
     };
     public ButtonRenderAgent(DrawAgent a) {

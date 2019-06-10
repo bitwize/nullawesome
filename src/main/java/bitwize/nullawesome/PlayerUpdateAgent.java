@@ -12,6 +12,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
     private SpriteShape jumpShape;
     private SpriteShape hackShape;
     private SpriteShape putAwayShape;
+    private SpriteShape dieShape;
     private int player_eid;
     public static final float WALK_ACCEL = 0.2f;
     public PlayerUpdateAgent(int eid) {
@@ -23,6 +24,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	jumpShape = SpriteShape.loadAnimation(content.getAnimation("player_jump"));
 	hackShape = SpriteShape.loadAnimation(content.getAnimation("player_hack"));
 	putAwayShape = SpriteShape.loadAnimation(content.getAnimation("player_putaway"));
+	dieShape = SpriteShape.loadAnimation(content.getAnimation("player_die"));
     }
 
     private void switchStanding(SpriteShape shp) {
@@ -75,6 +77,16 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	shp.currentTime = 0;
     }
 
+    private void switchDie(SpriteShape shp) {
+	if(shp.frames == dieShape.frames) return;
+	shp.maxFrames = dieShape.maxFrames;
+	shp.frames = dieShape.frames;
+	shp.timings = dieShape.timings;
+	shp.loop = dieShape.loop;
+	shp.currentFrame = 0;
+	shp.currentTime = 0;
+    }
+
     public void update(long time) {
 	int eid = player_eid;
 	PlayerInfo pi;
@@ -103,7 +115,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
 		    phys.gaccel = (mov.velocity.x < 0
 				   ? PhysicsUpdateAgent.BASE_FRIC * 1.2f
 				   : WALK_ACCEL);
-		    phys.facingRight = true;
+		    phys.flags |= WorldPhysics.FACING_RIGHT;
 		    switchWalking(shp);
 		    break;
 		case FALLING:
@@ -117,7 +129,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
 		    phys.gaccel = -(mov.velocity.x > 0
 				   ? PhysicsUpdateAgent.BASE_FRIC * 1.2f
 				   : WALK_ACCEL);
-		    phys.facingRight = false;
+		    phys.flags &= ~WorldPhysics.FACING_RIGHT;
 		    switchWalking(shp);
 		    break;
 		case FALLING:
@@ -158,6 +170,19 @@ public class PlayerUpdateAgent implements UpdateAgent {
 		pi.flags &= (~PlayerInfo.JUMPED);
 	    }
 	}
-	shp.shapes = phys.facingRight ? rightBitmap : leftBitmap;
+	shp.shapes = ((phys.flags & WorldPhysics.FACING_RIGHT) != 0) ? rightBitmap : leftBitmap;
+	if((phys.flags & WorldPhysics.BELOW_DEATH_FLOOR) != 0 &&
+	   (pi.flags & PlayerInfo.DEAD) == 0) { die(pi, phys, mov, shp); }
+    }
+
+    public void die(PlayerInfo pi, WorldPhysics phys, SpriteMovement mov, SpriteShape shp) {
+	pi.flags |= PlayerInfo.DEAD;
+	pi.inputState = InputState.DEATH;
+	phys.flags &= ~WorldPhysics.SOLID_COLLISION;
+	switchDie(shp);	
+	phys.thrust.set(0.f, 0.f);
+	mov.velocity.set(0.f, -6.f);
+	mov.acceleration.set(0.f, 0.f);
+	phys.state = WorldPhysics.State.FALLING;
     }
 }
