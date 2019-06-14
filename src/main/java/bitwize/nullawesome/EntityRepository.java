@@ -77,6 +77,14 @@ public class EntityRepository {
 	}
     }
 
+    public void clear() {
+	active.clear();
+	componentArrays.clear();
+	lastEid = 0;
+	maxEid = 0;
+	clearHooks();
+    }
+
     public void clearHooks() {
 	addHooks.clear();
 	removeHooks.clear();

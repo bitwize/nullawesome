@@ -133,15 +133,10 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	myctx = ctx;
 	init();
     }
-    private void init() {
-	setFocusableInTouchMode(true);
-	requestFocus();
+    private void initGameState() {
 	try {
-	    buttonHitRect = new RectF();
 	    initStage();
 	    initPlayer();
-	    dagent = new DrawAgent(ragents);
-	    dagent.setHolder(this.getHolder());
 	    uagents.add(new PositionUpdateAgent());
 	    uagents.add(new PhysicsUpdateAgent());
 	    uagents.add(new CollisionUpdateAgent());
@@ -149,14 +144,31 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    uagents.add(new PlayerUpdateAgent(playerEid));
 	    uagents.add(new CameraUpdateAgent());
 	    uagents.add(new TimerUpdateAgent());
+	    uagents.add(new GameResetAgent(this));
 	    ragents.add(new BackgroundRenderAgent(dagent, stageEid));
 	    ragents.add(new SceneryDisplayAgent(dagent, stageEid));
 	    ragents.add(new SpriteDisplayAgent(dagent));
 	    ragents.add(new ButtonRenderAgent(dagent));
-	    this.getHolder().addCallback(this);
-	}
-	catch(Exception e) {
+	} catch(Exception e) {
 	    throw new RuntimeException(e);
+	}
+    }
+    private void init() {
+	setFocusableInTouchMode(true);
+	requestFocus();
+	buttonHitRect = new RectF();
+	dagent = new DrawAgent(ragents);
+	dagent.setHolder(this.getHolder());
+	this.getHolder().addCallback(this);
+	initGameState();
+    }
+
+    public void reset() {
+	synchronized(thr) {
+	    uagents.clear();
+	    ragents.clear();
+	    EntityRepository.get().clear();
+	    initGameState();
 	}
     }
 
