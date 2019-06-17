@@ -21,7 +21,8 @@ public class StageInfo {
 	
     public enum RegionType {
 	EMPTY,
-	GROUND
+	GROUND,
+	LAVA
     }
     
     public int width, height;

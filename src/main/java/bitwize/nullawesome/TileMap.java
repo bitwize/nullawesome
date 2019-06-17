@@ -79,6 +79,13 @@ public class TileMap {
 		}
 	    }
 	    break;
+	case LAVA:
+	    for(int j=r2.top; j<r2.bottom; j++) {
+		for(int i=r2.left; i<r2.right; i++) {
+		    map[j * width + i] = 2;
+		}
+	    }
+	    break;
 	}
     }
 
