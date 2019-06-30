@@ -15,6 +15,8 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
 	if(info == null) return;
 	if((phys.flags & WorldPhysics.SOLID_COLLISION) != 0) {
+	    checkDeathFloor(mov, phys, info);
+	    doTouchdeath(mov, phys, info.map);
 	    switch(phys.state) {
 	    case GROUNDED:
 		doGrounded(mov, phys, info.map);
@@ -24,7 +26,6 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 		break;
 	    }
 	    evictGround(mov, phys, info.map);
-	    checkDeathFloor(phys, mov, info);
 	} else {
 	    doAir(mov, phys, info.map);
 	}
@@ -96,6 +97,17 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	}
     }
 
+    private void doTouchdeath(SpriteMovement mov, WorldPhysics phys, TileMap map) {
+	if(
+	   ((map.getTileFlags(map.getTileWorldCoords(mov.position.x, mov.position.y - phys.radius)) &
+	     TileMap.FLAG_TOUCHDEATH) != 0) ||
+	   ((map.getTileFlags(map.getTileWorldCoords(mov.position.x, mov.position.y + phys.radius)) &
+	     TileMap.FLAG_TOUCHDEATH) != 0)
+	   ) {
+	    phys.flags |= WorldPhysics.SHOULD_DESTROY;
+	}
+    }
+
     private void evictGround(SpriteMovement mov, WorldPhysics phys, TileMap map) {
 	// Test for collision with a solid piece of ground on either
 	// the left or right side and push the object out until the
@@ -132,13 +144,13 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	}
     }
 
-    private void checkDeathFloor(WorldPhysics phys,
-				 SpriteMovement mov,
+    private void checkDeathFloor(SpriteMovement mov,
+				 WorldPhysics phys,
 				 StageInfo info) {
 	if(mov.position.y > info.deathFloorY) {
-	    phys.flags |= WorldPhysics.BELOW_DEATH_FLOOR;
+	    phys.flags |= WorldPhysics.SHOULD_DESTROY;
 	} else {
-	    phys.flags &= ~WorldPhysics.BELOW_DEATH_FLOOR;
+	    phys.flags &= ~WorldPhysics.SHOULD_DESTROY;
 	}
     }
     public PhysicsUpdateAgent() {

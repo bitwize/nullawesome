@@ -8,7 +8,7 @@ public class TileMap {
     public static final int TILE_SIZE = 32;
 
     public static final int FLAG_SOLID = 1;
-
+    public static final int FLAG_TOUCHDEATH=2;
     private Bitmap tileImage;
     private Bitmap backgroundImage;
     private Rect backgroundImageSection;
@@ -106,6 +106,7 @@ public class TileMap {
 			info.regionTypes[i]);
 	}
 	tm.tileFlags[1] = FLAG_SOLID;
+	tm.tileFlags[2] = FLAG_SOLID | FLAG_TOUCHDEATH;
 	return tm;
     }
 }

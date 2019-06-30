@@ -171,7 +171,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	    }
 	}
 	shp.shapes = ((phys.flags & WorldPhysics.FACING_RIGHT) != 0) ? rightBitmap : leftBitmap;
-	if((phys.flags & WorldPhysics.BELOW_DEATH_FLOOR) != 0 &&
+	if((phys.flags & WorldPhysics.SHOULD_DESTROY) != 0 &&
 	   (pi.flags & PlayerInfo.DEAD) == 0) { die(pi, phys, mov, shp); }
     }
 
