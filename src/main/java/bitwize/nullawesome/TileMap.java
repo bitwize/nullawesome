@@ -15,6 +15,43 @@ public class TileMap {
     private int[] tileFlags;
     private short[] map;
     private int width, height;
+    private Greeblizer greeblizers[] = {
+	(map, width, height, r, type) -> {
+	    for(int j=r.top; j<r.bottom; j++) {
+		for(int i=r.left; i<r.right; i++) {
+		    map[j * width + i] = 0;
+		}
+	    }
+	},
+	(map, width, height, r, type) -> {
+	    if(r.bottom - r.top == 1) {
+		map[r.top * width + r.left] = 4;
+		map[r.top * width + r.right - 1] = 5;
+		for(int i=r.left + 1; i<r.right - 1; i++) {
+		    map[r.top * width + i] = 3;
+		}
+	    } else {
+		for(int i=r.left; i<r.right; i++) {
+		    map[r.top * width + i] = 2;
+		}
+		for(int j=r.top + 1; j<r.bottom; j++) {		
+		    for(int i=r.left; i<r.right; i++) {
+			map[j * width + i] = 1;
+		    }
+		}
+	    }
+	},
+	(map, width, height, r, type) -> {
+	    for(int i=r.left; i<r.right; i++) {
+		map[r.top * width + i] = 7;
+	    }
+	    for(int j=r.top + 1; j<r.bottom; j++) {
+		for(int i=r.left; i<r.right; i++) {
+		    map[j * width + i] = 6;
+		}
+	    }
+	}
+    };
     
     private TileMap(Bitmap i, Bitmap b,int w, int h) {
 	tileImage = i;
@@ -64,29 +101,7 @@ public class TileMap {
 	Rect r2 = new Rect(r);
 	boolean result = r2.intersect(0, 0, width, height);
 	if(!result) return;
-	switch(type) {
-	case EMPTY:
-	    for(int j=r2.top; j<r2.bottom; j++) {
-		for(int i=r2.left; i<r2.right; i++) {
-		    map[j * width + i] = 0;
-		}
-	    }
-	    break;
-	case GROUND:
-	    for(int j=r2.top; j<r2.bottom; j++) {
-		for(int i=r2.left; i<r2.right; i++) {
-		    map[j * width + i] = 1;
-		}
-	    }
-	    break;
-	case LAVA:
-	    for(int j=r2.top; j<r2.bottom; j++) {
-		for(int i=r2.left; i<r2.right; i++) {
-		    map[j * width + i] = 2;
-		}
-	    }
-	    break;
-	}
+	greeblizers[type.ordinal()].fillRect(map, width, height, r2, type);
     }
 
     public static TileMap createFromInfo(StageInfo info) {
@@ -106,7 +121,12 @@ public class TileMap {
 			info.regionTypes[i]);
 	}
 	tm.tileFlags[1] = FLAG_SOLID;
-	tm.tileFlags[2] = FLAG_SOLID | FLAG_TOUCHDEATH;
+	tm.tileFlags[2] = FLAG_SOLID;
+	tm.tileFlags[3] = FLAG_SOLID;
+	tm.tileFlags[4] = FLAG_SOLID;
+	tm.tileFlags[5] = FLAG_SOLID;
+	tm.tileFlags[6] = FLAG_SOLID | FLAG_TOUCHDEATH;
+	tm.tileFlags[7] = FLAG_SOLID | FLAG_TOUCHDEATH;
 	return tm;
     }
 }
