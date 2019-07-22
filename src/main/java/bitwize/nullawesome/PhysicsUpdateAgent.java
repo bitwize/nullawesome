@@ -33,6 +33,15 @@ public class PhysicsUpdateAgent implements UpdateAgent {
     private RelevantEntitiesHolder reh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(WorldPhysics.class));
     private RectF elevRect = new RectF();
     public static final float BASE_FRIC = 0.5f;
+
+    // Handle all of the physics and movement stuff when the entity is
+    // "on the ground" (state GROUNDED). It translates the entity's
+    // ground velocity and acceleration into velocity and acceleration
+    // in world coordinates, keeps the entity stuck to either the
+    // ground or a moving sprite that counts as ground, and checks to
+    // see whether it should start falling (because it either jumped
+    // or walked off a ledge).
+    
     private void doGrounded(SpriteMovement mov, WorldPhysics phys, TileMap map) {
 	boolean shouldFall;
 	if(Math.abs(phys.gaccel) > 0.00001f) {
@@ -66,6 +75,12 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	    phys.sticksToEid = EntityRepository.NO_ENTITY;
 	}
     }
+
+    // Handle the movement and physics when an entity is in the air
+    // (state FALLING). It adds the entity's "thrust" and "gravity"
+    // vectors to come up with a world-coordinate acceleration vector,
+    // and checks to see if the entity collided with a ground tile.
+    
     private void doAir(SpriteMovement mov, WorldPhysics phys, TileMap map) {
 	phys.sticksToEid = EntityRepository.NO_ENTITY;
 	if(mov.velocity.y < phys.fallmax) {
@@ -97,6 +112,9 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	}
     }
 
+    // Determine whether the entity should "die" upon touching a
+    // deadly tile.
+    
     private void doTouchdeath(SpriteMovement mov, WorldPhysics phys, TileMap map) {
 	if(
 	   ((map.getTileFlags(map.getTileWorldCoords(mov.position.x, mov.position.y - phys.radius)) &
@@ -107,11 +125,12 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	    phys.flags |= WorldPhysics.SHOULD_DESTROY;
 	}
     }
-
+    
+    // Test for collision with a solid piece of ground on either the
+    // left or right side and push the object out until the test
+    // fails, stopping horizontal movement in the process.
+    
     private void evictGround(SpriteMovement mov, WorldPhysics phys, TileMap map) {
-	// Test for collision with a solid piece of ground on either
-	// the left or right side and push the object out until the
-	// test fails, stopping horizontal movement in the process.
 
 	boolean collideLeft, collideRight;
 	float offset = phys.radius * 0.6f;
@@ -143,6 +162,10 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	    */
 	}
     }
+
+    // Check to see whether the entity has fallen below the level's
+    // "death floor" (the Y-coordinate beyond which objects are
+    // considered to have irretrievably fallen into a pit).
 
     private void checkDeathFloor(SpriteMovement mov,
 				 WorldPhysics phys,
