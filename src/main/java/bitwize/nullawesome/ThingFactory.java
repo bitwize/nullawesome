@@ -16,7 +16,14 @@ public class ThingFactory {
 	    namedTypes.put(t.toString().toLowerCase(), t);
 	}
     }
-    
+
+    private static HashMap<String, EnemyType> namedEnemyTypes = new HashMap<String, EnemyType>();
+    static {
+	for(EnemyType t : EnemyType.values()) {
+	    namedEnemyTypes.put(t.toString().toLowerCase(), t);
+	}
+    }
+
     private static HashMap<ThingType, EntityProcessor> linkedThingTriggers;
     private static HashMap<ThingType, EntityProcessor> linkedThingResets;
 
@@ -169,6 +176,51 @@ public class ThingFactory {
 	return eid;
     }
 
+    public int createSentryDrone(int stageEid, PointF location)
+	throws EntityTableFullException
+    {
+	EntityRepository repo = EntityRepository.get();
+	int eid = repo.newEntity();
+	SpriteShape shp = new SpriteShape();
+	shp.shapes = ContentRepository.get().getBitmap("sentrydrone_r");
+	shp.subsection = new Rect(0, 0, 32, 32);
+	SpriteMovement mv = new SpriteMovement();
+	WorldPhysics phys = new WorldPhysics();
+	EnemyInfo ei = new EnemyInfo();
+	phys.stageEid = stageEid;
+	phys.state = WorldPhysics.State.FALLING;
+	phys.gvelmax = 4.f;
+	phys.radius = 16;
+	phys.hitbox.left = -16.f;
+	phys.hitbox.top = -16.f;
+	phys.hitbox.right = 16.f;
+	phys.hitbox.bottom = 16.f;
+	phys.flags |= WorldPhysics.SOLID_COLLISION;
+	mv.position.set(location);
+	mv.hotspot.set(16.f, 16.f);
+	ei.type = EnemyType.SENTRY_DRONE;
+	ei.currentState = EnemyState.IDLE;
+	ei.targetEid = EntityRepository.NO_ENTITY;
+	ei.seesTarget = false;
+	repo.addComponent(eid, shp);
+	repo.addComponent(eid, mv);
+	repo.addComponent(eid, phys);
+	repo.addComponent(eid, ei);
+	return eid;
+    }
+
+    public int createEnemy(int stageEid, EnemyType etype, PointF location)
+	throws EntityTableFullException
+    {
+	switch(etype) {
+	case SENTRY_DRONE:
+	    return createSentryDrone(stageEid, location);
+	default:
+	    return EntityRepository.NO_ENTITY;
+	}
+    }
+
+    
     private int createThing(int stageEid,
 			    int thingIndex)
 	throws EntityTableFullException, JSONException {
@@ -216,8 +268,13 @@ public class ThingFactory {
 	    } else {
 		return -1;
 	    }
+	case ENEMY:
+	    {
+		EnemyType etype = namedEnemyTypes.get(obj.getString("enemy_type"));
+		return createEnemy(stageEid, etype, loc);
+	    }
 	default:
-	    return -1;
+	    return EntityRepository.NO_ENTITY;
 	}
 	
     }

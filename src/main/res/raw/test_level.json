@@ -24,7 +24,8 @@
 	   "fulcrum_y": 0,
 	   "spring_constant": 0.0
        }
-      }
+      },
+      {"x": 100, "y": 40, "type": "enemy", "enemy_type": "sentry_drone"}
   ],
   "tileImageName": "testTiles",
   "backgroundImageName": "test_bg"
