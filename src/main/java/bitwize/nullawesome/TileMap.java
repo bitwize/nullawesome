@@ -32,7 +32,15 @@ public class TileMap {
 		}
 	    } else {
 		for(int i=r.left; i<r.right; i++) {
-		    map[r.top * width + i] = 2;
+		    if(r.top > 0
+		       && map[(r.top - 1) * width + i] == 0) {
+			map[r.top * width + i] = 2;
+		    } else {	
+			map[r.top * width + i] = 1;
+		    }
+		    if(r.bottom < height && map[r.bottom * width + i] == 2) {
+			map[r.bottom * width + i] = 1;
+		    }
 		}
 		for(int j=r.top + 1; j<r.bottom; j++) {		
 		    for(int i=r.left; i<r.right; i++) {
