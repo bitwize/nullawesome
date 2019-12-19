@@ -16,6 +16,19 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	SpriteMovement mv = (SpriteMovement) repo.getComponent(eid, SpriteMovement.class);
 	WorldPhysics phys = (WorldPhysics) repo.getComponent(eid, WorldPhysics.class);
 	if(ei == null || mv == null || phys == null) return;
+	EntityProcessor action = ei.stateActions.get(ei.currentState);
+	if(action != null) {
+	    action.process(eid);
+	}
+	EnemyStateTransition[] xions = ei.script.get(ei.currentState);
+	if(xions != null) {
+	    for(EnemyStateTransition xion : xions) {
+		if(xion.criterion.test(eid)) {
+		    ei.currentState = xion.newState;
+		    break;
+		}
+	    }
+	}
     };
 
     public EnemyUpdateAgent() {

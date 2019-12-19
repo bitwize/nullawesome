@@ -41,6 +41,24 @@ public class ThingFactory {
 	es.transitioning = true;
     };
 
+
+    private static Criterion isLornInAir = (eid) -> {
+	EntityRepository repo = EntityRepository.get();
+	int playerEid = repo.findEntityWithComponent(PlayerInfo.class);
+	if(playerEid == EntityRepository.NO_ENTITY) return false;
+	WorldPhysics phys = (WorldPhysics)repo.getComponent(playerEid, WorldPhysics.class);
+	if(phys == null) return false;
+	return phys.state == WorldPhysics.State.FALLING;
+    };
+    
+    private static Criterion isLornGrounded = (eid) -> {
+	EntityRepository repo = EntityRepository.get();
+	int playerEid = repo.findEntityWithComponent(PlayerInfo.class);
+	if(playerEid == EntityRepository.NO_ENTITY) return false;
+	WorldPhysics phys = (WorldPhysics)repo.getComponent(playerEid, WorldPhysics.class);
+	if(phys == null) return false;
+	return phys.state == WorldPhysics.State.GROUNDED;
+    };
     
     static {
 	linkedThingTriggers = new HashMap<ThingType, EntityProcessor>();
@@ -201,7 +219,33 @@ public class ThingFactory {
 	ei.type = EnemyType.SENTRY_DRONE;
 	ei.currentState = EnemyState.IDLE;
 	ei.targetEid = EntityRepository.NO_ENTITY;
-	ei.seesTarget = false;
+	ei.flags = 0;
+	ei.stateActions.put(EnemyState.IDLE,
+			    (eid2) -> {
+				EntityRepository repo2 = EntityRepository.get();
+				EnemyInfo ei2 = (EnemyInfo) repo2.getComponent(eid2, EnemyInfo.class);
+				SpriteMovement mv2 = (SpriteMovement) repo2.getComponent(eid2, SpriteMovement.class);
+				WorldPhysics phys2 = (WorldPhysics) repo2.getComponent(eid2, WorldPhysics.class);
+				if(ei2 == null || mv2 == null || phys2 == null) return;
+				if(phys2.state == WorldPhysics.State.GROUNDED) {
+				    phys2.gaccel = +0.1f;
+				}
+			    });
+	ei.stateActions.put(EnemyState.ATTACKING,
+			    (eid2) -> {
+				EntityRepository repo2 = EntityRepository.get();
+				EnemyInfo ei2 = (EnemyInfo) repo2.getComponent(eid2, EnemyInfo.class);
+				SpriteMovement mv2 = (SpriteMovement) repo2.getComponent(eid2, SpriteMovement.class);
+				WorldPhysics phys2 = (WorldPhysics) repo2.getComponent(eid2, WorldPhysics.class);
+				if(ei2 == null || mv2 == null || phys2 == null) return;
+				if(phys2.state == WorldPhysics.State.GROUNDED) {
+				    phys2.gaccel = -0.1f;
+				}
+			    });
+	ei.scriptSet(EnemyState.IDLE,
+		     new EnemyStateTransition(isLornInAir, EnemyState.ATTACKING));
+	ei.scriptSet(EnemyState.ATTACKING,
+		     new EnemyStateTransition(isLornGrounded, EnemyState.IDLE));
 	repo.addComponent(eid, shp);
 	repo.addComponent(eid, mv);
 	repo.addComponent(eid, phys);
