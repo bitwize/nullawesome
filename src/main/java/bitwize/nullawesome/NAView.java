@@ -216,6 +216,10 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	EntityRepository.get().addComponent(playerEid, mv);
 	EntityRepository.get().addComponent(playerEid, phys);
 	EntityRepository.get().addComponent(playerEid, pli);
+	EntityRepository.get().processEntitiesWithComponent(EnemyInfo.class, (anEid) -> {
+		EnemyInfo ei = (EnemyInfo)EntityRepository.get().getComponent(anEid, EnemyInfo.class);
+		ei.targetEid = playerEid;
+	});
     }
     public void surfaceCreated(SurfaceHolder holder) {
 	thr = new GameThread(dagent,uagents);

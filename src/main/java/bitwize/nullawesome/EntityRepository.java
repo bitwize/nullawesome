@@ -129,7 +129,8 @@ public class EntityRepository {
 	    return;
 	}
 	for(int i=0;i<=maxEid;i++) {
-	    if(active.get(i) && ((componentArrays.get(aClass))[i] != null)) {
+	    if(active.get(i) && (componentArrays.get(aClass) != null) &&
+				((componentArrays.get(aClass))[i] != null)) {
 		p.process(i);
 	    }
 	}

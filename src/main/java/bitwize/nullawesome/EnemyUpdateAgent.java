@@ -16,6 +16,20 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	SpriteMovement mv = (SpriteMovement) repo.getComponent(eid, SpriteMovement.class);
 	WorldPhysics phys = (WorldPhysics) repo.getComponent(eid, WorldPhysics.class);
 	if(ei == null || mv == null || phys == null) return;
+	StageInfo info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
+	if(info == null) return;
+	TileMap map = info.map;
+	if(ei.targetEid != EntityRepository.NO_ENTITY) {
+		SpriteMovement mvTarget = (SpriteMovement) repo.getComponent(ei.targetEid, SpriteMovement.class);
+		if (mvTarget != null) {
+			boolean st = seesTarget(mv, mvTarget, map, ei.sightRange, ei.sightFrustum, (phys.flags & WorldPhysics.FACING_RIGHT) != 0, ei.flags);
+			if(st) {
+				ei.flags |= EnemyInfo.SEES_TARGET;
+			} else {
+				ei.flags &= ~(EnemyInfo.SEES_TARGET);
+			}
+		}
+	}
 	EntityProcessor action = ei.stateActions.get(ei.currentState);
 	if(action != null) {
 	    action.process(eid);
@@ -30,6 +44,26 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	    }
 	}
     };
+
+    public static boolean seesTarget(SpriteMovement mvViewer, SpriteMovement mvTarget, TileMap map, float range, float frustAng, boolean facingRight, int flags) {
+	float distX = mvTarget.position.x - mvViewer.position.x;
+	float distY = mvTarget.position.y - mvViewer.position.y;
+	if(((distX * distX) + (distY * distY)) > range * range) {
+		return false;
+	}
+	if((flags & EnemyInfo.LIDAR) == 0) {
+	    if(facingRight && distX < 0) {
+		return false;
+	    }
+	    if((!facingRight) && distX > 0) {
+		return false;
+	    }
+	    if (Math.abs(Math.atan2(Math.abs(distY), Math.abs(distX))) > frustAng) {
+		return false;
+	    }
+	}
+	return true;
+    }
 
     public EnemyUpdateAgent() {
 	enemyImagesL = new EnumMap<EnemyType, Bitmap>(EnemyType.class);

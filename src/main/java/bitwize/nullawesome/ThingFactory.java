@@ -207,7 +207,6 @@ public class ThingFactory {
 	EnemyInfo ei = new EnemyInfo();
 	phys.stageEid = stageEid;
 	phys.state = WorldPhysics.State.FALLING;
-	phys.gvelmax = 4.f;
 	phys.radius = 16;
 	phys.hitbox.left = -16.f;
 	phys.hitbox.top = -16.f;
@@ -220,32 +219,18 @@ public class ThingFactory {
 	ei.currentState = EnemyState.IDLE;
 	ei.targetEid = EntityRepository.NO_ENTITY;
 	ei.flags = 0;
+	ei.walkVel = 1.6f;
+	ei.chaseVel = 3.2f;
+	ei.sightRange = 128;
+	ei.sightFrustum = (float)Math.atan(1);
 	ei.stateActions.put(EnemyState.IDLE,
-			    (eid2) -> {
-				EntityRepository repo2 = EntityRepository.get();
-				EnemyInfo ei2 = (EnemyInfo) repo2.getComponent(eid2, EnemyInfo.class);
-				SpriteMovement mv2 = (SpriteMovement) repo2.getComponent(eid2, SpriteMovement.class);
-				WorldPhysics phys2 = (WorldPhysics) repo2.getComponent(eid2, WorldPhysics.class);
-				if(ei2 == null || mv2 == null || phys2 == null) return;
-				if(phys2.state == WorldPhysics.State.GROUNDED) {
-				    phys2.gaccel = +0.1f;
-				}
-			    });
+			    EnemyBehaviors.groundPatrol);
 	ei.stateActions.put(EnemyState.ATTACKING,
-			    (eid2) -> {
-				EntityRepository repo2 = EntityRepository.get();
-				EnemyInfo ei2 = (EnemyInfo) repo2.getComponent(eid2, EnemyInfo.class);
-				SpriteMovement mv2 = (SpriteMovement) repo2.getComponent(eid2, SpriteMovement.class);
-				WorldPhysics phys2 = (WorldPhysics) repo2.getComponent(eid2, WorldPhysics.class);
-				if(ei2 == null || mv2 == null || phys2 == null) return;
-				if(phys2.state == WorldPhysics.State.GROUNDED) {
-				    phys2.gaccel = -0.1f;
-				}
-			    });
+				EnemyBehaviors.chase);
 	ei.scriptSet(EnemyState.IDLE,
-		     new EnemyStateTransition(isLornInAir, EnemyState.ATTACKING));
+		     new EnemyStateTransition(EnemyBehaviors.seesTargetCriterion, EnemyState.ATTACKING));
 	ei.scriptSet(EnemyState.ATTACKING,
-		     new EnemyStateTransition(isLornGrounded, EnemyState.IDLE));
+		     new EnemyStateTransition(EnemyBehaviors.doesntSeeTargetCriterion, EnemyState.IDLE));
 	repo.addComponent(eid, shp);
 	repo.addComponent(eid, mv);
 	repo.addComponent(eid, phys);
