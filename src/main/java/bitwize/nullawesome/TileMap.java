@@ -88,6 +88,7 @@ public class TileMap {
 	return height;
     }
     public short getTileWorldCoords(float x, float y) {
+	if(x < 0 || y < 0) return 0;
 	return getTile((int)x / TILE_SIZE, (int)y / TILE_SIZE);
     }
     public int getTileFlags(short tile) {
