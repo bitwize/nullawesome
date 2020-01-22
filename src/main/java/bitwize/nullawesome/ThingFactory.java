@@ -200,7 +200,7 @@ public class ThingFactory {
 	EntityRepository repo = EntityRepository.get();
 	int eid = repo.newEntity();
 	SpriteShape shp = new SpriteShape();
-	shp.shapes = ContentRepository.get().getBitmap("sentrydrone_r");
+	shp.shapes = ContentRepository.get().getBitmap("sentry_drone_r");
 	shp.subsection = new Rect(0, 0, 32, 32);
 	SpriteMovement mv = new SpriteMovement();
 	WorldPhysics phys = new WorldPhysics();

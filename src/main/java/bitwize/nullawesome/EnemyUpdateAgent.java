@@ -15,14 +15,20 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	EnemyInfo ei = (EnemyInfo) repo.getComponent(eid, EnemyInfo.class);
 	SpriteMovement mv = (SpriteMovement) repo.getComponent(eid, SpriteMovement.class);
 	WorldPhysics phys = (WorldPhysics) repo.getComponent(eid, WorldPhysics.class);
-	if(ei == null || mv == null || phys == null) return;
+	SpriteShape shp = (SpriteShape)repo.getComponent(eid, SpriteShape.class);
+	if(ei == null || mv == null || phys == null || shp == null) return;
 	StageInfo info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
 	if(info == null) return;
 	TileMap map = info.map;
+	if((phys.flags & WorldPhysics.FACING_RIGHT) != 0) {
+	    shp.shapes = enemyImagesR.get(ei.type);
+	} else {
+	    shp.shapes = enemyImagesL.get(ei.type);
+	}
 	if(ei.targetEid != EntityRepository.NO_ENTITY) {
 		SpriteMovement mvTarget = (SpriteMovement) repo.getComponent(ei.targetEid, SpriteMovement.class);
 		if (mvTarget != null) {
-			boolean st = seesTarget(mv, mvTarget, map, ei.sightRange, ei.sightFrustum, (phys.flags & WorldPhysics.FACING_RIGHT) != 0, ei.flags);
+		    boolean st = seesTarget(mv, mvTarget, map, ei.sightRange, ei.sightFrustum, (phys.flags & WorldPhysics.FACING_RIGHT) != 0, ei.flags, ei.currentState);
 			if(st) {
 				ei.flags |= EnemyInfo.SEES_TARGET;
 			} else {
@@ -45,13 +51,14 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	}
     };
 
-    public static boolean seesTarget(SpriteMovement mvViewer, SpriteMovement mvTarget, TileMap map, float range, float frustAng, boolean facingRight, int flags) {
+    private static boolean seesTarget(SpriteMovement mvViewer, SpriteMovement mvTarget, TileMap map, float range, float frustAng, boolean facingRight, int flags, EnemyState state) {
 	float distX = mvTarget.position.x - mvViewer.position.x;
 	float distY = mvTarget.position.y - mvViewer.position.y;
 	if(((distX * distX) + (distY * distY)) > range * range) {
 		return false;
 	}
-	if((flags & EnemyInfo.LIDAR) == 0) {
+	if((flags & EnemyInfo.LIDAR) == 0 &&
+	   state != EnemyState.ATTACKING) {
 	    if(facingRight && distX < 0) {
 		return false;
 	    }
