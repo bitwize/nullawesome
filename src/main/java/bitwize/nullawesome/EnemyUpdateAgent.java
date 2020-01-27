@@ -1,6 +1,7 @@
 package bitwize.nullawesome;
 
 import android.graphics.Bitmap;
+import android.graphics.PointF;
 import java.util.EnumMap;
 
 public class EnemyUpdateAgent implements UpdateAgent {
@@ -8,7 +9,8 @@ public class EnemyUpdateAgent implements UpdateAgent {
     private static EnumMap<EnemyType, Bitmap> enemyImagesR;
     private static final EnemyType[] enemyTypes = EnemyType.values();
     private EntityRepository repo = EntityRepository.get();
-    private ContentRepository content = ContentRepository.get();    
+    private ContentRepository content = ContentRepository.get();
+    private static PointF march = new PointF();
     private RelevantEntitiesHolder reh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(EnemyInfo.class));
 
     private EntityProcessor proc = (eid) -> {
@@ -68,6 +70,30 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	    if (Math.abs(Math.atan2(Math.abs(distY), Math.abs(distX))) > frustAng) {
 		return false;
 	    }
+	}
+	if((flags & EnemyInfo.IRVISION)==0) {
+	    if(!hasLineOfSight(mvViewer.position, mvTarget.position, map)) {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    private static boolean hasLineOfSight(PointF start, PointF end, TileMap map) {
+	march.set(start);
+	float dx = end.x - start.x;
+	float dy = end.y - start.y;
+	float dist = (float)Math.sqrt((dx * dx) + (dy * dy));
+	dx *= TileMap.TILE_SIZE;
+	dx /= dist;
+	dy *= TileMap.TILE_SIZE;
+	dy /= dist;
+	for(float f=0; f<=dist; f += TileMap.TILE_SIZE) {
+	    if((map.getTileFlags(map.getTileWorldCoords(march.x, march.y)) & TileMap.FLAG_SOLID) != 0) {
+		return false;
+	    }
+	    march.x += dx;
+	    march.y += dy;
 	}
 	return true;
     }
