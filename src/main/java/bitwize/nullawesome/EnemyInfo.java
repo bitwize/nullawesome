@@ -14,6 +14,7 @@ public class EnemyInfo {
     int targetEid;
     PointF targetLastKnownPosition = new PointF();
     int flags;
+    int pauseTimer = 0;
     float walkVel;
     float chaseVel;
     float sightRange;

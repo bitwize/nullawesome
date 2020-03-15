@@ -1,6 +1,7 @@
 package bitwize.nullawesome;
 
 public final class EnemyBehaviors {
+    public static final int EPAUSE_DELAY = 60;
     public static EntityProcessor groundPatrol = (eid) -> {
         StageInfo info;
         EntityRepository repo = EntityRepository.get();
@@ -19,21 +20,28 @@ public final class EnemyBehaviors {
         } else {
             frontSensor -= phys.radius;
         }
-        boolean shouldTurnAround = ((map.getTileFlags(map.getTileWorldCoords(frontSensor, mov.position.y + phys.radius)) &
-                TileMap.FLAG_SOLID) == 0) ||
-                ((map.getTileFlags(map.getTileWorldCoords(frontSensor, mov.position.y))) != 0);
+        boolean shouldTurnAround = (ei.pauseTimer <= 0) && (((map.getTileFlags(map.getTileWorldCoords(frontSensor, mov.position.y + phys.radius)) &
+							      TileMap.FLAG_SOLID) == 0) ||
+							    ((map.getTileFlags(map.getTileWorldCoords(frontSensor, mov.position.y))) != 0));
         if(shouldTurnAround) {
-            phys.thrust.x = 0;
-            phys.gaccel = 0;
-            mov.velocity.x = 0;
-            mov.acceleration.x = 0;
-            phys.flags ^= WorldPhysics.FACING_RIGHT;
+	    ei.pauseTimer = EPAUSE_DELAY;
         }
-        if((phys.flags & WorldPhysics.FACING_RIGHT) != 0) {
-            phys.gaccel = 0.2f;
-        } else {
-            phys.gaccel = -0.2f;
-        }
+	if(ei.pauseTimer > 0) {
+	    phys.thrust.x = 0;
+	    phys.gaccel = 0;
+	    mov.velocity.x = 0;
+	    mov.acceleration.x = 0;
+	    ei.pauseTimer--;
+	    if(ei.pauseTimer <= 0) {
+		phys.flags ^= WorldPhysics.FACING_RIGHT;
+	    }
+	} else {
+	    if((phys.flags & WorldPhysics.FACING_RIGHT) != 0) {
+		phys.gaccel = 0.2f;
+	    } else {
+		phys.gaccel = -0.2f;
+	    }
+	}
     };
     public static EntityProcessor chase = (eid) -> {
         StageInfo info;
