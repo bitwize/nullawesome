@@ -5,5 +5,5 @@ public class ElevatorStates {
     ElevatorState alternateState = new ElevatorState();
     boolean isAlternate = false;
     boolean transitioning = false;
-    float transitionSpeed = 1.f;
+    float transitionSpeed = 3.f;
 }
