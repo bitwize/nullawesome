@@ -26,9 +26,8 @@ place and present targets over "hackable" items in the
 environment. Tapping a hacking target will have various effects: you
 can access information, control elevators and robots, etc.
 
-Aside from your PAC, you are basically unarmed. A "stun dart pistol"
-(with limited ammo) will be available in some places, but you can't
-count on force to get you through the levels. You will have to use
-your wits and the environment to overcome enemies and reach the goal.
+Aside from your PAC, you are basically unarmed. You will have to use
+your wits, your hacking skills, and the environment to overcome
+enemies and reach the goal.
 
 Still VERY much a work in progress.
