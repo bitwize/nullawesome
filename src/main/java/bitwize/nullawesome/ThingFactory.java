@@ -42,6 +42,18 @@ public class ThingFactory {
     };
 
 
+    private static EntityProcessor doorAction = (eid) -> {
+	EntityRepository repo = EntityRepository.get();
+	DoorInfo di = (DoorInfo)repo.getComponent(eid, DoorInfo.class);
+	di.state = DoorState.OPENING;
+    };
+
+    private static EntityProcessor doorReset = (eid) -> {
+	EntityRepository repo = EntityRepository.get();
+	DoorInfo di = (DoorInfo)repo.getComponent(eid, DoorInfo.class);
+	di.state = DoorState.CLOSING;
+    };
+    
     private static Criterion isLornInAir = (eid) -> {
 	EntityRepository repo = EntityRepository.get();
 	int playerEid = repo.findEntityWithComponent(PlayerInfo.class);
@@ -59,12 +71,16 @@ public class ThingFactory {
 	if(phys == null) return false;
 	return phys.state == WorldPhysics.State.GROUNDED;
     };
+
+    private static DoorCollider dc = new DoorCollider();
     
     static {
 	linkedThingTriggers = new HashMap<ThingType, EntityProcessor>();
 	linkedThingResets = new HashMap<ThingType, EntityProcessor>();
 	linkedThingTriggers.put(ThingType.ELEVATOR, elevatorAction);
 	linkedThingResets.put(ThingType.ELEVATOR, elevatorReset);
+	linkedThingTriggers.put(ThingType.DOOR_SLIDE, doorAction);
+	linkedThingResets.put(ThingType.DOOR_SLIDE, doorReset);
     }
     
     
@@ -249,6 +265,37 @@ public class ThingFactory {
 	}
     }
 
+    public int createDoor(int stageEid, PointF location)
+	throws EntityTableFullException
+    {
+	EntityRepository repo = EntityRepository.get();
+	int eid = repo.newEntity();
+	SpriteShape shp = new SpriteShape();
+	SpriteMovement mv = new SpriteMovement();
+	WorldPhysics phys = new WorldPhysics();
+	shp.shapes = ContentRepository.get().getBitmap("door");
+	shp.subsection = new Rect(0, 0, DoorInfo.DOOR_WIDTH, DoorInfo.DOOR_HEIGHT);
+	mv.position.set(location);
+	mv.hotspot.set(DoorInfo.DOOR_WIDTH / 2, DoorInfo.DOOR_HEIGHT);
+	phys.stageEid = stageEid;
+	phys.state = WorldPhysics.State.GROUNDED;
+	phys.gvelmax = 0.f;
+	phys.radius = DoorInfo.DOOR_WIDTH;
+	phys.hitbox.left = -(DoorInfo.DOOR_WIDTH / 2);
+	phys.hitbox.top = -(DoorInfo.DOOR_HEIGHT);
+	phys.hitbox.right = DoorInfo.DOOR_WIDTH / 2;
+	phys.hitbox.bottom = 0;
+	phys.collider = dc;
+	phys.collisionCriterion = (cEid) -> EntityRepository.get()
+	    .getComponent(cEid, WorldPhysics.class) != null;
+	DoorInfo di = new DoorInfo();
+	repo.addComponent(eid, shp);
+	repo.addComponent(eid, di);
+	repo.addComponent(eid, mv);
+	repo.addComponent(eid, phys);
+	return eid;
+    }
+
     
     private int createThing(int stageEid,
 			    int thingIndex)
@@ -301,6 +348,10 @@ public class ThingFactory {
 	    {
 		EnemyType etype = namedEnemyTypes.get(obj.getString("enemy_type"));
 		return createEnemy(stageEid, etype, loc);
+	    }
+	case DOOR_SLIDE:
+	    {
+		return createDoor(stageEid, loc);
 	    }
 	default:
 	    return EntityRepository.NO_ENTITY;

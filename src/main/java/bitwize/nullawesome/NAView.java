@@ -141,6 +141,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    uagents.add(new PhysicsUpdateAgent());
 	    uagents.add(new CollisionUpdateAgent());
 	    uagents.add(new ElevatorUpdateAgent());
+	    uagents.add(new DoorUpdateAgent());
 	    uagents.add(new EnemyUpdateAgent());
 	    uagents.add(new PlayerUpdateAgent(playerEid));
 	    uagents.add(new CameraUpdateAgent());
