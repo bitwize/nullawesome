@@ -26,6 +26,7 @@ public class StageInfo {
     }
     
     public int width, height;
+    public int collectibleSkin;
     public Rect[] regions;
     public StageInfo.RegionType[] regionTypes;
     public JSONObject[] thingParams;

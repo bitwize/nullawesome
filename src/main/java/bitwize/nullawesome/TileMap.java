@@ -80,6 +80,12 @@ public class TileMap {
 	return map[y * width + x];
     }
 
+    public void setTile(int x, int y, short v) {
+	if(x < 0 || x >= width) return;
+	if(y < 0 || y >= height) return;
+	map[y * width + x] = v;
+    }
+
     public int getWidth() {
 	return width;
     }
