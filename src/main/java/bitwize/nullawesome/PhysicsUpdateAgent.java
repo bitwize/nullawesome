@@ -85,7 +85,6 @@ public class PhysicsUpdateAgent implements UpdateAgent {
 	phys.sticksToEid = EntityRepository.NO_ENTITY;
 	if(mov.velocity.y < phys.fallmax) {
 	    mov.acceleration.set(phys.gravity);
-	    Log.i("PhysicsUpdateAgent", "setting to gravity, flags = " + phys.flags + ", accel.y = " + mov.acceleration.y + ", velocity.y = " + mov.velocity.y);
 	}
 	else {
 	    mov.acceleration.set(0.f, 0.f);

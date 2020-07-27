@@ -31,6 +31,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	   ht == null ||
 	   phys == null) return;
 	if(ht.hacked) return;
+	if(!(ht.visible)) return;
 	SpriteMovement wmv = (SpriteMovement)(EntityRepository.get().getComponent(phys.stageEid, SpriteMovement.class));
 	if(wmv == null) return;
 	float half_width = ht.width / 2.f;
@@ -143,6 +144,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    uagents.add(new ElevatorUpdateAgent());
 	    uagents.add(new DoorUpdateAgent());
 	    uagents.add(new EnemyUpdateAgent());
+	    uagents.add(new CollectibleUpdateAgent());
 	    uagents.add(new PlayerUpdateAgent(playerEid));
 	    uagents.add(new CameraUpdateAgent());
 	    uagents.add(new TimerUpdateAgent());

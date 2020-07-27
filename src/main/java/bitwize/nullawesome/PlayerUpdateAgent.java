@@ -14,6 +14,22 @@ public class PlayerUpdateAgent implements UpdateAgent {
     private SpriteShape putAwayShape;
     private SpriteShape dieShape;
     private int player_eid;
+    private RelevantEntitiesHolder htReh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(HackTarget.class));
+    private EntityProcessor htProc = (eid) -> {
+	HackTarget ht = (HackTarget)EntityRepository.get().getComponent(eid, HackTarget.class);
+	SpriteMovement mv = (SpriteMovement)EntityRepository.get().getComponent(eid, SpriteMovement.class);
+	SpriteMovement pmv = (SpriteMovement)EntityRepository.get().getComponent(player_eid, SpriteMovement.class);
+	WorldPhysics pphys = (WorldPhysics)EntityRepository.get().getComponent(player_eid, WorldPhysics.class);
+	if(ht == null || mv == null || pmv == null) return;
+	StageInfo info = (StageInfo)repo.getComponent(pphys.stageEid, StageInfo.class);
+	if(info == null) return;
+	TileMap map = info.map;
+	if(EnemyUpdateAgent.hasLineOfSight(pmv.position, mv.position, map)) {
+	    ht.visible = true;
+	} else {
+	    ht.visible = false;
+	}
+    };
     public static final float WALK_ACCEL = 0.2f;
     public PlayerUpdateAgent(int eid) {
 	player_eid = eid;
@@ -25,6 +41,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	hackShape = SpriteShape.loadAnimation(content.getAnimation("player_hack"));
 	putAwayShape = SpriteShape.loadAnimation(content.getAnimation("player_putaway"));
 	dieShape = SpriteShape.loadAnimation(content.getAnimation("player_die"));
+	htReh.register();
     }
 
     private void switchStanding(SpriteShape shp) {
@@ -173,6 +190,10 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	shp.shapes = ((phys.flags & WorldPhysics.FACING_RIGHT) != 0) ? rightBitmap : leftBitmap;
 	if((phys.flags & WorldPhysics.SHOULD_DESTROY) != 0 &&
 	   (pi.flags & PlayerInfo.DEAD) == 0) { die(pi, phys, mov, shp); }
+	// update visibility of each hack target based on LOS to Lorn
+	if(pi.inputState == InputState.HACKING) {
+	    htReh.processAll(htProc);
+	}	
     }
 
     public void die(PlayerInfo pi, WorldPhysics phys, SpriteMovement mov, SpriteShape shp) {

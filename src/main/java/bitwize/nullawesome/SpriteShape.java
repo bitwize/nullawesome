@@ -6,7 +6,7 @@ import org.json.*;
 
 public class SpriteShape {
     public Bitmap shapes;
-    public Rect subsection;
+    public Rect subsection = new Rect();
     public int maxFrames;
     public int currentFrame;
     public int currentTime;
@@ -40,5 +40,16 @@ public class SpriteShape {
 	    throw new RuntimeException(je);
 	}
 	return s;
+    }
+    public static void copyShape(SpriteShape shpA, SpriteShape shpB)
+    {
+	shpB.shapes = shpA.shapes;
+	shpB.subsection = shpA.subsection;
+	shpB.maxFrames = shpA.maxFrames;
+	shpB.currentFrame = 0;
+	shpB.currentTime = 0;
+	shpB.frames = shpA.frames;
+	shpB.timings = shpA.timings;
+	shpB.loop = shpA.loop;
     }
 }

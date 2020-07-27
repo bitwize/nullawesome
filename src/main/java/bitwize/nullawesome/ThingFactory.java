@@ -24,6 +24,13 @@ public class ThingFactory {
 	}
     }
 
+    private static HashMap<String, CollectibleType> namedCollectibleTypes = new HashMap<String, CollectibleType>();
+    static {
+	for(CollectibleType t : CollectibleType.values()) {
+	    namedCollectibleTypes.put(t.toString().toLowerCase(), t);
+	}
+    }
+
     private static HashMap<ThingType, EntityProcessor> linkedThingTriggers;
     private static HashMap<ThingType, EntityProcessor> linkedThingResets;
 
@@ -73,6 +80,7 @@ public class ThingFactory {
     };
 
     private static DoorCollider dc = new DoorCollider();
+    private static CollectibleCollider cc = new CollectibleCollider();
     
     static {
 	linkedThingTriggers = new HashMap<ThingType, EntityProcessor>();
@@ -123,6 +131,8 @@ public class ThingFactory {
 	}
     };
 
+    private static int currentBobFrame = 0;
+    
     public int createTerminalNode(int stageEid, PointF location, int link)
 	throws EntityTableFullException {
 	EntityRepository repo = EntityRepository.get();
@@ -276,11 +286,14 @@ public class ThingFactory {
 	shp.shapes = ContentRepository.get().getBitmap("door");
 	shp.subsection = new Rect(0, 0, DoorInfo.DOOR_WIDTH, DoorInfo.DOOR_HEIGHT);
 	mv.position.set(location);
+	mv.position.x = (float)(((int)mv.position.x / TileMap.TILE_SIZE) * TileMap.TILE_SIZE
+				+ (TileMap.TILE_SIZE / 2));
+	mv.position.y = (float)(((int)mv.position.y / TileMap.TILE_SIZE) * TileMap.TILE_SIZE);	
 	mv.hotspot.set(DoorInfo.DOOR_WIDTH / 2, DoorInfo.DOOR_HEIGHT);
 	phys.stageEid = stageEid;
 	phys.state = WorldPhysics.State.GROUNDED;
 	phys.gvelmax = 0.f;
-	phys.radius = DoorInfo.DOOR_WIDTH;
+	phys.radius = DoorInfo.DOOR_WIDTH / 2;
 	phys.hitbox.left = -(DoorInfo.DOOR_WIDTH / 2);
 	phys.hitbox.top = -(DoorInfo.DOOR_HEIGHT);
 	phys.hitbox.right = DoorInfo.DOOR_WIDTH / 2;
@@ -296,6 +309,45 @@ public class ThingFactory {
 	return eid;
     }
 
+    public int createCollectible(int stageEid, CollectibleType type, PointF location)
+    	throws EntityTableFullException
+    {
+	EntityRepository repo = EntityRepository.get();
+	int eid = repo.newEntity();
+	SpriteShape shp = new SpriteShape();
+	SpriteMovement mv = new SpriteMovement();
+	WorldPhysics phys = new WorldPhysics();
+	CollectibleInfo ci = new CollectibleInfo();
+	shp.shapes = ContentRepository.get().getBitmap("collectibles");
+	shp.subsection = new Rect(0, 0, CollectibleInfo.WIDTH, CollectibleInfo.HEIGHT);
+	mv.position.set(location);
+	for(int i=0;i<ThingFactory.currentBobFrame;i++) {
+	    mv.position.y += CollectibleUpdateAgent.bobbingDisplacements[i];
+	}
+	mv.hotspot.set( CollectibleInfo.WIDTH / 2, CollectibleInfo.HEIGHT / 2);
+	phys.stageEid = stageEid;
+	phys.state = WorldPhysics.State.FALLING;
+	phys.gvelmax = 0.f;
+	phys.gravity.set(0.f, 0.f);
+	phys.radius = CollectibleInfo.WIDTH / 2;
+	phys.hitbox.left = -(CollectibleInfo.WIDTH / 2);
+	phys.hitbox.top = -(CollectibleInfo.HEIGHT / 2);
+	phys.hitbox.right = CollectibleInfo.WIDTH / 2;
+	phys.hitbox.bottom = CollectibleInfo.HEIGHT / 2;
+	phys.collider = cc;
+	phys.collisionCriterion = (cEid) -> EntityRepository.get()
+	    .getComponent(cEid, PlayerInfo.class) != null;
+	ci.type = type;
+	ci.state = CollectibleState.STATIONARY;
+	ci.bobbingFrame = ThingFactory.currentBobFrame;
+	ThingFactory.currentBobFrame++;
+	ThingFactory.currentBobFrame &= 7;
+	repo.addComponent(eid, shp);
+	repo.addComponent(eid, ci);
+	repo.addComponent(eid, mv);
+	repo.addComponent(eid, phys);
+	return eid;
+    }
     
     private int createThing(int stageEid,
 			    int thingIndex)
@@ -352,6 +404,11 @@ public class ThingFactory {
 	case DOOR_SLIDE:
 	    {
 		return createDoor(stageEid, loc);
+	    }
+	case COLLECTIBLE:
+	    {
+		CollectibleType ctype = namedCollectibleTypes.get(obj.getString("collectible_type"));
+		return createCollectible(stageEid, ctype, loc);
 	    }
 	default:
 	    return EntityRepository.NO_ENTITY;

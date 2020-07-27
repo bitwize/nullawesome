@@ -8,8 +8,9 @@
       {"left": 20, "top": 6, "right": 22, "bottom": 8, "type": 1}
   ],
   "things": [
-      {"x": 200, "y": 240, "type": "terminal_node"},
-      {"x": 256, "y": 240, "type": "terminal_node", "reset_time": 480, "link": 2},
+      {"x": 200, "y": 240, "type": "terminal_node", "reset_time": 480, "link": 6},
+      {"x": 256, "y": 240, "type": "terminal_node", "reset_time": 480, "link": 3},
+      {"x": 384, "y": 176, "type": "terminal_node", "reset_time": 480, "link": 4},
       {"x": 300, "y": 100, "type": "elevator", "normal_state": {
 	  "type": "oscillating",
 	  "fulcrum_x": 240,
@@ -25,7 +26,26 @@
 	   "spring_constant": 0.0
        }
       },
-      {"x": 100, "y": 40, "type": "enemy", "enemy_type": "sentry_drone"}
+      {"x": 800, "y": 160, "type": "elevator", "normal_state": {
+	  "type": "stationary",
+	  "fulcrum_x": 0,
+	  "fulcrum_y": 0,
+	  "spring_constant": 0.0
+      },
+       "alt_state": {
+	   "type": "stationary",
+	   "x": 544,
+	   "y": 160,
+	   "fulcrum_x": 0,
+	   "fulcrum_y": 0,
+	   "spring_constant": 0.0
+       }
+      },
+      {"x": 100, "y": 40, "type": "enemy", "enemy_type": "sentry_drone"},
+      {"x": 96, "y": 256, "type": "door_slide"},
+      {"x": 80, "y": 144, "type": "collectible", "collectible_type": "trinket"},
+      {"x": 112, "y": 144, "type": "collectible", "collectible_type": "trinket"},
+      {"x": 144, "y": 144, "type": "collectible", "collectible_type": "trinket"}
   ],
   "tileImageName": "testTiles",
   "backgroundImageName": "test_bg"

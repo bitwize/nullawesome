@@ -4,5 +4,6 @@ public enum ThingType {
     TERMINAL_NODE,
     DOOR_SLIDE,
     ELEVATOR,
-    ENEMY
+    ENEMY,
+    COLLECTIBLE
 }

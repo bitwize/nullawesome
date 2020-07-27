@@ -5,8 +5,8 @@ import android.graphics.PointF;
 import java.util.EnumMap;
 
 public class EnemyUpdateAgent implements UpdateAgent {
-    private static EnumMap<EnemyType, Bitmap> enemyImagesL;
-    private static EnumMap<EnemyType, Bitmap> enemyImagesR;
+    private static EnumMap<EnemyType, Bitmap> enemyImagesL = new EnumMap<EnemyType, Bitmap>(EnemyType.class);
+    private static EnumMap<EnemyType, Bitmap> enemyImagesR = new EnumMap<EnemyType, Bitmap>(EnemyType.class);
     private static final EnemyType[] enemyTypes = EnemyType.values();
     private EntityRepository repo = EntityRepository.get();
     private ContentRepository content = ContentRepository.get();
@@ -79,7 +79,7 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	return true;
     }
 
-    private static boolean hasLineOfSight(PointF start, PointF end, TileMap map) {
+    public static boolean hasLineOfSight(PointF start, PointF end, TileMap map) {
 	march.set(start);
 	float dx = end.x - start.x;
 	float dy = end.y - start.y;
@@ -99,8 +99,6 @@ public class EnemyUpdateAgent implements UpdateAgent {
     }
 
     public EnemyUpdateAgent() {
-	enemyImagesL = new EnumMap<EnemyType, Bitmap>(EnemyType.class);
-	enemyImagesR = new EnumMap<EnemyType, Bitmap>(EnemyType.class);
 	for(EnemyType etype : enemyTypes) {
 	    enemyImagesL.put(etype, content.getBitmap(etype.name().toLowerCase() + "_l"));
 	    enemyImagesR.put(etype, content.getBitmap(etype.name().toLowerCase() + "_r"));
@@ -108,9 +106,7 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	reh.register();
     }
 
-    
     public void update(long time) {
 	reh.processAll(proc);
-    }
-    
+    }    
 }

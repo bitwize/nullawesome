@@ -26,7 +26,11 @@ public class ButtonRenderAgent implements RenderAgent {
     private int playerEid;
     private RelevantEntitiesHolder reh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(HackTarget.class));
     private EntityProcessor proc = (eid) -> {
-	drawHackTarget(cvs, eid);
+	HackTarget ht = (HackTarget)EntityRepository.get().getComponent(eid, HackTarget.class);
+	if(ht == null) return;
+	if(ht.visible) {
+	    drawHackTarget(cvs, eid);
+	}
     };
     private RenderAgent[] buttonRendererTable = {
 	(c) -> {

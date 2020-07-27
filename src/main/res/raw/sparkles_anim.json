@@ -1,0 +1,7 @@
+{
+    "shapeName": "sparkles",
+    "maxFrames": 7,
+    "frames": [0, 1, 2, 3, 4, 5, 6],
+    "timings": [3, 3, 3, 3, 3, 3, 3],
+    "loop": false
+}

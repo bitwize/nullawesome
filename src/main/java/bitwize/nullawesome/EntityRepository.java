@@ -68,12 +68,12 @@ public class EntityRepository {
 	    for(Class<?> c : componentArrays.keySet()) {
 		(componentArrays.get(c))[eid] = null;
 	    }
+	    for(EntityProcessor h : removeHooks) {
+		h.process(eid);
+	    }
 	}
 	for(int i=maxEid; i>=0; i--) {
 	    if(active.get(i)) { maxEid = i; break; }
-	}
-	for(EntityProcessor h : removeHooks) {
-	    h.process(eid);
 	}
     }
 

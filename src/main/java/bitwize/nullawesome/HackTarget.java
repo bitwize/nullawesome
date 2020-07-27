@@ -9,6 +9,7 @@ public class HackTarget {
     int requiresKeyMask;
     byte hasKey;
     boolean hacked = false;
+    boolean visible = false;
     EntityProcessor action;
     int linkedThingIndex = -1;
 }
