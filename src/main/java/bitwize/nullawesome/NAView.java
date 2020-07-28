@@ -264,60 +264,65 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-	int a = 0;
-	PlayerInfo pi;
-	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
-	if(pi == null) return true;
-	pi.keyStatus = eventCallTable[pi.inputState.ordinal()].getKeyStatus(this, ev);
+	synchronized(thr) {
+	    PlayerInfo pi;
+	    pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
+	    if(pi == null) return true;
+	    pi.keyStatus = eventCallTable[pi.inputState.ordinal()].getKeyStatus(this, ev);
+	}
 	return true;
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent ke) {
-	PlayerInfo pi;
-	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
-	if(pi == null) return true;
-	switch(keyCode) {
-	case KeyEvent.KEYCODE_DPAD_LEFT:
-	case KeyEvent.KEYCODE_A:
-	    pi.keyStatus |= PlayerInfo.KEY_LEFT;
-	    break;
-	case KeyEvent.KEYCODE_DPAD_RIGHT:
-	case KeyEvent.KEYCODE_D:
-	    pi.keyStatus |= PlayerInfo.KEY_RIGHT;
-	    break;
-	case KeyEvent.KEYCODE_DPAD_CENTER:
-	case KeyEvent.KEYCODE_SPACE:
-	    pi.keyStatus |= PlayerInfo.KEY_JUMP;
-	    break;
-	case KeyEvent.KEYCODE_Z:
-	    pi.keyStatus |= PlayerInfo.KEY_HACK;
-	    break;
+	synchronized(thr) {
+	    PlayerInfo pi;
+	    pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
+	    if(pi == null) return true;
+	    switch(keyCode) {
+	    case KeyEvent.KEYCODE_DPAD_LEFT:
+	    case KeyEvent.KEYCODE_A:
+		pi.keyStatus |= PlayerInfo.KEY_LEFT;
+		break;
+	    case KeyEvent.KEYCODE_DPAD_RIGHT:
+	    case KeyEvent.KEYCODE_D:
+		pi.keyStatus |= PlayerInfo.KEY_RIGHT;
+		break;
+	    case KeyEvent.KEYCODE_DPAD_CENTER:
+	    case KeyEvent.KEYCODE_SPACE:
+		pi.keyStatus |= PlayerInfo.KEY_JUMP;
+		break;
+	    case KeyEvent.KEYCODE_Z:
+		pi.keyStatus |= PlayerInfo.KEY_HACK;
+		break;
+	    }
 	}
 	return super.onKeyDown(keyCode, ke);
     }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent ke) {
-	PlayerInfo pi;
-	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
-	if(pi == null) return true;
-	switch(keyCode) {
-	case KeyEvent.KEYCODE_DPAD_LEFT:
-	case KeyEvent.KEYCODE_A:
-	    pi.keyStatus &= ~PlayerInfo.KEY_LEFT;
-	    break;
-	case KeyEvent.KEYCODE_DPAD_RIGHT:
-	case KeyEvent.KEYCODE_D:
-	    pi.keyStatus &= ~PlayerInfo.KEY_RIGHT;
-	    break;
-	case KeyEvent.KEYCODE_DPAD_CENTER:
-	case KeyEvent.KEYCODE_SPACE:
-	    pi.keyStatus &= ~PlayerInfo.KEY_JUMP;
-	    break;
-	case KeyEvent.KEYCODE_Z:
-	    pi.keyStatus &= ~PlayerInfo.KEY_HACK;
-	    break;
+	synchronized(thr) {
+	    PlayerInfo pi;
+	    pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
+	    if(pi == null) return true;
+	    switch(keyCode) {
+	    case KeyEvent.KEYCODE_DPAD_LEFT:
+	    case KeyEvent.KEYCODE_A:
+		pi.keyStatus &= ~PlayerInfo.KEY_LEFT;
+		break;
+	    case KeyEvent.KEYCODE_DPAD_RIGHT:
+	    case KeyEvent.KEYCODE_D:
+		pi.keyStatus &= ~PlayerInfo.KEY_RIGHT;
+		break;
+	    case KeyEvent.KEYCODE_DPAD_CENTER:
+	    case KeyEvent.KEYCODE_SPACE:
+		pi.keyStatus &= ~PlayerInfo.KEY_JUMP;
+		break;
+	    case KeyEvent.KEYCODE_Z:
+		pi.keyStatus &= ~PlayerInfo.KEY_HACK;
+		break;
+	    }
 	}
 	return super.onKeyUp(keyCode, ke);
     }

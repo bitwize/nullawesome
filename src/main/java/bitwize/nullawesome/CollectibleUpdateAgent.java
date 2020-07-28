@@ -1,5 +1,6 @@
 package bitwize.nullawesome;
 
+import java.util.ArrayList;
 
 public class CollectibleUpdateAgent implements UpdateAgent {
 
@@ -8,6 +9,7 @@ public class CollectibleUpdateAgent implements UpdateAgent {
     private EntityRepository repo = EntityRepository.get();
     private static int delay = 0;
     private static final int MAX_DELAY = 3;
+    private ArrayList<Integer> entsToRemove = new ArrayList<Integer>();
     private EntityProcessor proc = (eid) -> {
 	SpriteShape shp = (SpriteShape)repo.getComponent(eid, SpriteShape.class);
 	SpriteMovement mv = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
@@ -20,7 +22,7 @@ public class CollectibleUpdateAgent implements UpdateAgent {
 	if((ci.state == CollectibleState.VANISHING)
 	   && (shp.currentFrame == shp.frames.length - 1)
 	   && (shp.currentTime == shp.timings[shp.currentFrame] - 1)) {
-	       repo.removeEntity(eid);
+	    entsToRemove.add(eid);
 	}
     };
     public CollectibleUpdateAgent() {
@@ -28,6 +30,12 @@ public class CollectibleUpdateAgent implements UpdateAgent {
     }
     public void update(long time) {
 	reh.processAll(proc);
+	if(!entsToRemove.isEmpty()) {
+	    for(int eid : entsToRemove) {
+		repo.removeEntity(eid);
+	    }
+	    entsToRemove.clear();
+	}
 	delay++;
 	if(delay >= MAX_DELAY) {
 	    delay = 0;
