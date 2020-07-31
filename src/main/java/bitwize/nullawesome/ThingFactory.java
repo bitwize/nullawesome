@@ -231,6 +231,7 @@ public class ThingFactory {
 	SpriteMovement mv = new SpriteMovement();
 	WorldPhysics phys = new WorldPhysics();
 	EnemyInfo ei = new EnemyInfo();
+	EnemyCollider ec = new EnemyCollider();
 	phys.stageEid = stageEid;
 	phys.state = WorldPhysics.State.FALLING;
 	phys.radius = 16;
@@ -239,6 +240,9 @@ public class ThingFactory {
 	phys.hitbox.right = 16.f;
 	phys.hitbox.bottom = 16.f;
 	phys.flags |= WorldPhysics.SOLID_COLLISION;
+	phys.collider = ec;
+	phys.collisionCriterion = (cEid) -> EntityRepository.get()
+	    .getComponent(cEid, PlayerInfo.class) != null;
 	mv.position.set(location);
 	mv.hotspot.set(16.f, 16.f);
 	ei.type = EnemyType.SENTRY_DRONE;
