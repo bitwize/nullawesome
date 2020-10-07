@@ -52,4 +52,14 @@ public class SpriteShape {
 	shpB.timings = shpA.timings;
 	shpB.loop = shpA.loop;
     }
+    public static void changeAnimation(SpriteShape shpA, SpriteShape shpB)
+	{
+		if(shpA.frames == shpB.frames) return;
+//		if(shpA.maxFrames != shpB.maxFrames) return;
+		shpA.frames = shpB.frames;
+		shpA.timings = shpB.timings;
+		shpA.loop = shpB.loop;
+		shpA.currentFrame = 0;
+		shpA.currentTime = 0;
+	}
 }

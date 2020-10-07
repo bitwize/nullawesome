@@ -1,0 +1,7 @@
+{
+    "shapeName": "sentry_drone_r",
+    "maxFrames": 1,
+    "frames": [0],
+    "timings": [6],
+    "loop": false
+}

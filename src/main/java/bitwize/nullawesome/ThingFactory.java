@@ -60,24 +60,6 @@ public class ThingFactory {
 	DoorInfo di = (DoorInfo)repo.getComponent(eid, DoorInfo.class);
 	di.state = DoorState.CLOSING;
     };
-    
-    private static Criterion isLornInAir = (eid) -> {
-	EntityRepository repo = EntityRepository.get();
-	int playerEid = repo.findEntityWithComponent(PlayerInfo.class);
-	if(playerEid == EntityRepository.NO_ENTITY) return false;
-	WorldPhysics phys = (WorldPhysics)repo.getComponent(playerEid, WorldPhysics.class);
-	if(phys == null) return false;
-	return phys.state == WorldPhysics.State.FALLING;
-    };
-    
-    private static Criterion isLornGrounded = (eid) -> {
-	EntityRepository repo = EntityRepository.get();
-	int playerEid = repo.findEntityWithComponent(PlayerInfo.class);
-	if(playerEid == EntityRepository.NO_ENTITY) return false;
-	WorldPhysics phys = (WorldPhysics)repo.getComponent(playerEid, WorldPhysics.class);
-	if(phys == null) return false;
-	return phys.state == WorldPhysics.State.GROUNDED;
-    };
 
     private static DoorCollider dc = new DoorCollider();
     private static CollectibleCollider cc = new CollectibleCollider();
@@ -225,8 +207,7 @@ public class ThingFactory {
     {
 	EntityRepository repo = EntityRepository.get();
 	int eid = repo.newEntity();
-	SpriteShape shp = new SpriteShape();
-	shp.shapes = ContentRepository.get().getBitmap("sentry_drone_r");
+	SpriteShape shp = SpriteShape.loadAnimation(ContentRepository.get().getAnimation("sentry_drone_stand"));
 	shp.subsection = new Rect(0, 0, 32, 32);
 	SpriteMovement mv = new SpriteMovement();
 	WorldPhysics phys = new WorldPhysics();
@@ -268,12 +249,60 @@ public class ThingFactory {
 	return eid;
     }
 
+	public int createSoldier(int stageEid, PointF location)
+			throws EntityTableFullException
+	{
+		EntityRepository repo = EntityRepository.get();
+		int eid = repo.newEntity();
+		SpriteShape shp = SpriteShape.loadAnimation(ContentRepository.get().getAnimation("soldier_stand"));
+		SpriteMovement mv = new SpriteMovement();
+		WorldPhysics phys = new WorldPhysics();
+		EnemyInfo ei = new EnemyInfo();
+		EnemyCollider ec = new EnemyCollider();
+		phys.stageEid = stageEid;
+		phys.state = WorldPhysics.State.FALLING;
+		phys.radius = 16;
+		phys.hitbox.left = -16.f;
+		phys.hitbox.top = -16.f;
+		phys.hitbox.right = 16.f;
+		phys.hitbox.bottom = 16.f;
+		phys.flags |= WorldPhysics.SOLID_COLLISION;
+		phys.collider = ec;
+		phys.collisionCriterion = (cEid) -> EntityRepository.get()
+				.getComponent(cEid, PlayerInfo.class) != null;
+		mv.position.set(location);
+		mv.hotspot.set(16.f, 16.f);
+		ei.type = EnemyType.SOLDIER;
+		ei.currentState = EnemyState.IDLE;
+		ei.targetEid = EntityRepository.NO_ENTITY;
+		ei.flags = 0;
+		ei.walkVel = 0.9f;
+		ei.chaseVel = 1.8f;
+		ei.sightRange = 128;
+		ei.sightFrustum = (float)Math.atan(1);
+		ei.stateActions.put(EnemyState.IDLE,
+				EnemyBehaviors.groundPatrol);
+		ei.stateActions.put(EnemyState.ATTACKING,
+				EnemyBehaviors.chase);
+		ei.scriptSet(EnemyState.IDLE,
+				new EnemyStateTransition(EnemyBehaviors.seesTargetCriterion, EnemyState.ATTACKING));
+		ei.scriptSet(EnemyState.ATTACKING,
+				new EnemyStateTransition(EnemyBehaviors.doesntSeeTargetCriterion, EnemyState.IDLE));
+		repo.addComponent(eid, shp);
+		repo.addComponent(eid, mv);
+		repo.addComponent(eid, phys);
+		repo.addComponent(eid, ei);
+		return eid;
+	}
+
     public int createEnemy(int stageEid, EnemyType etype, PointF location)
 	throws EntityTableFullException
     {
 	switch(etype) {
 	case SENTRY_DRONE:
 	    return createSentryDrone(stageEid, location);
+	case SOLDIER:
+		return createSoldier(stageEid, location);
 	default:
 	    return EntityRepository.NO_ENTITY;
 	}

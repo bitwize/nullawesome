@@ -8,7 +8,7 @@
       {"left": 20, "top": 6, "right": 22, "bottom": 8, "type": 1}
   ],
   "things": [
-      {"x": 200, "y": 240, "type": "terminal_node", "reset_time": 480, "link": 6},
+      {"x": 200, "y": 240, "type": "terminal_node", "reset_time": 480, "link": 7},
       {"x": 256, "y": 240, "type": "terminal_node", "reset_time": 480, "link": 3},
       {"x": 384, "y": 176, "type": "terminal_node", "reset_time": 480, "link": 4},
       {"x": 300, "y": 100, "type": "elevator", "normal_state": {
@@ -41,7 +41,8 @@
 	   "spring_constant": 0.0
        }
       },
-      {"x": 100, "y": 40, "type": "enemy", "enemy_type": "sentry_drone"},
+     {"x": 100, "y": 40, "type": "enemy", "enemy_type": "sentry_drone"},
+     {"x": 100, "y": 40, "type": "enemy", "enemy_type": "soldier"},
       {"x": 96, "y": 256, "type": "door_slide"},
       {"x": 80, "y": 144, "type": "collectible", "collectible_type": "trinket"},
       {"x": 112, "y": 144, "type": "collectible", "collectible_type": "trinket"},

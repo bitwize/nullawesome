@@ -1,0 +1,7 @@
+{
+    "shapeName": "soldier_r",
+    "maxFrames": 16,
+    "frames": [0],
+    "timings": [6],
+    "loop": false
+}

@@ -7,6 +7,10 @@ import java.util.EnumMap;
 public class EnemyUpdateAgent implements UpdateAgent {
     private static EnumMap<EnemyType, Bitmap> enemyImagesL = new EnumMap<EnemyType, Bitmap>(EnemyType.class);
     private static EnumMap<EnemyType, Bitmap> enemyImagesR = new EnumMap<EnemyType, Bitmap>(EnemyType.class);
+    private static EnumMap<EnemyType, SpriteShape> enemyStandAnims =
+			new EnumMap<EnemyType, SpriteShape>(EnemyType.class);
+	private static EnumMap<EnemyType, SpriteShape> enemyWalkAnims =
+			new EnumMap<EnemyType, SpriteShape>(EnemyType.class);
     private static final EnemyType[] enemyTypes = EnemyType.values();
     private EntityRepository repo = EntityRepository.get();
     private ContentRepository content = ContentRepository.get();
@@ -26,6 +30,11 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	    shp.shapes = enemyImagesR.get(ei.type);
 	} else {
 	    shp.shapes = enemyImagesL.get(ei.type);
+	}
+	if(Math.abs(mv.velocity.x) <= 0.001) {
+		SpriteShape.changeAnimation(shp, enemyStandAnims.get(ei.type));
+	} else {
+		SpriteShape.changeAnimation(shp, enemyWalkAnims.get(ei.type));
 	}
 	if(ei.targetEid != EntityRepository.NO_ENTITY) {
 		SpriteMovement mvTarget = (SpriteMovement) repo.getComponent(ei.targetEid, SpriteMovement.class);
@@ -102,6 +111,12 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	for(EnemyType etype : enemyTypes) {
 	    enemyImagesL.put(etype, content.getBitmap(etype.name().toLowerCase() + "_l"));
 	    enemyImagesR.put(etype, content.getBitmap(etype.name().toLowerCase() + "_r"));
+	    enemyStandAnims.put(etype,
+				SpriteShape.loadAnimation(content.getAnimation(etype.name().toLowerCase() +
+				"_stand")));
+		enemyWalkAnims.put(etype,
+				SpriteShape.loadAnimation(content.getAnimation(etype.name().toLowerCase() +
+						"_walk")));
 	}
 	reh.register();
     }
