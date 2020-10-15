@@ -38,6 +38,9 @@ public class NullAwesome extends Activity
 	ContentRepository.get().flipBitmap("sentry_drone_r", "sentry_drone_l");
 	ContentRepository.get().loadBitmap("soldier_r", R.drawable.soldier);
 	ContentRepository.get().flipBitmap("soldier_r", "soldier_l");
+	ContentRepository.get().loadBitmap("laser_bolt", R.drawable.laser_bolt);
+	ContentRepository.get().loadBitmap("shock_ray_r", R.drawable.shock_ray);
+	ContentRepository.get().flipBitmap("shock_ray_r", "shock_ray_l");
 	ContentRepository.get().loadAnimation("player_stand", R.raw.player_stand);
 	ContentRepository.get().loadAnimation("player_walk", R.raw.player_walk);
 	ContentRepository.get().loadAnimation("player_jump", R.raw.player_jump);
@@ -48,6 +51,7 @@ public class NullAwesome extends Activity
 	ContentRepository.get().loadAnimation("sentry_drone_walk", R.raw.sentry_drone_walk);
 	ContentRepository.get().loadAnimation("soldier_stand", R.raw.soldier_stand);
 	ContentRepository.get().loadAnimation("soldier_walk", R.raw.soldier_walk);
+	ContentRepository.get().loadAnimation("shock_ray_anim", R.raw.shock_ray_anim);
 	ContentRepository.get().loadAnimation("sparkles_anim", R.raw.sparkles_anim);
 	nv = new NAView(this);
         setContentView(nv);

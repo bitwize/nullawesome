@@ -1,0 +1,7 @@
+{
+    "shapeName": "shock_ray_r",
+    "maxFrames": 4,
+    "frames": [0, 1, 2, 3],
+    "timings": [3, 3, 3, 3],
+    "loop": true
+}

@@ -11,11 +11,13 @@ public class EnemyUpdateAgent implements UpdateAgent {
 			new EnumMap<EnemyType, SpriteShape>(EnemyType.class);
 	private static EnumMap<EnemyType, SpriteShape> enemyWalkAnims =
 			new EnumMap<EnemyType, SpriteShape>(EnemyType.class);
+	private static Bitmap shockRayL, shockRayR;
     private static final EnemyType[] enemyTypes = EnemyType.values();
     private EntityRepository repo = EntityRepository.get();
     private ContentRepository content = ContentRepository.get();
     private static PointF march = new PointF();
-    private RelevantEntitiesHolder reh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(EnemyInfo.class));
+    private RelevantEntitiesHolder ereh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(EnemyInfo.class));
+	private RelevantEntitiesHolder preh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(EnemyProjectileInfo.class));
 
     private EntityProcessor proc = (eid) -> {
 	EnemyInfo ei = (EnemyInfo) repo.getComponent(eid, EnemyInfo.class);
@@ -61,6 +63,34 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	    }
 	}
     };
+	private static final int SHOCKRAY_XDISPLACE = 80;
+	private static final int SHOCKRAY_YDISPLACE = -8;
+    private EntityProcessor pproc = (eid2) -> {
+		EnemyProjectileInfo pi = (EnemyProjectileInfo) repo.getComponent(eid2, EnemyProjectileInfo.class);
+		SpriteMovement mv = (SpriteMovement) repo.getComponent(eid2, SpriteMovement.class);
+		WorldPhysics phys = (WorldPhysics) repo.getComponent(eid2, WorldPhysics.class);
+		SpriteShape shp = (SpriteShape)repo.getComponent(eid2, SpriteShape.class);
+		if(pi == null || mv == null || phys == null || shp == null) return;
+    	switch(pi.type) {
+			case SHOCK_RAY: {
+				SpriteMovement shooterMv = (SpriteMovement) repo.getComponent(pi.shotByEid, SpriteMovement.class);
+				WorldPhysics shooterPhys = (WorldPhysics) repo.getComponent(pi.shotByEid, WorldPhysics.class);
+				boolean shooterFacingRight = ((shooterPhys.flags & WorldPhysics.FACING_RIGHT) != 0);
+				if (shooterMv == null || phys == null) break;
+				mv.position.x = shooterMv.position.x + (shooterFacingRight
+						? SHOCKRAY_XDISPLACE
+						: -SHOCKRAY_XDISPLACE);
+				mv.position.y = shooterMv.position.y + SHOCKRAY_YDISPLACE;
+				if(shooterFacingRight) {
+					phys.flags |= WorldPhysics.FACING_RIGHT;
+				} else {
+					phys.flags &= ~WorldPhysics.FACING_RIGHT;
+				}
+				shp.shapes = shooterFacingRight ? shockRayR : shockRayL;
+				break;
+			}
+		}
+	};
 
     private static boolean seesTarget(SpriteMovement mvViewer, SpriteMovement mvTarget, TileMap map, float range, float frustAng, boolean facingRight, int flags, EnemyState state) {
 	float distX = mvTarget.position.x - mvViewer.position.x;
@@ -111,6 +141,8 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	for(EnemyType etype : enemyTypes) {
 	    enemyImagesL.put(etype, content.getBitmap(etype.name().toLowerCase() + "_l"));
 	    enemyImagesR.put(etype, content.getBitmap(etype.name().toLowerCase() + "_r"));
+	    shockRayL = content.getBitmap("shock_ray_l");
+	    shockRayR = content.getBitmap("shock_ray_r");
 	    enemyStandAnims.put(etype,
 				SpriteShape.loadAnimation(content.getAnimation(etype.name().toLowerCase() +
 				"_stand")));
@@ -118,10 +150,12 @@ public class EnemyUpdateAgent implements UpdateAgent {
 				SpriteShape.loadAnimation(content.getAnimation(etype.name().toLowerCase() +
 						"_walk")));
 	}
-	reh.register();
+	ereh.register();
+	preh.register();
     }
 
     public void update(long time) {
-	reh.processAll(proc);
+	ereh.processAll(proc);
+	preh.processAll(pproc);
     }    
 }

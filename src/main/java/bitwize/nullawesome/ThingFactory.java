@@ -202,6 +202,35 @@ public class ThingFactory {
 	return eid;
     }
 
+    public int createShockRay(int stageEid, int shooterEid)
+	throws EntityTableFullException
+	{
+		EntityRepository repo = EntityRepository.get();
+		int eid = repo.newEntity();
+		SpriteShape shp = SpriteShape.loadAnimation(ContentRepository.get().getAnimation("shock_ray_anim"));
+		shp.subsection = new Rect(0, 0, 32, 32);
+		SpriteMovement mv = new SpriteMovement();
+		WorldPhysics phys = new WorldPhysics();
+		EnemyProjectileInfo pi = new EnemyProjectileInfo();
+		phys.stageEid = stageEid;
+		phys.state = WorldPhysics.State.FALLING;
+		phys.radius = 64;
+		phys.hitbox.left = -64.f;
+		phys.hitbox.top = -8.f;
+		phys.hitbox.right = 64.f;
+		phys.hitbox.bottom = 8.f;
+		phys.flags = WorldPhysics.FACING_RIGHT;
+		mv.position.set(0.f, 0.f);
+		mv.hotspot.set(64.f, 8.f);
+		pi.shotByEid = shooterEid;
+		pi.type = EnemyProjectileType.SHOCK_RAY;
+		repo.addComponent(eid, shp);
+		repo.addComponent(eid, mv);
+		repo.addComponent(eid, phys);
+		repo.addComponent(eid, pi);
+		return eid;
+	}
+
     public int createSentryDrone(int stageEid, PointF location)
 	throws EntityTableFullException
     {
@@ -246,6 +275,7 @@ public class ThingFactory {
 	repo.addComponent(eid, mv);
 	repo.addComponent(eid, phys);
 	repo.addComponent(eid, ei);
+	createShockRay(stageEid, eid);
 	return eid;
     }
 
