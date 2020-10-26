@@ -115,7 +115,7 @@ public class ThingFactory {
 
     private static int currentBobFrame = 0;
     
-    public int createTerminalNode(int stageEid, PointF location, int link)
+    public static int createTerminalNode(int stageEid, PointF location, int link)
 	throws EntityTableFullException {
 	EntityRepository repo = EntityRepository.get();
 	int eid = repo.newEntity();
@@ -153,7 +153,7 @@ public class ThingFactory {
 	return eid;
     }
 
-    public int createResettingTerminalNode(int stageEid, PointF location, int link, int resetTime)
+    public static int createResettingTerminalNode(int stageEid, PointF location, int link, int resetTime)
 	throws EntityTableFullException {
 	EntityRepository repo = EntityRepository.get();
 	int nodeEid = createTerminalNode(stageEid, location, link);
@@ -165,7 +165,7 @@ public class ThingFactory {
 	return nodeEid;
     }
 
-    public int createElevator(int stageEid, ElevatorState.Type type, PointF fulcrum, PointF start, float springc,
+    public static int createElevator(int stageEid, ElevatorState.Type type, PointF fulcrum, PointF start, float springc,
 			      ElevatorState.Type altType, PointF altFulcrum, PointF altStart, float altSpringc)
 	throws EntityTableFullException {
 	EntityRepository repo = EntityRepository.get();
@@ -202,36 +202,7 @@ public class ThingFactory {
 	return eid;
     }
 
-    public int createShockRay(int stageEid, int shooterEid)
-	throws EntityTableFullException
-	{
-		EntityRepository repo = EntityRepository.get();
-		int eid = repo.newEntity();
-		SpriteShape shp = SpriteShape.loadAnimation(ContentRepository.get().getAnimation("shock_ray_anim"));
-		shp.subsection = new Rect(0, 0, 32, 32);
-		SpriteMovement mv = new SpriteMovement();
-		WorldPhysics phys = new WorldPhysics();
-		EnemyProjectileInfo pi = new EnemyProjectileInfo();
-		phys.stageEid = stageEid;
-		phys.state = WorldPhysics.State.FALLING;
-		phys.radius = 64;
-		phys.hitbox.left = -64.f;
-		phys.hitbox.top = -8.f;
-		phys.hitbox.right = 64.f;
-		phys.hitbox.bottom = 8.f;
-		phys.flags = WorldPhysics.FACING_RIGHT;
-		mv.position.set(0.f, 0.f);
-		mv.hotspot.set(64.f, 8.f);
-		pi.shotByEid = shooterEid;
-		pi.type = EnemyProjectileType.SHOCK_RAY;
-		repo.addComponent(eid, shp);
-		repo.addComponent(eid, mv);
-		repo.addComponent(eid, phys);
-		repo.addComponent(eid, pi);
-		return eid;
-	}
-
-    public int createSentryDrone(int stageEid, PointF location)
+    public static int createSentryDrone(int stageEid, PointF location)
 	throws EntityTableFullException
     {
 	EntityRepository repo = EntityRepository.get();
@@ -271,15 +242,16 @@ public class ThingFactory {
 		     new EnemyStateTransition(EnemyBehaviors.seesTargetCriterion, EnemyState.ATTACKING));
 	ei.scriptSet(EnemyState.ATTACKING,
 		     new EnemyStateTransition(EnemyBehaviors.doesntSeeTargetCriterion, EnemyState.IDLE));
+	ei.fireCooldown = 192;
+	ei.fireRange = 160;
 	repo.addComponent(eid, shp);
 	repo.addComponent(eid, mv);
 	repo.addComponent(eid, phys);
 	repo.addComponent(eid, ei);
-	createShockRay(stageEid, eid);
 	return eid;
     }
 
-	public int createSoldier(int stageEid, PointF location)
+	public static int createSoldier(int stageEid, PointF location)
 			throws EntityTableFullException
 	{
 		EntityRepository repo = EntityRepository.get();
@@ -318,6 +290,8 @@ public class ThingFactory {
 				new EnemyStateTransition(EnemyBehaviors.seesTargetCriterion, EnemyState.ATTACKING));
 		ei.scriptSet(EnemyState.ATTACKING,
 				new EnemyStateTransition(EnemyBehaviors.doesntSeeTargetCriterion, EnemyState.IDLE));
+		ei.fireCooldown = 12;
+		ei.fireRange = 160;
 		repo.addComponent(eid, shp);
 		repo.addComponent(eid, mv);
 		repo.addComponent(eid, phys);
@@ -325,7 +299,7 @@ public class ThingFactory {
 		return eid;
 	}
 
-    public int createEnemy(int stageEid, EnemyType etype, PointF location)
+    public static int createEnemy(int stageEid, EnemyType etype, PointF location)
 	throws EntityTableFullException
     {
 	switch(etype) {
@@ -338,7 +312,7 @@ public class ThingFactory {
 	}
     }
 
-    public int createDoor(int stageEid, PointF location)
+    public static int createDoor(int stageEid, PointF location)
 	throws EntityTableFullException
     {
 	EntityRepository repo = EntityRepository.get();
@@ -372,7 +346,7 @@ public class ThingFactory {
 	return eid;
     }
 
-    public int createCollectible(int stageEid, CollectibleType type, PointF location)
+    public static int createCollectible(int stageEid, CollectibleType type, PointF location)
     	throws EntityTableFullException
     {
 	EntityRepository repo = EntityRepository.get();
@@ -412,7 +386,7 @@ public class ThingFactory {
 	return eid;
     }
     
-    private int createThing(int stageEid,
+    private static int createThing(int stageEid,
 			    int thingIndex)
 	throws EntityTableFullException, JSONException {
 	// TODO: dispatch on thing type and populate the entity with
@@ -478,7 +452,7 @@ public class ThingFactory {
 	}
 	
     }
-    public void createThings(int stageEid)
+    public static void createThings(int stageEid)
     	throws EntityTableFullException, JSONException {
 	EntityRepository repo = EntityRepository.get();
 	StageInfo info = (StageInfo)repo.getComponent(stageEid, StageInfo.class);

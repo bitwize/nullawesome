@@ -15,7 +15,6 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     private DrawAgent dagent;
     private GameThread thr;
     private RectF buttonHitRect;
-    private ThingFactory tf = new ThingFactory();
     private ArrayList<UpdateAgent> uagents = new ArrayList<UpdateAgent>();
     private ArrayList<RenderAgent> ragents = new ArrayList<RenderAgent>();
     public PointF checkPoint = new PointF();
@@ -187,7 +186,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	EntityRepository.get().addComponent(stageEid, info);
 	EntityRepository.get().addComponent(stageEid, mv);
 	try {
-	    tf.createThings(stageEid);
+	    ThingFactory.createThings(stageEid);
 	} catch(Exception e) {
 	    throw new RuntimeException(e);
 	}

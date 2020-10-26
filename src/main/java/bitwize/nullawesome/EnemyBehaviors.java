@@ -49,6 +49,7 @@ public final class EnemyBehaviors {
         WorldPhysics phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
         EnemyInfo ei = (EnemyInfo)repo.getComponent(eid, EnemyInfo.class);
         SpriteMovement mov = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
+        float distX, distY;
         if(ei == null || mov == null || phys == null) return;
         if(phys.state != WorldPhysics.State.GROUNDED) return;
         info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
@@ -56,6 +57,11 @@ public final class EnemyBehaviors {
         if(ei.targetEid == EntityRepository.NO_ENTITY) return;
         TileMap map = info.map;
         SpriteMovement tmov = (SpriteMovement)repo.getComponent(ei.targetEid, SpriteMovement.class);
+        distX = tmov.position.x - mov.position.x;
+        distY = tmov.position.y - mov.position.y;
+        if((distX * distX) + (distY * distY) <= (ei.fireRange * ei.fireRange)) {
+            EnemyUpdateAgent.fire(phys.stageEid, eid);
+        }
         ei.targetLastKnownPosition.set(tmov.position);
         phys.gvelmax = ei.chaseVel;
         if(tmov.position.x >= mov.position.x) {

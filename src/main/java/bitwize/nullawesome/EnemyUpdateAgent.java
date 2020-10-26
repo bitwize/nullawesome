@@ -2,6 +2,9 @@ package bitwize.nullawesome;
 
 import android.graphics.Bitmap;
 import android.graphics.PointF;
+import android.graphics.Rect;
+
+import java.util.ArrayList;
 import java.util.EnumMap;
 
 public class EnemyUpdateAgent implements UpdateAgent {
@@ -18,7 +21,7 @@ public class EnemyUpdateAgent implements UpdateAgent {
     private static PointF march = new PointF();
     private RelevantEntitiesHolder ereh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(EnemyInfo.class));
 	private RelevantEntitiesHolder preh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(EnemyProjectileInfo.class));
-
+	private ArrayList<Integer> entsToRemove = new ArrayList<Integer>();
     private EntityProcessor proc = (eid) -> {
 	EnemyInfo ei = (EnemyInfo) repo.getComponent(eid, EnemyInfo.class);
 	SpriteMovement mv = (SpriteMovement) repo.getComponent(eid, SpriteMovement.class);
@@ -28,6 +31,7 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	StageInfo info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
 	if(info == null) return;
 	TileMap map = info.map;
+	if(ei.fireTimer > 0) ei.fireTimer--;
 	if((phys.flags & WorldPhysics.FACING_RIGHT) != 0) {
 	    shp.shapes = enemyImagesR.get(ei.type);
 	} else {
@@ -65,6 +69,9 @@ public class EnemyUpdateAgent implements UpdateAgent {
     };
 	private static final int SHOCKRAY_XDISPLACE = 80;
 	private static final int SHOCKRAY_YDISPLACE = -8;
+	private static final int LASERBOLT_XDISPLACE = 24;
+	private static final int LASERBOLT_YDISPLACE = 14;
+
     private EntityProcessor pproc = (eid2) -> {
 		EnemyProjectileInfo pi = (EnemyProjectileInfo) repo.getComponent(eid2, EnemyProjectileInfo.class);
 		SpriteMovement mv = (SpriteMovement) repo.getComponent(eid2, SpriteMovement.class);
@@ -89,7 +96,15 @@ public class EnemyUpdateAgent implements UpdateAgent {
 				shp.shapes = shooterFacingRight ? shockRayR : shockRayL;
 				break;
 			}
+			case LASER_BOLT: {
+				mv.acceleration.set(0.f, 0.f);
+				break;
+			}
+		}if(pi.lifetime <= 0) {
+			entsToRemove.add(eid2);
+			return;
 		}
+		pi.lifetime--;
 	};
 
     private static boolean seesTarget(SpriteMovement mvViewer, SpriteMovement mvTarget, TileMap map, float range, float frustAng, boolean facingRight, int flags, EnemyState state) {
@@ -137,6 +152,87 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	return true;
     }
 
+	public static int createShockRay(int stageEid, int shooterEid)
+			throws EntityTableFullException
+	{
+		EntityRepository repo = EntityRepository.get();
+		int eid = repo.newEntity();
+		SpriteShape shp = SpriteShape.loadAnimation(ContentRepository.get().getAnimation("shock_ray_anim"));
+		shp.subsection = new Rect(0, 0, 32, 32);
+		SpriteMovement mv = new SpriteMovement();
+		WorldPhysics phys = new WorldPhysics();
+		EnemyProjectileInfo pi = new EnemyProjectileInfo();
+		phys.stageEid = stageEid;
+		phys.state = WorldPhysics.State.FALLING;
+		phys.radius = 64;
+		phys.hitbox.left = -64.f;
+		phys.hitbox.top = -8.f;
+		phys.hitbox.right = 64.f;
+		phys.hitbox.bottom = 8.f;
+		phys.flags = WorldPhysics.FACING_RIGHT;
+		mv.position.set(0.f, 0.f);
+		mv.hotspot.set(64.f, 8.f);
+		pi.shotByEid = shooterEid;
+		pi.type = EnemyProjectileType.SHOCK_RAY;
+		pi.lifetime = 120;
+		repo.addComponent(eid, shp);
+		repo.addComponent(eid, mv);
+		repo.addComponent(eid, phys);
+		repo.addComponent(eid, pi);
+		return eid;
+	}
+
+	public static int createLaserBolt(int stageEid, int shooterEid)
+			throws EntityTableFullException
+	{
+		EntityRepository repo = EntityRepository.get();
+		int eid = repo.newEntity();
+		SpriteShape shp = new SpriteShape();
+		shp.shapes = ContentRepository.get().getBitmap("laser_bolt");
+		shp.subsection = new Rect(0, 0, 16, 4);
+		SpriteMovement mv = new SpriteMovement();
+		WorldPhysics phys = new WorldPhysics();
+		EnemyProjectileInfo pi = new EnemyProjectileInfo();
+		WorldPhysics shooterPhys = (WorldPhysics)EntityRepository.get().getComponent(shooterEid, WorldPhysics.class);
+		SpriteMovement shooterMov = (SpriteMovement)EntityRepository.get().getComponent(shooterEid, SpriteMovement.class);
+		phys.stageEid = stageEid;
+		phys.state = WorldPhysics.State.FALLING;
+		phys.radius = 8;
+		phys.hitbox.left = -8.f;
+		phys.hitbox.top = -2.f;
+		phys.hitbox.right = 8.f;
+		phys.hitbox.bottom = 2.f;
+		phys.flags = WorldPhysics.FACING_RIGHT;
+		mv.position.set(shooterMov.position.x + LASERBOLT_XDISPLACE, shooterMov.position.y + LASERBOLT_YDISPLACE);
+		mv.hotspot.set(8.f, 2.f);
+		mv.velocity.set((shooterPhys.flags & WorldPhysics.FACING_RIGHT) != 0 ? 2.f : -2.f, 0.f);
+		pi.shotByEid = shooterEid;
+		pi.type = EnemyProjectileType.LASER_BOLT;
+		pi.lifetime = 120;
+		repo.addComponent(eid, shp);
+		repo.addComponent(eid, mv);
+		repo.addComponent(eid, phys);
+		repo.addComponent(eid, pi);
+		return eid;
+	}
+
+    public static void fire(int stageEid, int shooterEid) {
+    	EnemyInfo ei = (EnemyInfo)EntityRepository.get().getComponent(shooterEid, EnemyInfo.class);
+		if(ei.fireTimer > 0) return;
+		ei.fireTimer = ei.fireCooldown;
+		try {
+			switch (ei.type) {
+				case SENTRY_DRONE:
+					createShockRay(stageEid, shooterEid);
+				case SOLDIER:
+					createLaserBolt(stageEid, shooterEid);
+
+			}
+		} catch(EntityTableFullException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
     public EnemyUpdateAgent() {
 	for(EnemyType etype : enemyTypes) {
 	    enemyImagesL.put(etype, content.getBitmap(etype.name().toLowerCase() + "_l"));
@@ -157,5 +253,11 @@ public class EnemyUpdateAgent implements UpdateAgent {
     public void update(long time) {
 	ereh.processAll(proc);
 	preh.processAll(pproc);
-    }    
+	if(!entsToRemove.isEmpty()) {
+		for (int i : entsToRemove) {
+			repo.removeEntity(i);
+		}
+		entsToRemove.clear();
+	}
+    }
 }
