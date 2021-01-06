@@ -26,6 +26,8 @@ public class StageInfo {
     }
     
     public int width, height;
+    public int playerStartX = 0, playerStartY = 0;
+    public int goalX = 0, goalY = 0;
     public int collectibleSkin;
     public Rect[] regions;
     public StageInfo.RegionType[] regionTypes;
@@ -42,6 +44,12 @@ public class StageInfo {
 	try {
 	    JSONArray regionsArray = o.getJSONArray("regions");
 	    JSONArray thingsArray = o.getJSONArray("things");
+	    JSONObject playerStart = o.getJSONObject("playerStart");
+	    JSONObject goalLocation = o.getJSONObject("goal");
+	    info.playerStartX = playerStart.getInt("x");
+	    info.playerStartY = playerStart.getInt("y");
+	    info.goalX = goalLocation.getInt("x");
+	    info.goalY = goalLocation.getInt("y");
 	    info.width = o.getInt("width");
 	    info.height = o.getInt("height");
 	    info.tileImageName = o.getString("tileImageName");

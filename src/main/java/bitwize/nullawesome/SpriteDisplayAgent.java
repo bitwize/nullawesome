@@ -2,6 +2,7 @@ package bitwize.nullawesome;
 
 import android.graphics.*;
 import android.util.Log;
+import java.util.ArrayList;
 public class SpriteDisplayAgent implements RenderAgent {
     public DrawAgent dagent;
     private EntityRepository repo;
@@ -9,11 +10,22 @@ public class SpriteDisplayAgent implements RenderAgent {
     private PointF where;
     private PointF offsetWhere;
     private Canvas cvs;
-    private EntityProcessor proc = (eid) -> {
+    private static final int MAX_ZLAYERS = 4;
+    private ArrayList<ArrayList<Integer>> zLayers = new ArrayList<ArrayList<Integer>>(MAX_ZLAYERS);
+    private EntityProcessor zSort = (eid) -> {
+	SpriteShape shp = (SpriteShape)repo.getComponent(eid, SpriteShape.class);
+	SpriteMovement mv = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
+	WorldPhysics phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
+	if(shp == null || mv == null || phys == null) return;
+	int idx = mv.zOrder % MAX_ZLAYERS;
+	zLayers.get(idx).add(eid);
+    };
+    private EntityProcessor drawProc = (eid) -> {
 	SpriteShape shp = (SpriteShape)repo.getComponent(eid, SpriteShape.class);
 	SpriteOverlay ovl = (SpriteOverlay)repo.getComponent(eid, SpriteOverlay.class);
 	SpriteMovement mv = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
 	WorldPhysics phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
+	
 	if(shp == null || mv == null || phys == null) return;
 	SpriteMovement worldMv = (SpriteMovement)repo.getComponent(phys.stageEid, SpriteMovement.class);
 	where.set(worldMv.position);
@@ -36,9 +48,20 @@ public class SpriteDisplayAgent implements RenderAgent {
 	repo = EntityRepository.get();
 	where = new PointF();
 	offsetWhere = new PointF();
+	for(int i=0; i < MAX_ZLAYERS; i++) {
+	    zLayers.add(new ArrayList<Integer>());
+	}
     }
     public void drawOn(Canvas c) {
 	cvs = c;
-	repo.processEntitiesWithComponent(SpriteShape.class, proc);
+	for(ArrayList<Integer> layer : zLayers) {
+	    layer.clear();
+	}
+	repo.processEntitiesWithComponent(SpriteShape.class, zSort);
+	for(ArrayList<Integer> layer : zLayers) {
+	    for(Integer i : layer) {
+		drawProc.process(i.intValue());
+	    }
+	}
     }
 }

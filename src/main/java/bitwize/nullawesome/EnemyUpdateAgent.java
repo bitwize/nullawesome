@@ -70,7 +70,7 @@ public class EnemyUpdateAgent implements UpdateAgent {
 	private static final int SHOCKRAY_XDISPLACE = 80;
 	private static final int SHOCKRAY_YDISPLACE = -8;
 	private static final int LASERBOLT_XDISPLACE = 24;
-	private static final int LASERBOLT_YDISPLACE = 14;
+	private static final int LASERBOLT_YDISPLACE = -2;
 
     private EntityProcessor pproc = (eid2) -> {
 		EnemyProjectileInfo pi = (EnemyProjectileInfo) repo.getComponent(eid2, EnemyProjectileInfo.class);
@@ -88,6 +88,7 @@ public class EnemyUpdateAgent implements UpdateAgent {
 						? SHOCKRAY_XDISPLACE
 						: -SHOCKRAY_XDISPLACE);
 				mv.position.y = shooterMv.position.y + SHOCKRAY_YDISPLACE;
+				mv.zOrder = 0;
 				if(shooterFacingRight) {
 					phys.flags |= WorldPhysics.FACING_RIGHT;
 				} else {
@@ -224,9 +225,10 @@ public class EnemyUpdateAgent implements UpdateAgent {
 			switch (ei.type) {
 				case SENTRY_DRONE:
 					createShockRay(stageEid, shooterEid);
+					break;
 				case SOLDIER:
 					createLaserBolt(stageEid, shooterEid);
-
+					break;
 			}
 		} catch(EntityTableFullException e) {
 			throw new RuntimeException(e);

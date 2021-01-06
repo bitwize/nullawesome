@@ -61,7 +61,6 @@ public class ThingFactory {
 	di.state = DoorState.CLOSING;
     };
 
-    private static DoorCollider dc = new DoorCollider();
     private static CollectibleCollider cc = new CollectibleCollider();
     
     static {
@@ -335,7 +334,6 @@ public class ThingFactory {
 	phys.hitbox.top = -(DoorInfo.DOOR_HEIGHT);
 	phys.hitbox.right = DoorInfo.DOOR_WIDTH / 2;
 	phys.hitbox.bottom = 0;
-	phys.collider = dc;
 	phys.collisionCriterion = (cEid) -> EntityRepository.get()
 	    .getComponent(cEid, WorldPhysics.class) != null;
 	DoorInfo di = new DoorInfo();

@@ -195,13 +195,16 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     private void initPlayer() throws InvalidEntityException {
 	try { playerEid = EntityRepository.get().newEntity(); }
 	catch(EntityTableFullException e) { return; }
+	StageInfo sti =
+	    (StageInfo)EntityRepository.get().getComponent(stageEid,
+							   StageInfo.class);
 	WorldPhysics phys = new WorldPhysics();
 	SpriteShape shp = new SpriteShape();
 	PlayerInfo pli = new PlayerInfo();
 	shp.shapes = ContentRepository.get().getBitmap("player_r");
 	shp.subsection = new Rect(0, 0, 32, 32);
 	SpriteMovement mv = new SpriteMovement();
-	mv.position.set(150, 240);
+	mv.position.set(sti.playerStartX, sti.playerStartY);
 	mv.hotspot.set(16, 16);
 	phys.stageEid = stageEid;
 	phys.state = WorldPhysics.State.GROUNDED;
