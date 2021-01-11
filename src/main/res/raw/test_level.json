@@ -48,8 +48,8 @@
       {"x": 112, "y": 144, "type": "collectible", "collectible_type": "trinket"},
       {"x": 144, "y": 144, "type": "collectible", "collectible_type": "trinket"}
   ],
-  "playerStart": {"x": 32, "y": 0},
-  "goal": {"x": 1248, "y": 256},
+  "playerStart": {"x": 1024, "y": 0},
+  "goal": {"x": 1248, "y": 224},
   "tileImageName": "testTiles",
   "backgroundImageName": "test_bg"
 }

@@ -50,6 +50,8 @@ public class StageInfo {
 	    info.playerStartY = playerStart.getInt("y");
 	    info.goalX = goalLocation.getInt("x");
 	    info.goalY = goalLocation.getInt("y");
+	    info.goalX -= info.goalX % TileMap.TILE_SIZE;
+	    info.goalY -= info.goalY % TileMap.TILE_SIZE;
 	    info.width = o.getInt("width");
 	    info.height = o.getInt("height");
 	    info.tileImageName = o.getString("tileImageName");

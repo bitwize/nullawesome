@@ -1,6 +1,7 @@
 package bitwize.nullawesome;
 
 import android.graphics.Bitmap;
+import android.graphics.PointF;
 
 public class PlayerUpdateAgent implements UpdateAgent {
     private EntityRepository repo = EntityRepository.get();
@@ -14,6 +15,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
     private SpriteShape putAwayShape;
     private SpriteShape dieShape;
     private int player_eid;
+    private PointF pt1 = new PointF();
     private RelevantEntitiesHolder htReh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(HackTarget.class));
     private EntityProcessor htProc = (eid) -> {
 	HackTarget ht = (HackTarget)EntityRepository.get().getComponent(eid, HackTarget.class);
@@ -115,6 +117,8 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	mov = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
 	phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
 	if(pi == null || shp == null || mov == null || phys == null) return;
+	StageInfo info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
+	if(info == null) return;
 	if(pi.inputState == InputState.HACKING && ((pi.keyStatus & PlayerInfo.KEY_BACK) != 0)) {
 	    pi.inputState = InputState.MOVEMENT;
 	    switchPutAway(shp);
@@ -193,7 +197,25 @@ public class PlayerUpdateAgent implements UpdateAgent {
 	// update visibility of each hack target based on LOS to Lorn
 	if(pi.inputState == InputState.HACKING) {
 	    htReh.processAll(htProc);
-	}	
+	}
+	// have we reached the end door?
+	pt1.set(mov.position);
+	pt1.offset(-(float)info.goalX,-(float)info.goalY);
+	if(pt1.length() <= phys.radius * 1.2) {
+	    switchStanding(shp);
+	    pi.keyStatus = 0;
+	    phys.thrust.set(0.f, 0.f);
+	    mov.velocity.set(0.f, 0.f);
+	    if(pi.inputState != InputState.EXIT_LEVEL) {
+		repo.processEntitiesWithComponent
+		    (FinalDoorInfo.class,
+		     (fdEid) -> {
+			FinalDoorInfo fdi = (FinalDoorInfo)repo.getComponent(fdEid, FinalDoorInfo.class);
+			fdi.state = DoorState.OPENING;
+		    });
+	    }
+	    pi.inputState = InputState.EXIT_LEVEL;
+	}
     }
 
     public void die(PlayerInfo pi, WorldPhysics phys, SpriteMovement mov, SpriteShape shp) {

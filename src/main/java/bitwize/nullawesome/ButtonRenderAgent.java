@@ -46,6 +46,9 @@ public class ButtonRenderAgent implements RenderAgent {
 	},
 	(c) -> {
 
+	},
+	(c) -> {
+
 	}
     };
     public ButtonRenderAgent(DrawAgent a) {

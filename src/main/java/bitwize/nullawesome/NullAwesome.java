@@ -41,6 +41,7 @@ public class NullAwesome extends Activity
 	ContentRepository.get().loadBitmap("laser_bolt", R.drawable.laser_bolt);
 	ContentRepository.get().loadBitmap("shock_ray_r", R.drawable.shock_ray);
 	ContentRepository.get().flipBitmap("shock_ray_r", "shock_ray_l");
+	ContentRepository.get().loadBitmap("end_door_open", R.drawable.end_door_open);
 	ContentRepository.get().loadAnimation("player_stand", R.raw.player_stand);
 	ContentRepository.get().loadAnimation("player_walk", R.raw.player_walk);
 	ContentRepository.get().loadAnimation("player_jump", R.raw.player_jump);
@@ -53,6 +54,7 @@ public class NullAwesome extends Activity
 	ContentRepository.get().loadAnimation("soldier_walk", R.raw.soldier_walk);
 	ContentRepository.get().loadAnimation("shock_ray_anim", R.raw.shock_ray_anim);
 	ContentRepository.get().loadAnimation("sparkles_anim", R.raw.sparkles_anim);
+	ContentRepository.get().loadAnimation("end_door_anim", R.raw.end_door_anim);
 	nv = new NAView(this);
         setContentView(nv);
     }

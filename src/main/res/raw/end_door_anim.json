@@ -1,0 +1,7 @@
+{
+    "shapeName": "end_door_open",
+    "maxFrames": 8,
+    "frames": [0],
+    "timings": [6],
+    "loop": false
+}

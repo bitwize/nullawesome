@@ -102,12 +102,10 @@ public class EntityRepository {
     
     public void addComponent(int eid, Object comp) {
 	Class<?> compClass = comp.getClass();
-	Log.e("EntityRepository", "adding component of type " + compClass.getName());
 	if(!active.get(eid)) {
 	    return;
 	}
 	if(!componentArrays.containsKey(compClass)) {
-	    Log.e("EntityRepository", "creating component array for " + compClass.getName());
 	    componentArrays.put(compClass, new Object[MAX_ENTITIES]);
 	}
 	(componentArrays.get(compClass))[eid] = comp;

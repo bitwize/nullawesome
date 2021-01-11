@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class TileMap {
     
     public static final int TILE_SIZE = 32;
-
+    public static final int TILE_SIZE_LOG2 = 5;
     public static final int FLAG_SOLID = 1;
     public static final int FLAG_TOUCHDEATH=2;
     private Bitmap tileImage;
@@ -95,7 +95,11 @@ public class TileMap {
     }
     public short getTileWorldCoords(float x, float y) {
 	if(x < 0 || y < 0) return 0;
-	return getTile((int)x / TILE_SIZE, (int)y / TILE_SIZE);
+	return getTile((int)x >> TILE_SIZE_LOG2, (int)y >> TILE_SIZE_LOG2);
+    }
+    public void setTileWorldCoords(float x, float y, short v) {
+	if(x < 0 || y < 0) return;
+	setTile((int)x >> TILE_SIZE_LOG2, (int)y >> TILE_SIZE_LOG2, v);
     }
     public int getTileFlags(short tile) {
 	if(tile < 0 || tile >= tileFlags.length) return 0;

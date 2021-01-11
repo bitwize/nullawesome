@@ -120,6 +120,9 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	},
 	(view, ev) -> {
 	    return 0;
+	},
+	(view, ev) -> {
+	    return 0;
 	}
     };
     
@@ -137,6 +140,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	try {
 	    initStage();
 	    initPlayer();
+	    initFinalDoor();
 	    uagents.add(new PositionUpdateAgent());
 	    uagents.add(new PhysicsUpdateAgent());
 	    uagents.add(new CollisionUpdateAgent());
@@ -226,6 +230,42 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 		ei.targetEid = playerEid;
 	});
     }
+
+    private void initFinalDoor() throws InvalidEntityException {
+	int doorEid;
+	try { doorEid = EntityRepository.get().newEntity(); }
+	catch(EntityTableFullException e) { return; }
+	StageInfo sti =
+	    (StageInfo)EntityRepository.get().getComponent(stageEid,
+							   StageInfo.class);
+	sti.map.setTileWorldCoords(sti.goalX, sti.goalY, (short) (FinalDoorInfo.GOAL_TILE_START + 3));
+	sti.map.setTileWorldCoords(sti.goalX - TileMap.TILE_SIZE,
+				   sti.goalY,
+			(short) (FinalDoorInfo.GOAL_TILE_START + 2));
+	sti.map.setTileWorldCoords(sti.goalX,
+				   sti.goalY - TileMap.TILE_SIZE,
+			(short) (FinalDoorInfo.GOAL_TILE_START + 1));
+	sti.map.setTileWorldCoords(sti.goalX - TileMap.TILE_SIZE,
+				   sti.goalY - TileMap.TILE_SIZE,
+				   FinalDoorInfo.GOAL_TILE_START);
+	WorldPhysics phys = new WorldPhysics();
+	SpriteShape shp = SpriteShape.loadAnimation(ContentRepository.get().getAnimation("end_door_anim"));
+	FinalDoorInfo fdi = new FinalDoorInfo();
+	SpriteMovement mv = new SpriteMovement();
+	mv.position.set(sti.goalX, sti.goalY);
+	mv.hotspot.set(FinalDoorInfo.FD_HOTSPOT_X, FinalDoorInfo.FD_HOTSPOT_Y);
+	mv.zOrder = 0;
+	phys.stageEid = stageEid;
+	phys.state = WorldPhysics.State.FALLING;
+	phys.gvelmax = 2.f;
+	phys.gravity.y = 0.f;
+	phys.radius = 16;
+	EntityRepository.get().addComponent(doorEid, shp);
+	EntityRepository.get().addComponent(doorEid, mv);
+	EntityRepository.get().addComponent(doorEid, phys);
+	EntityRepository.get().addComponent(doorEid, fdi);
+    }
+    
     public void surfaceCreated(SurfaceHolder holder) {
 	thr = new GameThread(dagent,uagents);
 	thr.startRunning();
