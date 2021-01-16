@@ -11,14 +11,30 @@ public class SpriteDisplayAgent implements RenderAgent {
     private PointF offsetWhere;
     private Canvas cvs;
     private static final int MAX_ZLAYERS = 4;
-    private ArrayList<ArrayList<Integer>> zLayers = new ArrayList<ArrayList<Integer>>(MAX_ZLAYERS);
+    private int[] zSorted = new int[EntityRepository.MAX_ENTITIES];
+    private int[] zOrders = new int[EntityRepository.MAX_ENTITIES];
+    private int zsTop = 0;
     private EntityProcessor zSort = (eid) -> {
-	SpriteShape shp = (SpriteShape)repo.getComponent(eid, SpriteShape.class);
 	SpriteMovement mv = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
-	WorldPhysics phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
-	if(shp == null || mv == null || phys == null) return;
-	int idx = mv.zOrder % MAX_ZLAYERS;
-	zLayers.get(idx).add(eid);
+	if(mv == null) return;
+	if((zsTop == 0) ||
+	   (mv.zOrder >= zOrders[zsTop - 1])) {
+	    zSorted[zsTop] = eid;
+	    zOrders[zsTop] = mv.zOrder;
+	} else {
+	    int insertionPoint = 0;
+	    for(int i=zsTop - 1; i>=0; i--) {
+		if(mv.zOrder >= zOrders[i]) {
+		    insertionPoint = i+1;
+		    break;
+		}
+	    }
+	    System.arraycopy(zSorted, insertionPoint, zSorted, insertionPoint + 1, (zsTop - insertionPoint));
+	    System.arraycopy(zOrders, insertionPoint, zOrders, insertionPoint + 1, (zsTop - insertionPoint));
+	    zSorted[insertionPoint] = eid;
+	    zOrders[insertionPoint] = mv.zOrder;
+	}
+	zsTop++;
     };
     private EntityProcessor drawProc = (eid) -> {
 	SpriteShape shp = (SpriteShape)repo.getComponent(eid, SpriteShape.class);
@@ -48,20 +64,13 @@ public class SpriteDisplayAgent implements RenderAgent {
 	repo = EntityRepository.get();
 	where = new PointF();
 	offsetWhere = new PointF();
-	for(int i=0; i < MAX_ZLAYERS; i++) {
-	    zLayers.add(new ArrayList<Integer>());
-	}
     }
     public void drawOn(Canvas c) {
 	cvs = c;
-	for(ArrayList<Integer> layer : zLayers) {
-	    layer.clear();
-	}
+	zsTop = 0;
 	repo.processEntitiesWithComponent(SpriteShape.class, zSort);
-	for(ArrayList<Integer> layer : zLayers) {
-	    for(Integer i : layer) {
-		drawProc.process(i.intValue());
-	    }
+	for(int i = 0; i<zsTop; i++) {
+	    drawProc.process(zSorted[i]);
 	}
     }
 }
