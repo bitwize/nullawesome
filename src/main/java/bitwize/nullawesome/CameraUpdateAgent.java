@@ -29,5 +29,7 @@ public class CameraUpdateAgent implements UpdateAgent {
 	int stageEid = repo.findEntityWithComponent(StageInfo.class);
 	int playerEid = repo.findEntityWithComponent(PlayerInfo.class);
 	moveCamera(stageEid, playerEid);
+	StageInfo sinfo = (StageInfo)repo.getComponent(stageEid, StageInfo.class);
+	sinfo.map.currentFrame = (short)((time >> 6) & 7);
     }
 }

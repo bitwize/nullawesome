@@ -73,10 +73,15 @@ public class DrawAgent {
 		int oy = j * TileMap.TILE_SIZE;
 		int ox = i * TileMap.TILE_SIZE;
 		short tile = map.getTile(i, j);
+		int flags;
+		short frame = map.getFrame();
 		if(tile <= 0) continue;
-		src.left = 0;
+		flags = map.getTileFlags(tile);
+		src.left = ((flags & TileMap.FLAG_ANIMATE) != 0)
+		    ? TileMap.TILE_SIZE * frame
+		    : 0;
 		src.top = TileMap.TILE_SIZE * tile;
-		src.right = TileMap.TILE_SIZE;
+		src.right = src.left + TileMap.TILE_SIZE;
 		src.bottom = src.top + TileMap.TILE_SIZE;
 		dst.left = ox - offset.x;
 		dst.top = oy - offset.y;

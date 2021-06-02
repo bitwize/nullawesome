@@ -9,12 +9,15 @@ public class TileMap {
     public static final int TILE_SIZE_LOG2 = 5;
     public static final int FLAG_SOLID = 1;
     public static final int FLAG_TOUCHDEATH=2;
+    public static final int FLAG_SEMISOLID = 4;
+    public static final int FLAG_ANIMATE = 8;    
     private Bitmap tileImage;
     private Bitmap backgroundImage;
     private Rect backgroundImageSection;
     private int[] tileFlags;
     private short[] map;
     private int width, height;
+    short currentFrame = 0;
     private Greeblizer greeblizers[] = {
 	(map, width, height, r, type) -> {
 	    for(int j=r.top; j<r.bottom; j++) {
@@ -144,8 +147,12 @@ public class TileMap {
 	tm.tileFlags[3] = FLAG_SOLID;
 	tm.tileFlags[4] = FLAG_SOLID;
 	tm.tileFlags[5] = FLAG_SOLID;
-	tm.tileFlags[6] = FLAG_SOLID | FLAG_TOUCHDEATH;
-	tm.tileFlags[7] = FLAG_SOLID | FLAG_TOUCHDEATH;
+	tm.tileFlags[6] = FLAG_SOLID | FLAG_TOUCHDEATH | FLAG_ANIMATE;
+	tm.tileFlags[7] = FLAG_SOLID | FLAG_TOUCHDEATH | FLAG_ANIMATE;
 	return tm;
+    }
+
+    public short getFrame() {
+	return currentFrame;
     }
 }
