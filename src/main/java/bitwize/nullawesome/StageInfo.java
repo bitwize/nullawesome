@@ -95,9 +95,10 @@ public class StageInfo {
 	}
 	return info;
     }
-    public static StageInfo getTestInfo() {
+
+    private static StageInfo getInfoForResID(int resid) {
 	try {
-	    JSONObject o = (JSONObject) ContentRepository.get().loadJSON(R.raw.test_level);
+	    JSONObject o = (JSONObject) ContentRepository.get().loadJSON(resid);
 	    StageInfo info = StageInfo.loadStage(o);
 	    return info;
 	}
@@ -107,6 +108,10 @@ public class StageInfo {
 	catch(IOException e) {
 	    throw new RuntimeException(e);
 	}
+
+    }
+    public static StageInfo getTestInfo() {
+	return getInfoForResID(R.raw.test_level);
     }
     public static int getEidForThing(StageInfo info, int thingNum) {
 	if(thingNum <  0) return EntityRepository.NO_ENTITY;
