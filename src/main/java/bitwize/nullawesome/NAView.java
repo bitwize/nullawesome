@@ -3,10 +3,11 @@ package bitwize.nullawesome;
 import java.util.ArrayList;
 import android.view.*;
 import android.graphics.*;
+import android.opengl.GLSurfaceView;
 import android.content.Context;
 import android.util.AttributeSet;
 
-public class NAView extends SurfaceView implements SurfaceHolder.Callback
+public class NAView extends GLSurfaceView
 {
 
     private int stageEid;
@@ -165,13 +166,14 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	requestFocus();
 	buttonHitRect = new RectF();
 	dagent = new DrawAgent(ragents);
-	dagent.setHolder(this.getHolder());
-	this.getHolder().addCallback(this);
+	this.setEGLContextClientVersion(2); // for GL ES 2.0
+	this.setRenderer(dagent);
+	this.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 	initGameState();
     }
 
     public void reset() {
-	synchronized(thr) {
+	synchronized(dagent) {
 	    uagents.clear();
 	    ragents.clear();
 	    EntityRepository.get().clear();
@@ -265,20 +267,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	EntityRepository.get().addComponent(doorEid, phys);
 	EntityRepository.get().addComponent(doorEid, fdi);
     }
-    
-    public void surfaceCreated(SurfaceHolder holder) {
-	thr = new GameThread(dagent,uagents);
-	thr.startRunning();
-    }
-    public void surfaceDestroyed(SurfaceHolder holder) {
-	if(thr != null) {
-	    thr.stopRunning();
-	}
-    }
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-	synchronized(thr) { dagent.draw(); }
-    }
-
+        
     private int checkButtonPress(MotionEvent ev, float left, float top, float xSize, float ySize, int buttonBit) {
 	buttonHitRect.left = left;
 	buttonHitRect.top = top;
@@ -306,7 +295,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-	synchronized(thr) {
+	synchronized(dagent) {
 	    PlayerInfo pi;
 	    pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
 	    if(pi == null) return true;
@@ -317,7 +306,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent ke) {
-	synchronized(thr) {
+	synchronized(dagent) {
 	    PlayerInfo pi;
 	    pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
 	    if(pi == null) return true;
@@ -344,7 +333,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent ke) {
-	synchronized(thr) {
+	synchronized(dagent) {
 	    PlayerInfo pi;
 	    pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
 	    if(pi == null) return true;
@@ -367,6 +356,20 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    }
 	}
 	return super.onKeyUp(keyCode, ke);
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+	thr = new GameThread(dagent, uagents);
+	thr.startRunning();
+	super.onAttachedToWindow();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+	thr.stopRunning();
+	thr = null;
+	super.onDetachedFromWindow();
     }
     
     private void scaleRectToScreen(RectF r) {

@@ -7,7 +7,6 @@ public class SceneryDisplayAgent implements RenderAgent {
     private EntityProcessor proc;
     private EntityRepository repo;
     private Point where;
-    private Canvas cvs;
     private int myEid;
     public SceneryDisplayAgent(DrawAgent a,int eid) {
 	dagent = a;
@@ -21,12 +20,11 @@ public class SceneryDisplayAgent implements RenderAgent {
 		    SpriteMovement mv = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
 		    if(info == null || mv == null) return;
 		    where.set((int)mv.position.x, (int)mv.position.y);
-		    dagent.drawMap(cvs, info.map, where);
+		    dagent.drawMap(info.map, where);
 		}
 	    };
     }
-    public void drawOn(Canvas c) {
-	cvs = c;
+    public void draw() {
 	proc.process(myEid);
     }
 }

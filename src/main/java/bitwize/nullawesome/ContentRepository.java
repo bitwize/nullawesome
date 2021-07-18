@@ -57,19 +57,26 @@ public class ContentRepository {
 	sounds.put(name, spool.load(ctx, resID, 1));
     }
 
+    public String loadString(int resID)	throws IOException
+    {
+	byte[] buf = new byte[1024];
+	int x;
+	InputStream strm = ctx.getResources().openRawResource(resID);
+	ByteArrayOutputStream ostrm = new ByteArrayOutputStream(1024);
+	while((x=strm.read(buf)) > 0) {
+	    ostrm.write(buf, 0, x);
+	}
+	return ostrm.toString();
+    }
+
     public JSONObject loadJSON(int resID)
 	throws IOException, JSONException
     {
-	    byte[] buf = new byte[1024];
-	    InputStream strm = ctx.getResources().openRawResource(resID);
-	    ByteArrayOutputStream ostrm = new ByteArrayOutputStream(1024);
-	    while(strm.read(buf) > 0) {
-		ostrm.write(buf, 0, buf.length);
-	    }
-	    String s = ostrm.toString();
-	    JSONObject json = (JSONObject) new JSONTokener(s).nextValue();
-	    return json;
+	String s = loadString(resID);
+	JSONObject json = (JSONObject) new JSONTokener(s).nextValue();
+	return json;
     }
+
 
     public void loadAnimation(String name, int resID)
     {

@@ -10,12 +10,12 @@ class BackgroundRenderAgent implements RenderAgent {
 	dagent = da;
 	myEid = eid;
     }
-    public void drawOn(Canvas c) {
+    public void draw() {
 	EntityRepository repo = EntityRepository.get();
 	StageInfo info = (StageInfo)repo.getComponent(myEid, StageInfo.class);
 	SpriteMovement mv = (SpriteMovement)repo.getComponent(myEid, SpriteMovement.class);
 	if(info == null || mv == null) return;
 	where.set((mv.position.x * info.bgMoveScaleX), (mv.position.y * info.bgMoveScaleY));
-	dagent.drawTileBG(c, info.map.getBackgroundImage(), info.map.getBackgroundImageSection(), where);
+	dagent.drawTileBG(info.map.getBackgroundImage(), info.map.getBackgroundImageSection(), where);
     }
 }

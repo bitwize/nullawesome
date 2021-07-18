@@ -4,6 +4,5 @@ import android.graphics.Canvas;
 
 public interface RenderAgent
 {
-    public void drawOn(Canvas c);
-    
+    public void draw();
 }

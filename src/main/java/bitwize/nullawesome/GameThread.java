@@ -26,7 +26,7 @@ public class GameThread extends Thread {
 
     public void run() {
 	while(running) {
-	    synchronized(this) {
+	    synchronized(dagent) {
 		oldclock = clock;
 		clock = SystemClock.uptimeMillis();
 		diff += clock - oldclock;
@@ -40,7 +40,6 @@ public class GameThread extends Thread {
 			diff -= 16;
 		    }
 		}
-		dagent.draw();
 		System.gc();
 	    }
 	    try {

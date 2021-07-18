@@ -9,7 +9,6 @@ public class SpriteDisplayAgent implements RenderAgent {
     private RelevantEntitiesHolder reh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(SpriteShape.class));
     private PointF where;
     private PointF offsetWhere;
-    private Canvas cvs;
     private static final int MAX_ZLAYERS = 4;
     private int[] zSorted = new int[EntityRepository.MAX_ENTITIES];
     private int[] zOrders = new int[EntityRepository.MAX_ENTITIES];
@@ -49,13 +48,13 @@ public class SpriteDisplayAgent implements RenderAgent {
 	where.offset(mv.position.x, mv.position.y);
 	offsetWhere.set(where);
 	offsetWhere.offset(-(mv.hotspot.x), -(mv.hotspot.y));
-	dagent.drawSprite(cvs, shp.shapes, shp.subsection, offsetWhere);
+	dagent.drawSprite(shp.shapes, shp.subsection, offsetWhere);
 	if(ovl != null) {
 	    for (int i=0; i<ovl.shapes.length; i++) {
 		offsetWhere.set(where);
 		offsetWhere.offset(ovl.offsets[i].x, ovl.offsets[i].y);
 		if((!ovl.draw.get(i)) || (ovl.shapes[i] == null)) continue;
-		dagent.drawSprite(cvs, ovl.shapes[i].shapes, ovl.shapes[i].subsection, offsetWhere);
+		dagent.drawSprite(ovl.shapes[i].shapes, ovl.shapes[i].subsection, offsetWhere);
 	    }
 	}
     };
@@ -65,8 +64,7 @@ public class SpriteDisplayAgent implements RenderAgent {
 	where = new PointF();
 	offsetWhere = new PointF();
     }
-    public void drawOn(Canvas c) {
-	cvs = c;
+    public void draw() {
 	zsTop = 0;
 	repo.processEntitiesWithComponent(SpriteShape.class, zSort);
 	for(int i = 0; i<zsTop; i++) {

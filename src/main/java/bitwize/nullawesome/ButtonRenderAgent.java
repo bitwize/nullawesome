@@ -22,32 +22,31 @@ public class ButtonRenderAgent implements RenderAgent {
     private DrawAgent dagent;
     private Rect btnRect;
     private PointF where;
-    private Canvas cvs;
     private int playerEid;
     private RelevantEntitiesHolder reh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(HackTarget.class));
     private EntityProcessor proc = (eid) -> {
 	HackTarget ht = (HackTarget)EntityRepository.get().getComponent(eid, HackTarget.class);
 	if(ht == null) return;
 	if(ht.visible) {
-	    drawHackTarget(cvs, eid);
+	    drawHackTarget(eid);
 	}
     };
     private RenderAgent[] buttonRendererTable = {
-	(c) -> {
+	() -> {
 
 	},
-	(c) -> {
+	() -> {
 	    PlayerInfo pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
 	    int keyStatus = pi.keyStatus;
-	    drawMovementControls(c, keyStatus);
+	    drawMovementControls(keyStatus);
 	},
-	(c) -> {
-	    drawHackingControls(c);
+	() -> {
+	    drawHackingControls();
 	},
-	(c) -> {
+	() -> {
 
 	},
-	(c) -> {
+	() -> {
 
 	}
     };
@@ -62,47 +61,46 @@ public class ButtonRenderAgent implements RenderAgent {
 	playerEid = EntityRepository.get().findEntityWithComponent(PlayerInfo.class);
 	reh.register();
     }
-    public void drawMovementControls(Canvas c, int keyStatus) {
+    public void drawMovementControls(int keyStatus) {
 	btnRect.left = 0;
 	btnRect.top = 0;
 	btnRect.right = (int)BUTTON_SIZE;
 	btnRect.bottom = (int)BUTTON_SIZE;
 	if((keyStatus & PlayerInfo.KEY_RIGHT) != 0) {
-	    dagent.drawButton(c, pressedButtonBitmap, btnRect, rightButtonLoc);
+	    dagent.drawButton(pressedButtonBitmap, btnRect, rightButtonLoc);
 	} else {
-	    dagent.drawButton(c, buttonBitmap, btnRect, rightButtonLoc);
+	    dagent.drawButton(buttonBitmap, btnRect, rightButtonLoc);
 	}
 	btnRect.offset(0, 64);
 	if((keyStatus & PlayerInfo.KEY_LEFT) != 0) {
-	    dagent.drawButton(c, pressedButtonBitmap, btnRect, leftButtonLoc);
+	    dagent.drawButton(pressedButtonBitmap, btnRect, leftButtonLoc);
 	} else {
-	    dagent.drawButton(c, buttonBitmap, btnRect, leftButtonLoc);
+	    dagent.drawButton(buttonBitmap, btnRect, leftButtonLoc);
 	}
 	btnRect.offset(0, 64);
 	if((keyStatus & PlayerInfo.KEY_JUMP) != 0) {
-	    dagent.drawButton(c, pressedButtonBitmap, btnRect, jumpButtonLoc);
+	    dagent.drawButton(pressedButtonBitmap, btnRect, jumpButtonLoc);
 	} else {
-	    dagent.drawButton(c, buttonBitmap, btnRect, jumpButtonLoc);
+	    dagent.drawButton(buttonBitmap, btnRect, jumpButtonLoc);
 	}
 	btnRect.left = 0;
 	btnRect.top = (int)SMALL_BUTTON_SIZE;
 	btnRect.right = (int)SMALL_BUTTON_SIZE;
 	btnRect.bottom = (int)SMALL_BUTTON_SIZE * 2;
-	dagent.drawButton(c, smallButtonBitmap, btnRect, hackButtonLoc);
+	dagent.drawButton(smallButtonBitmap, btnRect, hackButtonLoc);
 	btnRect.offset((int)SMALL_BUTTON_SIZE, 0);
-	dagent.drawButton(c, smallButtonBitmap, btnRect, pauseButtonLoc);
+	dagent.drawButton(smallButtonBitmap, btnRect, pauseButtonLoc);
     }
-    public void drawHackingControls(Canvas c) {
+    public void drawHackingControls() {
 	btnRect.left = (int)SMALL_BUTTON_SIZE * 2;
 	btnRect.top = (int)SMALL_BUTTON_SIZE;
 	btnRect.right = (int)SMALL_BUTTON_SIZE * 3;
 	btnRect.bottom = (int)SMALL_BUTTON_SIZE * 2;
-	dagent.drawButton(c, smallButtonBitmap, btnRect, backButtonLoc);
-	cvs = c;
+	dagent.drawButton(smallButtonBitmap, btnRect, backButtonLoc);
 	reh.processAll(proc);
     }
 
-    public void drawHackTarget(Canvas c, int eid) {
+    public void drawHackTarget(int eid) {
 	SpriteMovement mv = (SpriteMovement)(EntityRepository.get().getComponent(eid, SpriteMovement.class));
 	HackTarget ht = (HackTarget)(EntityRepository.get().getComponent(eid, HackTarget.class));
 	WorldPhysics phys = (WorldPhysics)EntityRepository.get().getComponent(eid, WorldPhysics.class);
@@ -122,7 +120,7 @@ public class ButtonRenderAgent implements RenderAgent {
 	btnRect.top = 0;
 	btnRect.right = (int)HACK_TARGET_HALF_SIZE;
 	btnRect.bottom = (int)HACK_TARGET_HALF_SIZE;
-	dagent.drawSprite(c, hackTargetBitmap, btnRect, where);
+	dagent.drawSprite(hackTargetBitmap, btnRect, where);
 	where.set(wmv.position);
 	where.negate();
 	where.offset(mv.position.x, mv.position.y);
@@ -131,7 +129,7 @@ public class ButtonRenderAgent implements RenderAgent {
 	btnRect.top = 0;
 	btnRect.right = (int)HACK_TARGET_SIZE;
 	btnRect.bottom = (int)HACK_TARGET_HALF_SIZE;
-	dagent.drawSprite(c, hackTargetBitmap, btnRect, where);
+	dagent.drawSprite(hackTargetBitmap, btnRect, where);
 	where.set(wmv.position);
 	where.negate();
 	where.offset(mv.position.x, mv.position.y);
@@ -140,7 +138,7 @@ public class ButtonRenderAgent implements RenderAgent {
 	btnRect.top = (int)HACK_TARGET_HALF_SIZE;
 	btnRect.right = (int)HACK_TARGET_HALF_SIZE;
 	btnRect.bottom = (int)HACK_TARGET_SIZE;
-	dagent.drawSprite(c, hackTargetBitmap, btnRect, where);
+	dagent.drawSprite(hackTargetBitmap, btnRect, where);
 	where.set(wmv.position);
 	where.negate();
 	where.offset(mv.position.x, mv.position.y);
@@ -149,10 +147,10 @@ public class ButtonRenderAgent implements RenderAgent {
 	btnRect.top = (int)HACK_TARGET_HALF_SIZE;
 	btnRect.right = (int)HACK_TARGET_SIZE;
 	btnRect.bottom = (int)HACK_TARGET_SIZE;
-	dagent.drawSprite(c, hackTargetBitmap, btnRect, where);
+	dagent.drawSprite(hackTargetBitmap, btnRect, where);
     }
 
-    public void drawOn(Canvas c) {
+    public void draw() {
 	int keyStatus = 0;
 	PlayerInfo pi;
 	if(playerEid < 0) {
@@ -160,6 +158,6 @@ public class ButtonRenderAgent implements RenderAgent {
 	}
 	pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
 	keyStatus = pi.keyStatus;
-	buttonRendererTable[pi.inputState.ordinal()].drawOn(c);
+	buttonRendererTable[pi.inputState.ordinal()].draw();
     }
 }

@@ -136,7 +136,8 @@ public class EntityRepository {
 
     public int findEntityWithComponent(Class<?> aClass) {
 	for(int j=0;j<=maxEid;j++) {
-	    if(active.get(j) && ((componentArrays.get(aClass))[j] != null)) return j;
+	    Object[] ca = componentArrays.get(aClass);
+	    if(active.get(j) && (ca != null) && (ca[j] != null)) return j;
 	}
 	return NO_ENTITY;
     }
