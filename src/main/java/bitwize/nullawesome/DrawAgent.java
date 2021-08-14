@@ -13,6 +13,7 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.io.IOException;
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import android.opengl.GLSurfaceView;
 
 
@@ -20,6 +21,9 @@ public class DrawAgent implements GLSurfaceView.Renderer {
 
     public static final int HRES = 480;
     public static final int VRES = 320;
+
+    public static final float HPIXEL = 2.f / HRES;
+    public static final float VPIXEL = 2.f / VRES;
 
     public static final float[] rectVertices = {
 	-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
@@ -62,6 +66,9 @@ public class DrawAgent implements GLSurfaceView.Renderer {
     private int vbuffer, ibuffer;
     private int backbufProgram;
     private int polyProgram;
+    private int testSpriteTex;
+    private int posAttrib, txcAttrib, texUniform, rectUniform, pxsUniform;
+    private float whpixel, wvpixel;
     public DrawAgent(ArrayList<RenderAgent> r) {
 	rlist = r;
 	src = new Rect();
@@ -180,21 +187,31 @@ public class DrawAgent implements GLSurfaceView.Renderer {
     
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 	int fbNames[] = new int[1];
-	int fbtexNames[] = new int[1];
+	int texNames[] = new int[2];
 	int vboNames[] = new int[2];
 
 	// set some gl context params
 	GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 	GLES20.glDisable(GLES20.GL_DITHER);
-
+	GLES20.glDisable(GLES20.GL_BLEND);
+	GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 	// set up the FBO and back-buffer texture
 	GLES20.glGenFramebuffers(1, fbNames, 0);
-	GLES20.glGenTextures(1, fbtexNames, 0);
+	GLES20.glGenTextures(2, texNames, 0);
 	GLES20.glGenBuffers(2, vboNames, 0);
 	framebuffer = fbNames[0];
-	fbtex = fbtexNames[0];
+	fbtex = texNames[0];
+	testSpriteTex = texNames[1];
 	vbuffer = vboNames[0];
 	ibuffer = vboNames[1];
+	Bitmap b = ContentRepository.get().getBitmap("terminal");
+	GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, testSpriteTex);
+	GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, b, 0);
+	GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+	GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+	GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+	GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+	GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
 	GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, fbtex);
 	GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
 			    HRES, VRES,
@@ -225,27 +242,41 @@ public class DrawAgent implements GLSurfaceView.Renderer {
 	//setup shader program
 	backbufProgram = setupShaderProgram(R.raw.spritevshader, R.raw.spritefshader);
 	polyProgram = setupShaderProgram(R.raw.polyvshader, R.raw.polyfshader);
+	posAttrib = GLES20.glGetAttribLocation(backbufProgram, "position");
+	txcAttrib = GLES20.glGetAttribLocation(backbufProgram, "in_texcoord");
+	texUniform = GLES20.glGetUniformLocation(backbufProgram, "texture");
+	rectUniform = GLES20.glGetUniformLocation(backbufProgram, "rect");
+	pxsUniform = GLES20.glGetUniformLocation(backbufProgram, "pixelSize");
     }
     
     public void onSurfaceChanged(GL10 gl, int width, int height) {
 	wwidth = width;
 	wheight = height;
+	whpixel = 2.f/wwidth;
+	wvpixel = 2.f/wheight;
     }
 
     public void onDrawFrame(GL10 gl) {
 	synchronized(this) {
-	    int posAttrib, tcAttrib, texU;
+	    int pPosAttrib;
 	    GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
 	    GLES20.glViewport(0, 0, HRES, VRES);
-	    GLES20.glUseProgram(polyProgram);
-	    posAttrib = GLES20.glGetAttribLocation(polyProgram, "position");
+	    GLES20.glDepthRangef(0.0f, 1.0f);
+	    GLES20.glUseProgram(backbufProgram);
 	    GLES20.glClearColor(1.0f,0.0f,0.0f,1.0f);
 	    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+	    GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, testSpriteTex);
+	    GLES20.glUniform1i(texUniform, 0);
+	    GLES20.glUniform4f(rectUniform, 400.f, 240.f, 19.f, 32.f);
+	    GLES20.glUniform2f(pxsUniform, HPIXEL, VPIXEL);
 	    GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbuffer);
 	    GLES20.glVertexAttribPointer(posAttrib, 3, GLES20.GL_FLOAT, false, 20, 0);
+	    GLES20.glVertexAttribPointer(txcAttrib, 2, GLES20.GL_FLOAT, false, 20, 12);
 	    GLES20.glEnableVertexAttribArray(posAttrib);
+	    GLES20.glEnableVertexAttribArray(txcAttrib);
 	    GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, ibuffer);
-	    GLES20.glDrawElements(GLES20.GL_TRIANGLES, 3, GLES20.GL_UNSIGNED_SHORT, 0);
+	    GLES20.glDrawElements(GLES20.GL_TRIANGLES, rectIbuf.limit(), GLES20.GL_UNSIGNED_SHORT, 0);
 	    GLES20.glFlush();
 	    GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 	    GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -254,17 +285,16 @@ public class DrawAgent implements GLSurfaceView.Renderer {
 	    GLES20.glViewport(0, 0, wwidth, wheight);
 	    GLES20.glDepthRangef(0.0f, 1.0f);
 	    GLES20.glUseProgram(backbufProgram);
-	    posAttrib = GLES20.glGetAttribLocation(backbufProgram, "position");
-	    tcAttrib = GLES20.glGetAttribLocation(backbufProgram, "in_texcoord");
-	    texU = GLES20.glGetUniformLocation(backbufProgram, "texture");
 	    GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 	    GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, fbtex);
-	    GLES20.glUniform1i(texU, 0);
+	    GLES20.glUniform1i(texUniform, 0);
+	    GLES20.glUniform4f(rectUniform, 0.f, 0.f, (float)wwidth, (float)wheight);
+	    GLES20.glUniform2f(pxsUniform, whpixel, wvpixel);
 	    GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, vbuffer);
 	    GLES20.glVertexAttribPointer(posAttrib, 3, GLES20.GL_FLOAT, false, 20, 0);
-	    GLES20.glVertexAttribPointer(tcAttrib, 2, GLES20.GL_FLOAT, false, 20, 12);
+	    GLES20.glVertexAttribPointer(txcAttrib, 2, GLES20.GL_FLOAT, false, 20, 12);
 	    GLES20.glEnableVertexAttribArray(posAttrib);
-	    GLES20.glEnableVertexAttribArray(tcAttrib);
+	    GLES20.glEnableVertexAttribArray(txcAttrib);
 	    GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, ibuffer);
 	    GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	    GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
