@@ -163,6 +163,7 @@ public class EnemyUpdateAgent implements UpdateAgent {
 		SpriteMovement mv = new SpriteMovement();
 		WorldPhysics phys = new WorldPhysics();
 		EnemyProjectileInfo pi = new EnemyProjectileInfo();
+		EnemyCollider ec = new EnemyCollider();
 		phys.stageEid = stageEid;
 		phys.state = WorldPhysics.State.FALLING;
 		phys.radius = 64;
@@ -171,6 +172,9 @@ public class EnemyUpdateAgent implements UpdateAgent {
 		phys.hitbox.right = 64.f;
 		phys.hitbox.bottom = 8.f;
 		phys.flags = WorldPhysics.FACING_RIGHT;
+		phys.collider = ec;
+		phys.collisionCriterion = (cEid) -> EntityRepository.get()
+				.getComponent(cEid, PlayerInfo.class) != null;
 		mv.position.set(0.f, 0.f);
 		mv.hotspot.set(64.f, 8.f);
 		pi.shotByEid = shooterEid;
@@ -180,6 +184,7 @@ public class EnemyUpdateAgent implements UpdateAgent {
 		repo.addComponent(eid, mv);
 		repo.addComponent(eid, phys);
 		repo.addComponent(eid, pi);
+		repo.addComponent(eid, ec);
 		return eid;
 	}
 
@@ -194,6 +199,7 @@ public class EnemyUpdateAgent implements UpdateAgent {
 		SpriteMovement mv = new SpriteMovement();
 		WorldPhysics phys = new WorldPhysics();
 		EnemyProjectileInfo pi = new EnemyProjectileInfo();
+		EnemyCollider ec = new EnemyCollider();
 		WorldPhysics shooterPhys = (WorldPhysics)EntityRepository.get().getComponent(shooterEid, WorldPhysics.class);
 		SpriteMovement shooterMov = (SpriteMovement)EntityRepository.get().getComponent(shooterEid, SpriteMovement.class);
 		phys.stageEid = stageEid;
@@ -204,6 +210,9 @@ public class EnemyUpdateAgent implements UpdateAgent {
 		phys.hitbox.right = 8.f;
 		phys.hitbox.bottom = 2.f;
 		phys.flags = WorldPhysics.FACING_RIGHT;
+		phys.collider = ec;
+		phys.collisionCriterion = (cEid) -> EntityRepository.get()
+				.getComponent(cEid, PlayerInfo.class) != null;
 		mv.position.set(shooterMov.position.x + LASERBOLT_XDISPLACE, shooterMov.position.y + LASERBOLT_YDISPLACE);
 		mv.hotspot.set(8.f, 2.f);
 		mv.velocity.set((shooterPhys.flags & WorldPhysics.FACING_RIGHT) != 0 ? 2.f : -2.f, 0.f);
