@@ -28,6 +28,7 @@ public class DrawAgent {
 	backBuffer.setDensity(Bitmap.DENSITY_NONE);
 	backCanvas = new Canvas(backBuffer);
 	paint.setAntiAlias(false);
+	paint.setFilterBitmap(false);
 	paint.setAlpha(255);
     }
     

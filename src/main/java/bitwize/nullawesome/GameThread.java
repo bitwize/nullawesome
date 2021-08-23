@@ -44,7 +44,7 @@ public class GameThread extends Thread {
 		System.gc();
 	    }
 	    try {
-		Thread.sleep(16);
+		Thread.sleep(1);
 	    }
 	    catch(InterruptedException e) { }
 	}
