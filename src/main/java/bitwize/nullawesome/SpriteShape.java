@@ -44,7 +44,7 @@ public class SpriteShape {
     public static void copyShape(SpriteShape shpA, SpriteShape shpB)
     {
 	shpB.shapes = shpA.shapes;
-	shpB.subsection = shpA.subsection;
+	shpB.subsection.set(shpA.subsection);
 	shpB.maxFrames = shpA.maxFrames;
 	shpB.currentFrame = 0;
 	shpB.currentTime = 0;

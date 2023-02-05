@@ -96,22 +96,13 @@ public class StageInfo {
 	return info;
     }
 
-    private static StageInfo getInfoForResID(int resid) {
-	try {
-	    JSONObject o = (JSONObject) ContentRepository.get().loadJSON(resid);
-	    StageInfo info = StageInfo.loadStage(o);
-	    return info;
-	}
-	catch(JSONException e) {
-	    throw new RuntimeException(e);
-	}
-	catch(IOException e) {
-	    throw new RuntimeException(e);
-	}
-
+    public static StageInfo getInfoNamed(String stageName) {
+	JSONObject o = (JSONObject) ContentRepository.get().getStageJSON(stageName);
+	StageInfo info = StageInfo.loadStage(o);
+	return info;
     }
     public static StageInfo getTestInfo() {
-	return getInfoForResID(R.raw.test_level);
+	return getInfoNamed("test_level");
     }
     public static int getEidForThing(StageInfo info, int thingNum) {
 	if(thingNum <  0) return EntityRepository.NO_ENTITY;

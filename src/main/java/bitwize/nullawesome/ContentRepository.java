@@ -14,6 +14,8 @@ public class ContentRepository {
     private HashMap<String, Bitmap> bitmaps;
     private HashMap<String, Integer> sounds;
     private HashMap<String, JSONObject> animations;
+    private HashMap<String, JSONObject> stages;
+    private JSONArray stageOrder;
     private SoundPool spool;
     private Context ctx;
     private static ContentRepository theInstance;
@@ -22,12 +24,17 @@ public class ContentRepository {
 	bitmaps = new HashMap<String, Bitmap>();
 	sounds = new HashMap<String, Integer>();
 	animations = new HashMap<String, JSONObject>();
+        stages = new HashMap<String, JSONObject>();
+	stageOrder = new JSONArray();
 	spool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
     }
 
     public void empty() {
 	bitmaps = new HashMap<String, Bitmap>();
 	sounds = new HashMap<String, Integer>();
+	animations = new HashMap<String, JSONObject>();
+        stages = new HashMap<String, JSONObject>();
+	stageOrder = new JSONArray();
 	spool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
     }
 
@@ -37,6 +44,10 @@ public class ContentRepository {
 
     public JSONObject getAnimation(String name) {
 	return animations.get(name);
+    }
+
+    public JSONObject getStageJSON(String name) {
+	return stages.get(name);
     }
 
     public int getSoundID(String name) {
@@ -81,6 +92,37 @@ public class ContentRepository {
 	    throw new RuntimeException(e);
 	}
     }
+
+    public void loadStage(String name, int resID)
+    {
+	try {
+	    JSONObject json = loadJSON(resID);
+	    stages.put(name, json);
+	}
+	catch(Exception e) {
+	    throw new RuntimeException(e);
+	}
+    }
+
+    public void loadStageOrder() {
+	try {
+	    JSONObject json = loadJSON(R.raw.stages);
+	    stageOrder = json.getJSONArray("stageOrder");
+	}
+	catch(Exception e) {
+	    throw new RuntimeException(e);
+	}
+    }
+
+    public String getStageNameAt(int idx) {
+	try {
+	    return stageOrder.getString(idx);
+	}
+	catch(Exception e) {
+	    throw new RuntimeException(e);
+	}
+    }
+
     public void flipBitmap(String src, String dest) {
 	Bitmap b = bitmaps.get(src);
 	Matrix m = new Matrix();

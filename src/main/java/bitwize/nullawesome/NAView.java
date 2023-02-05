@@ -11,6 +11,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 
     private int stageEid;
     private int playerEid;
+    private int currentStage;
     private Context myctx;
     private DrawAgent dagent;
     private GameThread thr;
@@ -182,7 +183,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     private void initStage() throws InvalidEntityException {
 	try { stageEid = EntityRepository.get().newEntity(); }
 	catch(EntityTableFullException e) { return; }
-	StageInfo info = StageInfo.getTestInfo();
+	StageInfo info = StageInfo.getInfoNamed(ContentRepository.get().getStageNameAt(currentStage));
 	SpriteMovement mv = new SpriteMovement();
 	mv.position = new PointF();
 	mv.velocity = new PointF();

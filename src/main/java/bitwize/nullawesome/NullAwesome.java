@@ -55,6 +55,9 @@ public class NullAwesome extends Activity
 	ContentRepository.get().loadAnimation("shock_ray_anim", R.raw.shock_ray_anim);
 	ContentRepository.get().loadAnimation("sparkles_anim", R.raw.sparkles_anim);
 	ContentRepository.get().loadAnimation("end_door_anim", R.raw.end_door_anim);
+	ContentRepository.get().loadStageOrder();
+	ContentRepository.get().loadStage("test_level", R.raw.test_level);
+	ContentRepository.get().loadStage("stage1_1", R.raw.stage1_1);
 	nv = new NAView(this);
         setContentView(nv);
     }

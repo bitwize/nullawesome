@@ -1,0 +1,34 @@
+{
+    "width": 120,
+    "height": 10,
+    "regions": [
+	{"left": 0, "top": 8, "right": 120, "bottom": 10, "type": 1},
+	{"left": 15, "top": 0, "right": 16, "bottom": 6, "type": 1}, 
+	{"left": 22, "top": 6, "right": 27, "bottom": 8, "type": 1},
+	{"left": 30, "top": 3, "right": 36, "bottom": 4, "type": 1},
+	{"left": 40, "top": 5, "right": 42, "bottom": 6, "type": 1},
+	{"left": 42, "top": 2, "right": 44, "bottom": 3, "type": 1},
+	{"left": 48, "top": 2, "right": 50, "bottom": 8, "type": 1}
+    ],
+    "things": [
+	{"x": 416, "y": 240, "type": "terminal_node", "reset_time": 240, "link": 1},
+	{"x": 480, "y": 256, "type": "door_slide"},
+	{"x": 576, "y": 240, "type": "collectible", "collectible_type": "intel"},
+	{"x": 608, "y": 240, "type": "collectible", "collectible_type": "trinket"},
+	{"x": 640, "y": 240, "type": "collectible", "collectible_type": "trinket"},
+	{"x": 752, "y": 176, "type": "collectible", "collectible_type": "trinket"},
+	{"x": 784, "y": 176, "type": "collectible", "collectible_type": "trinket"},
+	{"x": 816, "y": 176, "type": "collectible", "collectible_type": "trinket"},
+	{"x": 976, "y": 64, "type": "enemy", "enemy_type": "sentry_drone"},
+	{"x": 1296, "y": 144, "type": "collectible", "collectible_type": "trinket"},
+	{"x": 1328, "y": 144, "type": "collectible", "collectible_type": "trinket"},
+	{"x": 1360, "y": 48, "type": "collectible", "collectible_type": "trinket"},
+	{"x": 1392, "y": 48, "type": "collectible", "collectible_type": "trinket"},
+	{"x": 1616, "y": 240, "type": "collectible", "collectible_type": "intel"}
+    ],
+    "playerStart": {"x": 64, "y": 224},
+    "goal": {"x": 3776, "y": 224},
+    "tileImageName": "testTiles",
+    "backgroundImageName": "test_bg"
+}
+  

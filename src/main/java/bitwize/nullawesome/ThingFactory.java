@@ -354,7 +354,14 @@ public class ThingFactory {
 	WorldPhysics phys = new WorldPhysics();
 	CollectibleInfo ci = new CollectibleInfo();
 	shp.shapes = ContentRepository.get().getBitmap("collectibles");
-	shp.subsection = new Rect(0, 0, CollectibleInfo.WIDTH, CollectibleInfo.HEIGHT);
+	switch(type) {
+	case INTEL:
+	    shp.subsection = new Rect(CollectibleInfo.WIDTH, 0, CollectibleInfo.WIDTH * 2, CollectibleInfo.HEIGHT);
+	    break;
+	default:
+	    shp.subsection = new Rect(0, 0, CollectibleInfo.WIDTH, CollectibleInfo.HEIGHT);
+	    break;
+	}
 	mv.position.set(location);
 	for(int i=0;i<ThingFactory.currentBobFrame;i++) {
 	    mv.position.y += CollectibleUpdateAgent.bobbingDisplacements[i];
