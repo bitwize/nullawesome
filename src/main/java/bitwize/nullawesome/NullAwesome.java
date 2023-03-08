@@ -58,6 +58,7 @@ public class NullAwesome extends Activity
 	ContentRepository.get().loadStageOrder();
 	ContentRepository.get().loadStage("test_level", R.raw.test_level);
 	ContentRepository.get().loadStage("stage1_1", R.raw.stage1_1);
+	ContentRepository.get().loadSaveData();
 	nv = new NAView(this);
         setContentView(nv);
     }

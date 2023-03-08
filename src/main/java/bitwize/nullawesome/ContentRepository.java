@@ -7,7 +7,11 @@ import android.content.res.Resources;
 import java.util.HashMap;
 import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.nio.charset.Charset;
 import org.json.*;
 
 public class ContentRepository {
@@ -15,10 +19,12 @@ public class ContentRepository {
     private HashMap<String, Integer> sounds;
     private HashMap<String, JSONObject> animations;
     private HashMap<String, JSONObject> stages;
+    private JSONObject saveData;
     private JSONArray stageOrder;
     private SoundPool spool;
     private Context ctx;
     private static ContentRepository theInstance;
+    private static final String saveDataFileName = "savedata.json";
     private ContentRepository(Context c) {
 	ctx = c;
 	bitmaps = new HashMap<String, Bitmap>();
@@ -143,4 +149,41 @@ public class ContentRepository {
 	return theInstance;
     }
 
+    public JSONObject getSaveData() {
+	return saveData;
+    }
+
+    public void loadSaveData() {
+		FileInputStream fis;
+    	try {
+    		fis = ctx.openFileInput(saveDataFileName);
+    	try {
+		byte[] buf = new byte[1024];
+		ByteArrayOutputStream ostrm = new ByteArrayOutputStream(1024);
+		while(fis.read(buf) > 0) {
+			ostrm.write(buf, 0, buf.length);
+		}
+		String s = ostrm.toString();
+		JSONObject json = (JSONObject) new JSONTokener(s).nextValue();
+	    saveData = json;
+	} catch(JSONException e) {
+	    saveData = new JSONObject();
+	} finally {
+			fis.close();
+		}
+		} catch(IOException e) {
+			saveData = new JSONObject();
+			return;
+		}
+    }
+
+    public void saveSaveData() throws IOException {
+		FileOutputStream fos;
+			fos = ctx.openFileOutput(saveDataFileName, 0);
+		try {
+			String jsonStr = saveData.toString();
+			byte[] jsonBytes = jsonStr.getBytes("UTF-8");
+			fos.write(jsonBytes);
+		} finally { fos.close(); }
+    }    
 }
