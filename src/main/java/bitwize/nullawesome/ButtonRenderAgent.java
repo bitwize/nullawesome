@@ -1,7 +1,6 @@
 package bitwize.nullawesome;
 
 import android.graphics.*;
-import android.util.Log;
 public class ButtonRenderAgent implements RenderAgent {
     public static PointF leftButtonLoc = new PointF(16, 240);
     public static PointF rightButtonLoc = new PointF(96, 240);

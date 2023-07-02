@@ -156,6 +156,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 	    ragents.add(new BackgroundRenderAgent(dagent, stageEid));
 	    ragents.add(new SceneryDisplayAgent(dagent, stageEid));
 	    ragents.add(new SpriteDisplayAgent(dagent));
+	    ragents.add(new TextRenderAgent(dagent));
 	    ragents.add(new ButtonRenderAgent(dagent));
 	} catch(Exception e) {
 	    throw new RuntimeException(e);
