@@ -23,121 +23,121 @@ public class EntityRepository {
     }
 
     public static EntityRepository get() {
-	return theInstance;
+        return theInstance;
     }
 
     public static void createInstance() {
-	theInstance = new EntityRepository();
+        theInstance = new EntityRepository();
     }
 
     public boolean hasEntity(int eid) {
-	return active.get(eid);
+        return active.get(eid);
     }
 
     public Object getComponent(int eid, Class<?> kls) {
-	if(!active.get(eid)) {
-	    return null;
-	}
-	if(!(componentArrays.containsKey(kls))) {
-	    return null;
-	}
-	return (componentArrays.get(kls))[eid];
+        if(!active.get(eid)) {
+            return null;
+        }
+        if(!(componentArrays.containsKey(kls))) {
+            return null;
+        }
+        return (componentArrays.get(kls))[eid];
     }
     
     private int getNextEid() throws EntityTableFullException {
-	int marker = lastEid;
-	while(hasEntity(lastEid)) {
-	    lastEid++;
-	    if(lastEid >= MAX_ENTITIES) lastEid = 0;
-	    if(lastEid == marker) throw new EntityTableFullException();
-	}
-	if(maxEid < lastEid) {
-	    maxEid = lastEid;
-	}
-	return lastEid;
+        int marker = lastEid;
+        while(hasEntity(lastEid)) {
+            lastEid++;
+            if(lastEid >= MAX_ENTITIES) lastEid = 0;
+            if(lastEid == marker) throw new EntityTableFullException();
+        }
+        if(maxEid < lastEid) {
+            maxEid = lastEid;
+        }
+        return lastEid;
     }
 
     public int newEntity() throws EntityTableFullException {
-	int eid = getNextEid();
-	active.set(eid, true);
-	return eid;
+        int eid = getNextEid();
+        active.set(eid, true);
+        return eid;
     }
     public void removeEntity(int eid) {
-	if(hasEntity(eid)) {
-	    active.set(eid, false);
-	    for(Class<?> c : componentArrays.keySet()) {
-		(componentArrays.get(c))[eid] = null;
-	    }
-	    for(EntityProcessor h : removeHooks) {
-		h.process(eid);
-	    }
-	}
-	for(int i=maxEid; i>=0; i--) {
-	    if(active.get(i)) { maxEid = i; break; }
-	}
+        if(hasEntity(eid)) {
+            active.set(eid, false);
+            for(Class<?> c : componentArrays.keySet()) {
+                (componentArrays.get(c))[eid] = null;
+            }
+            for(EntityProcessor h : removeHooks) {
+                h.process(eid);
+            }
+        }
+        for(int i=maxEid; i>=0; i--) {
+            if(active.get(i)) { maxEid = i; break; }
+        }
     }
 
     public void clear() {
-	active.clear();
-	componentArrays.clear();
-	lastEid = 0;
-	maxEid = 0;
-	clearHooks();
+        active.clear();
+        componentArrays.clear();
+        lastEid = 0;
+        maxEid = 0;
+        clearHooks();
     }
 
     public void clearHooks() {
-	addHooks.clear();
-	removeHooks.clear();
+        addHooks.clear();
+        removeHooks.clear();
     }
 
     public void registerHooks(EntityProcessor adder, EntityProcessor remover) {
-	addHooks.add(adder);
-	removeHooks.add(remover);
+        addHooks.add(adder);
+        removeHooks.add(remover);
     }
 
     public void unregisterHooks(EntityProcessor adder, EntityProcessor remover) {
-	addHooks.remove(adder);
-	removeHooks.remove(remover);
+        addHooks.remove(adder);
+        removeHooks.remove(remover);
     }
     
     public void addComponent(int eid, Object comp) {
-	Class<?> compClass = comp.getClass();
-	if(!active.get(eid)) {
-	    return;
-	}
-	if(!componentArrays.containsKey(compClass)) {
-	    componentArrays.put(compClass, new Object[MAX_ENTITIES]);
-	}
-	(componentArrays.get(compClass))[eid] = comp;
-	for(EntityProcessor h : addHooks) {
-	    h.process(eid);
-	}
+        Class<?> compClass = comp.getClass();
+        if(!active.get(eid)) {
+            return;
+        }
+        if(!componentArrays.containsKey(compClass)) {
+            componentArrays.put(compClass, new Object[MAX_ENTITIES]);
+        }
+        (componentArrays.get(compClass))[eid] = comp;
+        for(EntityProcessor h : addHooks) {
+            h.process(eid);
+        }
     }
 
     public void processEntities(EntityProcessor p) {
-	for(int i=0;i<=maxEid;i++) {
-	    if(active.get(i)) {
-		p.process(i);
-	    }
-	}
+        for(int i=0;i<=maxEid;i++) {
+            if(active.get(i)) {
+                p.process(i);
+            }
+        }
     }
     
     public void processEntitiesWithComponent(Class<?> aClass, EntityProcessor p) {
-	if(componentArrays.get(aClass) == null) {
-	    return;
-	}
-	for(int i=0;i<=maxEid;i++) {
-	    if(active.get(i) && (componentArrays.get(aClass) != null) &&
-				((componentArrays.get(aClass))[i] != null)) {
-		p.process(i);
-	    }
-	}
+        if(componentArrays.get(aClass) == null) {
+            return;
+        }
+        for(int i=0;i<=maxEid;i++) {
+            if(active.get(i) && (componentArrays.get(aClass) != null) &&
+                                ((componentArrays.get(aClass))[i] != null)) {
+                p.process(i);
+            }
+        }
     }
 
     public int findEntityWithComponent(Class<?> aClass) {
-	for(int j=0;j<=maxEid;j++) {
-	    if(active.get(j) && ((componentArrays.get(aClass))[j] != null)) return j;
-	}
-	return NO_ENTITY;
+        for(int j=0;j<=maxEid;j++) {
+            if(active.get(j) && ((componentArrays.get(aClass))[j] != null)) return j;
+        }
+        return NO_ENTITY;
     }
 }

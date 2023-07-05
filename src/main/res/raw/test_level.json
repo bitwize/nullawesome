@@ -12,33 +12,33 @@
       {"x": 256, "y": 240, "type": "terminal_node", "reset_time": 480, "link": 3},
       {"x": 384, "y": 176, "type": "terminal_node", "reset_time": 480, "link": 4},
       {"x": 300, "y": 100, "type": "elevator", "normal_state": {
-	  "type": "oscillating",
-	  "fulcrum_x": 240,
-	  "fulcrum_y": 100,
-	  "spring_constant": 0.001666
+          "type": "oscillating",
+          "fulcrum_x": 240,
+          "fulcrum_y": 100,
+          "spring_constant": 0.001666
       },
        "alt_state": {
-	   "type": "stationary",
-	   "x": 340,
-	   "y": 100,
-	   "fulcrum_x": 0,
-	   "fulcrum_y": 0,
-	   "spring_constant": 0.0
+           "type": "stationary",
+           "x": 340,
+           "y": 100,
+           "fulcrum_x": 0,
+           "fulcrum_y": 0,
+           "spring_constant": 0.0
        }
       },
       {"x": 800, "y": 160, "type": "elevator", "normal_state": {
-	  "type": "stationary",
-	  "fulcrum_x": 0,
-	  "fulcrum_y": 0,
-	  "spring_constant": 0.0
+          "type": "stationary",
+          "fulcrum_x": 0,
+          "fulcrum_y": 0,
+          "spring_constant": 0.0
       },
        "alt_state": {
-	   "type": "stationary",
-	   "x": 544,
-	   "y": 160,
-	   "fulcrum_x": 0,
-	   "fulcrum_y": 0,
-	   "spring_constant": 0.0
+           "type": "stationary",
+           "x": 544,
+           "y": 160,
+           "fulcrum_x": 0,
+           "fulcrum_y": 0,
+           "spring_constant": 0.0
        }
       },
      {"x": 100, "y": 40, "type": "enemy", "enemy_type": "sentry_drone"},

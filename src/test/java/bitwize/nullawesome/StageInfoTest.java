@@ -14,21 +14,21 @@ public class StageInfoTest {
 
     @Test
     public void regionsFromJSON() throws JSONException {
-	JSONObject o = (JSONObject) new JSONTokener(testJson1).nextValue();
-	StageInfo info = StageInfo.loadStage(o);
-	assertEquals(40, info.width);
-	assertEquals(10, info.height);
-	assertEquals(info.regions.length, 2);
-	assertEquals(info.regionTypes.length, 2);
-	assertEquals(2, info.regions[0].left);
-	assertEquals(8, info.regions[0].top);
-	assertEquals(40, info.regions[0].right);
-	assertEquals(10, info.regions[0].bottom);
-	assertEquals(StageInfo.RegionType.GROUND, info.regionTypes[0]);
-	assertEquals(12, info.regions[1].left);
-	assertEquals(6, info.regions[1].top);
-	assertEquals(14, info.regions[1].right);
-	assertEquals(8, info.regions[1].bottom);
-	assertEquals(StageInfo.RegionType.GROUND, info.regionTypes[1]);
+        JSONObject o = (JSONObject) new JSONTokener(testJson1).nextValue();
+        StageInfo info = StageInfo.loadStage(o);
+        assertEquals(40, info.width);
+        assertEquals(10, info.height);
+        assertEquals(info.regions.length, 2);
+        assertEquals(info.regionTypes.length, 2);
+        assertEquals(2, info.regions[0].left);
+        assertEquals(8, info.regions[0].top);
+        assertEquals(40, info.regions[0].right);
+        assertEquals(10, info.regions[0].bottom);
+        assertEquals(StageInfo.RegionType.GROUND, info.regionTypes[0]);
+        assertEquals(12, info.regions[1].left);
+        assertEquals(6, info.regions[1].top);
+        assertEquals(14, info.regions[1].right);
+        assertEquals(8, info.regions[1].bottom);
+        assertEquals(StageInfo.RegionType.GROUND, info.regionTypes[1]);
     }
 }

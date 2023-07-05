@@ -18,11 +18,11 @@ import java.io.IOException;
  */
 
 public class StageInfo {
-	
+        
     public enum RegionType {
-	EMPTY,
-	GROUND,
-	LAVA
+        EMPTY,
+        GROUND,
+        LAVA
     }
     
     public int width, height;
@@ -40,73 +40,73 @@ public class StageInfo {
     public float deathFloorY = 384.f;
     public TileMap map;
     public static StageInfo loadStage(JSONObject o) {
-	StageInfo info = new StageInfo();
-	try {
-	    JSONArray regionsArray = o.getJSONArray("regions");
-	    JSONArray thingsArray = o.getJSONArray("things");
-	    JSONObject playerStart = o.getJSONObject("playerStart");
-	    JSONObject goalLocation = o.getJSONObject("goal");
-	    info.playerStartX = playerStart.getInt("x");
-	    info.playerStartY = playerStart.getInt("y");
-	    info.goalX = goalLocation.getInt("x");
-	    info.goalY = goalLocation.getInt("y");
-	    info.goalX -= info.goalX % TileMap.TILE_SIZE;
-	    info.goalY -= info.goalY % TileMap.TILE_SIZE;
-	    info.width = o.getInt("width");
-	    info.height = o.getInt("height");
-	    info.tileImageName = o.getString("tileImageName");
-	    info.backgroundImageName = o.getString("backgroundImageName");
-	    info.regions = new Rect[regionsArray.length()];
-	    info.regionTypes = new StageInfo.RegionType[regionsArray.length()];
-	    info.thingIds = new int[thingsArray.length()];
-	    info.thingParams = new JSONObject[thingsArray.length()];
-	    info.thingTypes = new ThingType[thingsArray.length()];
-	    for(int i=0; i<info.regions.length;i++) {
-		JSONObject rgnobj = regionsArray.getJSONObject(i);
-		int l = rgnobj.getInt("left");
-		int t = rgnobj.getInt("top");
-		int r = rgnobj.getInt("right");
-		int b = rgnobj.getInt("bottom");
-		int temp;
-		if(r < l) {
-		    temp = r; r = l; l = temp;
-		}
-		if(b < t) {
-		    temp = b; b = t; t = temp;
-		}
-		info.regions[i] = new Rect();
- 		info.regions[i].left = l;
- 		info.regions[i].top = t;
- 		info.regions[i].right = r;
- 		info.regions[i].bottom = b;
-		info.regionTypes[i] =
-			StageInfo.RegionType.values()[rgnobj.getInt("type")];
-	    }
-	    for(int i=0; i<info.thingParams.length;i++) {
-		    JSONObject thingObj = thingsArray.getJSONObject(i);
-		    info.thingParams[i] = thingObj;
-		    info.thingIds[i] = EntityRepository.NO_ENTITY;
-	    }
-	    info.map = TileMap.createFromInfo(info);
-	    
-	}
-	catch(JSONException je) {
-	    throw new RuntimeException(je);
-	}
-	return info;
+        StageInfo info = new StageInfo();
+        try {
+            JSONArray regionsArray = o.getJSONArray("regions");
+            JSONArray thingsArray = o.getJSONArray("things");
+            JSONObject playerStart = o.getJSONObject("playerStart");
+            JSONObject goalLocation = o.getJSONObject("goal");
+            info.playerStartX = playerStart.getInt("x");
+            info.playerStartY = playerStart.getInt("y");
+            info.goalX = goalLocation.getInt("x");
+            info.goalY = goalLocation.getInt("y");
+            info.goalX -= info.goalX % TileMap.TILE_SIZE;
+            info.goalY -= info.goalY % TileMap.TILE_SIZE;
+            info.width = o.getInt("width");
+            info.height = o.getInt("height");
+            info.tileImageName = o.getString("tileImageName");
+            info.backgroundImageName = o.getString("backgroundImageName");
+            info.regions = new Rect[regionsArray.length()];
+            info.regionTypes = new StageInfo.RegionType[regionsArray.length()];
+            info.thingIds = new int[thingsArray.length()];
+            info.thingParams = new JSONObject[thingsArray.length()];
+            info.thingTypes = new ThingType[thingsArray.length()];
+            for(int i=0; i<info.regions.length;i++) {
+                JSONObject rgnobj = regionsArray.getJSONObject(i);
+                int l = rgnobj.getInt("left");
+                int t = rgnobj.getInt("top");
+                int r = rgnobj.getInt("right");
+                int b = rgnobj.getInt("bottom");
+                int temp;
+                if(r < l) {
+                    temp = r; r = l; l = temp;
+                }
+                if(b < t) {
+                    temp = b; b = t; t = temp;
+                }
+                info.regions[i] = new Rect();
+                info.regions[i].left = l;
+                info.regions[i].top = t;
+                info.regions[i].right = r;
+                info.regions[i].bottom = b;
+                info.regionTypes[i] =
+                        StageInfo.RegionType.values()[rgnobj.getInt("type")];
+            }
+            for(int i=0; i<info.thingParams.length;i++) {
+                    JSONObject thingObj = thingsArray.getJSONObject(i);
+                    info.thingParams[i] = thingObj;
+                    info.thingIds[i] = EntityRepository.NO_ENTITY;
+            }
+            info.map = TileMap.createFromInfo(info);
+            
+        }
+        catch(JSONException je) {
+            throw new RuntimeException(je);
+        }
+        return info;
     }
 
     public static StageInfo getInfoNamed(String stageName) {
-	JSONObject o = (JSONObject) ContentRepository.get().getStageJSON(stageName);
-	StageInfo info = StageInfo.loadStage(o);
-	return info;
+        JSONObject o = (JSONObject) ContentRepository.get().getStageJSON(stageName);
+        StageInfo info = StageInfo.loadStage(o);
+        return info;
     }
     public static StageInfo getTestInfo() {
-	return getInfoNamed("test_level");
+        return getInfoNamed("test_level");
     }
     public static int getEidForThing(StageInfo info, int thingNum) {
-	if(thingNum <  0) return EntityRepository.NO_ENTITY;
-	if(thingNum >= info.thingIds.length) return EntityRepository.NO_ENTITY;
-	return info.thingIds[thingNum];
+        if(thingNum <  0) return EntityRepository.NO_ENTITY;
+        if(thingNum >= info.thingIds.length) return EntityRepository.NO_ENTITY;
+        return info.thingIds[thingNum];
     }
 }

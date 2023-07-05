@@ -25,9 +25,9 @@ public class EnemyInfo {
     public int fireTimer = 0;
 
     public void scriptSet(EnemyState st, EnemyStateTransition... scr) {
-	this.script.put(st, scr);
+        this.script.put(st, scr);
     }
     public void scriptClear(EnemyState st) {
-	this.script.remove(st);
+        this.script.remove(st);
     }
 }

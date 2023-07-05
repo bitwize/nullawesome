@@ -13,54 +13,54 @@ public class GameThread extends Thread {
     private boolean paused;
     private boolean running;
     public GameThread(DrawAgent da, ArrayList<UpdateAgent> ua) {
-	super();
-	clock = SystemClock.uptimeMillis();
-	oldclock = clock;
-	diff = 0;
-	gameclock = 0;
-	paused = false;
-	running = false;
-	dagent = da;
-	uagents = ua;
+        super();
+        clock = SystemClock.uptimeMillis();
+        oldclock = clock;
+        diff = 0;
+        gameclock = 0;
+        paused = false;
+        running = false;
+        dagent = da;
+        uagents = ua;
     }
 
     public void run() {
-	while(running) {
-	    synchronized(this) {
-		oldclock = clock;
-		clock = SystemClock.uptimeMillis();
-		diff += clock - oldclock;
-		if(!paused) {
-		    while(diff >= 16) {
-			gameclock += 16;
-			int sz = uagents.size();
-			for(int i=0;i<sz;i++) {
-			    uagents.get(i).update(gameclock);
-			}
-			diff -= 16;
-		    }
-		}
-		dagent.draw();
-		System.gc();
-	    }
-	    try {
-		Thread.sleep(1);
-	    }
-	    catch(InterruptedException e) { }
-	}
+        while(running) {
+            synchronized(this) {
+                oldclock = clock;
+                clock = SystemClock.uptimeMillis();
+                diff += clock - oldclock;
+                if(!paused) {
+                    while(diff >= 16) {
+                        gameclock += 16;
+                        int sz = uagents.size();
+                        for(int i=0;i<sz;i++) {
+                            uagents.get(i).update(gameclock);
+                        }
+                        diff -= 16;
+                    }
+                }
+                dagent.draw();
+                System.gc();
+            }
+            try {
+                Thread.sleep(1);
+            }
+            catch(InterruptedException e) { }
+        }
     }
     
     public void pauseGame() {
-	synchronized(this) { paused = true; }
+        synchronized(this) { paused = true; }
     }
     public void resumeGame() {
-	synchronized(this) { paused = false; }
+        synchronized(this) { paused = false; }
     }
     public void startRunning() {
-	synchronized(this) { running = true; }
-	if(!isAlive()) start();
+        synchronized(this) { running = true; }
+        if(!isAlive()) start();
     }
     public void stopRunning() {
-	synchronized(this) { running = false; }
+        synchronized(this) { running = false; }
     }
 }

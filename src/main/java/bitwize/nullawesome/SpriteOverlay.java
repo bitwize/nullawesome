@@ -8,17 +8,17 @@ public class SpriteOverlay {
     public PointF[] offsets;
     public BitSet draw;
     public SpriteOverlay(int size) {
-	shapes = new SpriteShape[size];
-	offsets = new PointF[size];
-	draw = new BitSet();
+        shapes = new SpriteShape[size];
+        offsets = new PointF[size];
+        draw = new BitSet();
     }
     public SpriteOverlay put(int index, SpriteShape shp, PointF ptf) {
-	shapes[index] = shp;
-	offsets[index] = ptf;
-	draw.set(index, true);
-	return this;
+        shapes[index] = shp;
+        offsets[index] = ptf;
+        draw.set(index, true);
+        return this;
     }
     public SpriteOverlay put(int index, SpriteShape shp, float x, float y) {
-	return put(index, shp, new PointF(x, y));
+        return put(index, shp, new PointF(x, y));
     }
 }

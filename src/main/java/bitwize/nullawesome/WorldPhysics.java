@@ -7,8 +7,8 @@ import android.graphics.RectF;
 public class WorldPhysics {
 
     public static enum State {
-	GROUNDED,
-	FALLING
+        GROUNDED,
+        FALLING
     }
 
     public static final int FACING_RIGHT = 1;
