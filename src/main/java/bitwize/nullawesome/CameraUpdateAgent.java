@@ -4,12 +4,9 @@ import android.util.Log;
 
 public class CameraUpdateAgent implements UpdateAgent {
     private EntityRepository repo;
-    private int windowLeft, windowRight;
-
+    private final int halfHres = DrawAgent.HRES / 2;
     public CameraUpdateAgent() {
         repo = EntityRepository.get();
-        windowRight = DrawAgent.HRES * 6 / 10;
-        windowLeft = DrawAgent.HRES * 4 / 10;
     }
 
     private void moveCamera(int stageEid, int playerEid) {
@@ -17,12 +14,8 @@ public class CameraUpdateAgent implements UpdateAgent {
         smov = (SpriteMovement)repo.getComponent(stageEid, SpriteMovement.class);
         pmov = (SpriteMovement)repo.getComponent(playerEid, SpriteMovement.class);
         if(smov == null || pmov == null) return;
-        if(pmov.position.x > smov.position.x + windowRight) {
-            smov.position.x = pmov.position.x - windowRight;
-        }
-        if(pmov.position.x < smov.position.x + windowLeft) {
-            smov.position.x = pmov.position.x - windowLeft;
-        }
+        smov.position.x = pmov.position.x - halfHres;
+        if(smov.position.x < 0) smov.position.x = 0;
     }
 
     public void update(long time) {
