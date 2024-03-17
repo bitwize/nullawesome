@@ -58,6 +58,12 @@ public class DrawAgent {
         holder = h;
     }
 
+    public void drawScreenBG(Canvas c, RectF r) {
+        paint.setARGB(128, 0, 0, 0);
+        c.drawRect(r, paint);
+        paint.setARGB(255, 0, 0, 0);
+    }
+
     public void drawMap(Canvas c, TileMap map, Point offset) {
         int w = c.getWidth();
         int h = c.getHeight();

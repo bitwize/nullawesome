@@ -73,6 +73,8 @@ public class PhysicsUpdateAgent implements UpdateAgent {
         if(shouldFall) {
             phys.state = WorldPhysics.State.FALLING;
             phys.sticksToEid = EntityRepository.NO_ENTITY;
+            phys.flags |= WorldPhysics.COYOTE_TIME;
+            phys.coyoteTime = phys.maxCoyoteTime;
         }
     }
 
@@ -92,6 +94,12 @@ public class PhysicsUpdateAgent implements UpdateAgent {
         mov.acceleration.offset(phys.thrust.x, phys.thrust.y);
         if(mov.velocity.x > phys.gvelmax) mov.velocity.x = phys.gvelmax;
         if(mov.velocity.x < -phys.gvelmax) mov.velocity.x = -phys.gvelmax;
+        if((phys.flags & WorldPhysics.COYOTE_TIME) != 0) {
+            phys.coyoteTime--;
+            if(phys.coyoteTime <= 0) {
+                phys.flags &= ~WorldPhysics.COYOTE_TIME;
+            }
+        }
         if((phys.flags & WorldPhysics.SOLID_COLLISION) == 0) { return; }
         // tile collision stuff. We skip over this if the SOLID_COLLISION flag is off.
         if((map.getTileFlags(map.getTileWorldCoords(mov.position.x, mov.position.y + phys.radius)) &

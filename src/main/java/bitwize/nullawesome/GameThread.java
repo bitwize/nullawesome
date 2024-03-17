@@ -8,29 +8,42 @@ public class GameThread extends Thread {
 
     private DrawAgent dagent;
     private ArrayList<UpdateAgent> uagents;
+    private ArrayList<UpdateAgent> puagents;
     private ArrayList<RenderAgent> ragents;
-    private long clock, oldclock, gameclock, diff;
+    private long clock, oldclock, gameclock, pauseclock, diff;
     private boolean paused;
     private boolean running;
-    public GameThread(DrawAgent da, ArrayList<UpdateAgent> ua) {
+    public GameThread(DrawAgent da, ArrayList<UpdateAgent> ua,
+                      ArrayList<UpdateAgent> pua) {
         super();
         clock = SystemClock.uptimeMillis();
         oldclock = clock;
         diff = 0;
         gameclock = 0;
+        pauseclock = 0;
         paused = false;
         running = false;
         dagent = da;
         uagents = ua;
+        puagents = pua;
     }
-
+    
     public void run() {
         while(running) {
             synchronized(this) {
                 oldclock = clock;
                 clock = SystemClock.uptimeMillis();
                 diff += clock - oldclock;
-                if(!paused) {
+                if(paused)  {
+                    while(diff >= 16) {
+                        pauseclock += 16;
+                        int sz = puagents.size();
+                        for(int i=0;i<sz;i++) {
+                            puagents.get(i).update(pauseclock);
+                        }
+                        diff -= 16;
+                    }
+                } else {
                     while(diff >= 16) {
                         gameclock += 16;
                         int sz = uagents.size();
@@ -44,7 +57,7 @@ public class GameThread extends Thread {
                 System.gc();
             }
             try {
-                Thread.sleep(1);
+                Thread.sleep(15);
             }
             catch(InterruptedException e) { }
         }
@@ -55,6 +68,10 @@ public class GameThread extends Thread {
     }
     public void resumeGame() {
         synchronized(this) { paused = false; }
+    }
+
+    public boolean isPaused() {
+        synchronized(this) { return paused; }
     }
     public void startRunning() {
         synchronized(this) { running = true; }

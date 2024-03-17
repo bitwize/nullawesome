@@ -14,6 +14,7 @@ public class WorldPhysics {
     public static final int FACING_RIGHT = 1;
     public static final int SOLID_COLLISION = 2;
     public static final int SHOULD_DESTROY = 4;
+    public static final int COYOTE_TIME = 8;
     public int stageEid;
     public int flags = FACING_RIGHT | SOLID_COLLISION;
     public State state = State.GROUNDED;
@@ -25,6 +26,8 @@ public class WorldPhysics {
     public float fallmax = 8.f;
     public RectF hitbox = new RectF(0.f, 0.f, 0.f, 0.f);
     public float radius = 0.f;
+    public int coyoteTime = 0;
+    public int maxCoyoteTime = 0;
     public int sticksToEid = EntityRepository.NO_ENTITY;
     public PointF sticksToPosition = new PointF();
     public Criterion collisionCriterion = Criterion.nullCriterion;

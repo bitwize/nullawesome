@@ -19,10 +19,18 @@ public class GameResetAgent implements UpdateAgent {
         SpriteMovement mov = (SpriteMovement)repo.getComponent(playerEid, SpriteMovement.class);
         if(info == null || mov == null) return;
         if(info.inputState == InputState.DEATH) {
-                timer++;
-                if(timer > POSTDEATH_DELAY) {
-                        myView.reset();
-                }
+            timer++;
+            if(timer > POSTDEATH_DELAY) {
+                myView.reset();
+            }
+        } else if((info.inputState == InputState.MOVEMENT) &&
+                  ((info.keyStatus & PlayerInfo.KEY_PAUSE) != 0)) {
+            info.inputState = InputState.PAUSE;
+            myView.pauseGame();
+        } else if((info.inputState == InputState.PAUSE) &&
+                  ((info.keyStatus & PlayerInfo.KEY_PAUSE) != 0)) {
+            info.inputState = InputState.MOVEMENT;
+            myView.resumeGame();
         }
     }
 }

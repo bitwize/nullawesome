@@ -5,6 +5,7 @@ import android.view.*;
 import android.graphics.*;
 import android.content.Context;
 import android.util.AttributeSet;
+import java.util.Arrays;
 
 public class NAView extends SurfaceView implements SurfaceHolder.Callback
 {
@@ -15,8 +16,9 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     private DrawAgent dagent;
     private GameThread thr;
     private RectF buttonHitRect;
-    private ArrayList<UpdateAgent> uagents = new ArrayList<UpdateAgent>();
-    private ArrayList<RenderAgent> ragents = new ArrayList<RenderAgent>();
+    private ArrayList<UpdateAgent> gameUpdateAgents = new ArrayList<UpdateAgent>();
+    private ArrayList<UpdateAgent> pauseUpdateAgents = new ArrayList<UpdateAgent>();
+    private ArrayList<RenderAgent> renderAgents = new ArrayList<RenderAgent>();
     public PointF checkPoint = new PointF();
     public RectF checkRect = new RectF();
     private PointF where = new PointF();
@@ -85,6 +87,18 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
                                           ButtonRenderAgent.BUTTON_SIZE,
                                           ButtonRenderAgent.BUTTON_SIZE,
                                           PlayerInfo.KEY_HACK);
+                    a |= view.checkButtonPress(ev,
+                                          ButtonRenderAgent.hackButtonLoc.x,
+                                          ButtonRenderAgent.hackButtonLoc.y,
+                                          ButtonRenderAgent.SMALL_BUTTON_SIZE,
+                                          ButtonRenderAgent.SMALL_BUTTON_SIZE,
+                                          PlayerInfo.KEY_HACK);
+                    a |= view.checkButtonPress(ev,
+                                               ButtonRenderAgent.pauseButtonLoc.x,
+                                               ButtonRenderAgent.pauseButtonLoc.y,
+                                               ButtonRenderAgent.SMALL_BUTTON_SIZE,
+                                               ButtonRenderAgent.SMALL_BUTTON_SIZE,
+                                               PlayerInfo.KEY_PAUSE);
                 }
                 return a;
             }
@@ -94,11 +108,11 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
                 int a = 0;
                 if(view.isPressOrRelease(ev)) {
                     a |= view.checkButtonPress(ev,
-                                                ButtonRenderAgent.backButtonLoc.x,
-                                                ButtonRenderAgent.backButtonLoc.y,
-                                                ButtonRenderAgent.BUTTON_SIZE,
-                                                ButtonRenderAgent.BUTTON_SIZE,
-                                                PlayerInfo.KEY_BACK);
+                                               ButtonRenderAgent.backButtonLoc.x,
+                                               ButtonRenderAgent.backButtonLoc.y,
+                                               ButtonRenderAgent.BUTTON_SIZE,
+                                               ButtonRenderAgent.BUTTON_SIZE,
+                                               PlayerInfo.KEY_BACK);
                     for(int i=0;i<ev.getPointerCount();i++) {
                         if((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
                            (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN) {
@@ -123,6 +137,12 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
         },
         (view, ev) -> {
             return 0;
+        },
+        (view, ev) -> {
+            if(view.isPressOrRelease(ev)) {
+                return PlayerInfo.KEY_PAUSE;
+            }
+            return 0;
         }
     };
     
@@ -141,22 +161,25 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
             initStage();
             initPlayer();
             initFinalDoor();
-            uagents.add(new PositionUpdateAgent());
-            uagents.add(new PhysicsUpdateAgent());
-            uagents.add(new CollisionUpdateAgent());
-            uagents.add(new ElevatorUpdateAgent());
-            uagents.add(new DoorUpdateAgent());
-            uagents.add(new EnemyUpdateAgent());
-            uagents.add(new CollectibleUpdateAgent());
-            uagents.add(new PlayerUpdateAgent(playerEid));
-            uagents.add(new CameraUpdateAgent());
-            uagents.add(new TimerUpdateAgent());
-            uagents.add(new GameResetAgent(this));
-            ragents.add(new BackgroundRenderAgent(dagent, stageEid));
-            ragents.add(new SceneryDisplayAgent(dagent, stageEid));
-            ragents.add(new SpriteDisplayAgent(dagent));
-            ragents.add(new TextRenderAgent(dagent));
-            ragents.add(new ButtonRenderAgent(dagent));
+            GameResetAgent gra = new GameResetAgent(this);
+            gameUpdateAgents.add(new PositionUpdateAgent());
+            gameUpdateAgents.add(new PhysicsUpdateAgent());
+            gameUpdateAgents.add(new CollisionUpdateAgent());
+            gameUpdateAgents.add(new TextUpdateAgent());
+            gameUpdateAgents.add(new ElevatorUpdateAgent());
+            gameUpdateAgents.add(new DoorUpdateAgent());
+            gameUpdateAgents.add(new EnemyUpdateAgent());
+            gameUpdateAgents.add(new CollectibleUpdateAgent());
+            gameUpdateAgents.add(new PlayerUpdateAgent(playerEid));
+            gameUpdateAgents.add(new CameraUpdateAgent());
+            gameUpdateAgents.add(new TimerUpdateAgent());
+            gameUpdateAgents.add(gra);
+            pauseUpdateAgents.add(gra);
+            renderAgents.add(new BackgroundRenderAgent(dagent, stageEid));
+            renderAgents.add(new SceneryDisplayAgent(dagent, stageEid));
+            renderAgents.add(new SpriteDisplayAgent(dagent));
+            renderAgents.add(new TextRenderAgent(dagent));
+            renderAgents.add(new ButtonRenderAgent(dagent));
         } catch(Exception e) {
             throw new RuntimeException(e);
         }
@@ -165,7 +188,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
         setFocusableInTouchMode(true);
         requestFocus();
         buttonHitRect = new RectF();
-        dagent = new DrawAgent(ragents);
+        dagent = new DrawAgent(renderAgents);
         dagent.setHolder(this.getHolder());
         this.getHolder().addCallback(this);
         initGameState();
@@ -173,8 +196,8 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
 
     public void reset() {
         synchronized(thr) {
-            uagents.clear();
-            ragents.clear();
+            gameUpdateAgents.clear();
+            renderAgents.clear();
             EntityRepository.get().clear();
             initGameState();
         }
@@ -195,6 +218,12 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
         } catch(Exception e) {
             throw new RuntimeException(e);
         }
+        TextInfo text = new TextInfo();
+        Arrays.fill(text.lines, ' ');
+        int textEid;
+        try { textEid = EntityRepository.get().newEntity(); }
+        catch(EntityTableFullException e) { return; }
+        EntityRepository.get().addComponent(textEid, text);
     }
 
     private void initPlayer() throws InvalidEntityException {
@@ -222,6 +251,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
         phys.collider = new ElevatorCollider();
         phys.collisionCriterion = (eid) -> EntityRepository.get()
             .getComponent(eid, ElevatorStates.class) != null;
+        phys.maxCoyoteTime = 10;
         EntityRepository.get().addComponent(playerEid, shp);
         EntityRepository.get().addComponent(playerEid, mv);
         EntityRepository.get().addComponent(playerEid, phys);
@@ -268,7 +298,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     }
     
     public void surfaceCreated(SurfaceHolder holder) {
-        thr = new GameThread(dagent,uagents);
+        thr = new GameThread(dagent,gameUpdateAgents, pauseUpdateAgents);
         thr.startRunning();
     }
     public void surfaceDestroyed(SurfaceHolder holder) {
@@ -280,6 +310,14 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
         synchronized(thr) { dagent.draw(); }
     }
 
+    public void pauseGame() {
+        synchronized(thr) { thr.pauseGame(); }
+    }
+    
+    public void resumeGame() {
+        synchronized(thr) { thr.resumeGame(); }
+    }
+    
     private int checkButtonPress(MotionEvent ev, float left, float top, float xSize, float ySize, int buttonBit) {
         buttonHitRect.left = left;
         buttonHitRect.top = top;
@@ -337,6 +375,9 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
                 break;
             case KeyEvent.KEYCODE_Z:
                 pi.keyStatus |= PlayerInfo.KEY_HACK;
+                break;
+            case KeyEvent.KEYCODE_P:
+                pi.keyStatus |= PlayerInfo.KEY_PAUSE;
                 break;
             }
         }

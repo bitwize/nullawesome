@@ -10,6 +10,7 @@ public class PlayerInfo {
     public static final int KEY_HACK = 8;
     public static final int KEY_PAUSE = 16;
     public static final int KEY_BACK = 128;
+
     // Player flag values
 
     //   Flag to track whether a jump was already made per jump button

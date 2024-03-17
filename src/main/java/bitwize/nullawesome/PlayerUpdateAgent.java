@@ -112,6 +112,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
         WorldPhysics phys;
         SpriteShape shp;
         SpriteMovement mov;
+        boolean hasCoyoteTime;
         pi = (PlayerInfo)repo.getComponent(eid, PlayerInfo.class);
         shp = (SpriteShape)repo.getComponent(eid, SpriteShape.class);
         mov = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
@@ -172,8 +173,9 @@ public class PlayerUpdateAgent implements UpdateAgent {
             // down from his last jump. This prevents Lorn from having
             // "moon boots" (i.e., he bounces continuously as long as the
             // jump button is held).
-            
-            if((phys.state == WorldPhysics.State.GROUNDED)
+            hasCoyoteTime = ((phys.flags & WorldPhysics.COYOTE_TIME) != 0);
+            if(((phys.state == WorldPhysics.State.GROUNDED) ||
+                hasCoyoteTime)
                && ((pi.keyStatus & PlayerInfo.KEY_JUMP) != 0)
                && ((pi.flags & PlayerInfo.JUMPED) == 0)) {
                 mov.position.y -= 2.0f;
