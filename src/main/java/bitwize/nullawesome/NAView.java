@@ -406,6 +406,9 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
             case KeyEvent.KEYCODE_Z:
                 pi.keyStatus &= ~PlayerInfo.KEY_HACK;
                 break;
+            case KeyEvent.KEYCODE_P:
+                pi.keyStatus &= ~PlayerInfo.KEY_PAUSE;
+                break;
             }
         }
         return super.onKeyUp(keyCode, ke);

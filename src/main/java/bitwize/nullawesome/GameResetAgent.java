@@ -26,10 +26,12 @@ public class GameResetAgent implements UpdateAgent {
         } else if((info.inputState == InputState.MOVEMENT) &&
                   ((info.keyStatus & PlayerInfo.KEY_PAUSE) != 0)) {
             info.inputState = InputState.PAUSE;
+            info.keyStatus &= ~PlayerInfo.KEY_PAUSE;
             myView.pauseGame();
         } else if((info.inputState == InputState.PAUSE) &&
                   ((info.keyStatus & PlayerInfo.KEY_PAUSE) != 0)) {
             info.inputState = InputState.MOVEMENT;
+            info.keyStatus &= ~PlayerInfo.KEY_PAUSE;
             myView.resumeGame();
         }
     }
