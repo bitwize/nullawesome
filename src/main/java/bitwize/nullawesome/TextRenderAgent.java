@@ -21,6 +21,7 @@ public class TextRenderAgent implements RenderAgent {
     public void drawOn(Canvas c) {
         int textEid = repo.findEntityWithComponent(TextInfo.class);
         TextInfo textinfo = (TextInfo)repo.getComponent(textEid, TextInfo.class);
+        if(!textinfo.showDisplay) return;
         char curschar = textinfo.lines[textinfo.cursorPos];
         if(textinfo.drawCursor) {
             textinfo.lines[textinfo.cursorPos] = '\0';

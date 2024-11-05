@@ -108,14 +108,20 @@ public class PlayerUpdateAgent implements UpdateAgent {
 
     public void update(long time) {
         int eid = player_eid;
+        int textEid;
         PlayerInfo pi;
         WorldPhysics phys;
         SpriteShape shp;
         SpriteMovement mov;
+        TextInfo ti;
         boolean hasCoyoteTime;
+        textEid = repo.findEntityWithComponent(TextInfo.class);
         pi = (PlayerInfo)repo.getComponent(eid, PlayerInfo.class);
         shp = (SpriteShape)repo.getComponent(eid, SpriteShape.class);
         mov = (SpriteMovement)repo.getComponent(eid, SpriteMovement.class);
+        ti = textEid != EntityRepository.NO_ENTITY ?
+            (TextInfo)repo.getComponent(textEid, TextInfo.class) :
+            null;
         phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
         if(pi == null || shp == null || mov == null || phys == null) return;
         StageInfo info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
@@ -123,6 +129,10 @@ public class PlayerUpdateAgent implements UpdateAgent {
         if(pi.inputState == InputState.HACKING && ((pi.keyStatus & PlayerInfo.KEY_BACK) != 0)) {
             pi.inputState = InputState.MOVEMENT;
             switchPutAway(shp);
+            if(ti != null) {
+                ti.displayTime = ti.maxDisplayTime;
+                ti.textBuffer.append(TextInfo.readyString);
+            }
         } else if(pi.inputState == InputState.MOVEMENT) {
             if((pi.keyStatus & PlayerInfo.KEY_HACK) != 0) {
                 pi.flags &= (~PlayerInfo.JUMPED); // reset JUMPED flag  
@@ -130,6 +140,12 @@ public class PlayerUpdateAgent implements UpdateAgent {
                 mov.velocity.x = 0.f;
                 mov.acceleration.x = 0.f;
                 pi.inputState = InputState.HACKING; // enter hacking state
+                /// turn on display and show Lorn entering a command
+                if(ti != null) {
+                    ti.showDisplay = true;
+                    ti.textBuffer.append(TextInfo.scanString);
+                    ti.textBuffer.append(TextInfo.selectString);
+                }
                 switchHacking(shp);
             } else if((pi.keyStatus & PlayerInfo.KEY_RIGHT) != 0) {
                 switch(phys.state) {

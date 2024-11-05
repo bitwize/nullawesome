@@ -173,6 +173,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
             gameUpdateAgents.add(new PlayerUpdateAgent(playerEid));
             gameUpdateAgents.add(new CameraUpdateAgent());
             gameUpdateAgents.add(new TimerUpdateAgent());
+            gameUpdateAgents.add(new StageClearUpdateAgent());
             gameUpdateAgents.add(gra);
             pauseUpdateAgents.add(gra);
             renderAgents.add(new BackgroundRenderAgent(dagent, stageEid));

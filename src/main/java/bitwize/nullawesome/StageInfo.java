@@ -24,7 +24,8 @@ public class StageInfo {
         GROUND,
         LAVA
     }
-    
+
+    public String name;
     public int width, height;
     public int playerStartX = 0, playerStartY = 0;
     public int goalX = 0, goalY = 0;
@@ -39,6 +40,7 @@ public class StageInfo {
     public float bgMoveScaleX = 0.5f, bgMoveScaleY = 0.5f;
     public float deathFloorY = 384.f;
     public TileMap map;
+    public boolean clear = false;
     public static StageInfo loadStage(JSONObject o) {
         StageInfo info = new StageInfo();
         try {
@@ -80,12 +82,12 @@ public class StageInfo {
                 info.regions[i].right = r;
                 info.regions[i].bottom = b;
                 info.regionTypes[i] =
-                        StageInfo.RegionType.values()[rgnobj.getInt("type")];
+                    StageInfo.RegionType.values()[rgnobj.getInt("type")];
             }
-            for(int i=0; i<info.thingParams.length;i++) {
-                    JSONObject thingObj = thingsArray.getJSONObject(i);
-                    info.thingParams[i] = thingObj;
-                    info.thingIds[i] = EntityRepository.NO_ENTITY;
+            for(int i=0; i<info.thingParams.length; i++) {
+                JSONObject thingObj = thingsArray.getJSONObject(i);
+                info.thingParams[i] = thingObj;
+                info.thingIds[i] = EntityRepository.NO_ENTITY;
             }
             info.map = TileMap.createFromInfo(info);
             
@@ -99,6 +101,7 @@ public class StageInfo {
     public static StageInfo getInfoNamed(String stageName) {
         JSONObject o = (JSONObject) ContentRepository.get().getStageJSON(stageName);
         StageInfo info = StageInfo.loadStage(o);
+        info.name = stageName;
         return info;
     }
     public static StageInfo getTestInfo() {

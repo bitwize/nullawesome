@@ -80,6 +80,11 @@ public class ThingFactory {
         TimerAction ta = (TimerAction)repo.getComponent(eid, TimerAction.class);
         WorldPhysics phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
         StageInfo info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
+        int textEid = repo.findEntityWithComponent(TextInfo.class);
+        TextInfo ti = null;
+        if(textEid != EntityRepository.NO_ENTITY) {
+            ti = (TextInfo)repo.getComponent(textEid, TextInfo.class);
+        }
         ovl.draw.set(0, true);
         if(ta != null) {
             ta.active = true;
@@ -90,6 +95,10 @@ public class ThingFactory {
         if(linkedThingTriggers.containsKey(linkedThingType)) {
                 EntityProcessor action = linkedThingTriggers.get(linkedThingType);
                 action.process(linkedEid);
+        }
+        if(ti != null) {
+            ti.textBuffer.append(TextInfo.accessString);
+            ti.textBuffer.append(TextInfo.grantedString);
         }
     };
 
@@ -344,7 +353,7 @@ public class ThingFactory {
         return eid;
     }
 
-    public static int createCollectible(int stageEid, CollectibleType type, PointF location)
+    public static int createCollectible(int stageEid, CollectibleType type, PointF location, int intelIndex)
         throws EntityTableFullException
     {
         EntityRepository repo = EntityRepository.get();
@@ -357,6 +366,7 @@ public class ThingFactory {
         switch(type) {
         case INTEL:
             shp.subsection = new Rect(CollectibleInfo.WIDTH, 0, CollectibleInfo.WIDTH * 2, CollectibleInfo.HEIGHT);
+            ci.intelIndex = intelIndex;
             break;
         default:
             shp.subsection = new Rect(0, 0, CollectibleInfo.WIDTH, CollectibleInfo.HEIGHT);
@@ -450,7 +460,8 @@ public class ThingFactory {
         case COLLECTIBLE:
             {
                 CollectibleType ctype = namedCollectibleTypes.get(obj.getString("collectible_type"));
-                return createCollectible(stageEid, ctype, loc);
+                int intelIndex = obj.optInt("intel_index");
+                return createCollectible(stageEid, ctype, loc, intelIndex);
             }
         default:
             return EntityRepository.NO_ENTITY;

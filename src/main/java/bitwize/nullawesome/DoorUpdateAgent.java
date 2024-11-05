@@ -1,5 +1,4 @@
 package bitwize.nullawesome;
-import android.util.Log;
 
 public class DoorUpdateAgent implements UpdateAgent {
     private EntityRepository repo;
@@ -77,6 +76,7 @@ public class DoorUpdateAgent implements UpdateAgent {
             if(di.open < 0) {
                 di.open = 0;
                 di.state = DoorState.CLOSED;
+                info.clear = true;
             }
             break;
         }

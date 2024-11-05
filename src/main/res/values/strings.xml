@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">NullAwesome</string>
+  <string name="app_name">NullAwesome</string>
+  <string name="ready">"READY\n> "</string>
+  <string name="scan">"scan\n"</string>
+  <string name="select">Select target...</string>
+  <string name="access">"\nACCESS "</string>
+  <string name="granted">GRANTED\n</string>
+  <string name="denied">DENIED\n</string>
+  <string name="key_required">\nKEY REQUIRED\n</string>
+  <string name="copy">copy D:*.*\n</string>
+  <string name="copied">%d file(s) copied\n</string>
 </resources>

@@ -5,5 +5,6 @@ public class CollectibleInfo {
     public static final int HEIGHT=24;
     CollectibleType type;
     CollectibleState state;
+    int intelIndex = 0;
     int bobbingFrame;
 }

@@ -19,6 +19,7 @@ public class ContentRepository {
     private HashMap<String, Integer> sounds;
     private HashMap<String, JSONObject> animations;
     private HashMap<String, JSONObject> stages;
+    private HashMap<String, String> strings;
     private JSONObject saveData;
     private JSONArray stageOrder;
     private SoundPool spool;
@@ -31,6 +32,7 @@ public class ContentRepository {
         sounds = new HashMap<String, Integer>();
         animations = new HashMap<String, JSONObject>();
         stages = new HashMap<String, JSONObject>();
+        strings = new HashMap<String, String>();
         stageOrder = new JSONArray();
         spool = new SoundPool(10, AudioManager.STREAM_MUSIC, 0);
     }
@@ -54,6 +56,10 @@ public class ContentRepository {
 
     public JSONObject getStageJSON(String name) {
         return stages.get(name);
+    }
+
+    public String getString(String name) {
+        return strings.get(name);
     }
 
     public int getSoundID(String name) {
@@ -104,6 +110,17 @@ public class ContentRepository {
         try {
             JSONObject json = loadJSON(resID);
             stages.put(name, json);
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void loadString(String name, int resID)
+    {
+        try {
+            String s = ctx.getString(resID);
+            strings.put(name, s);
         }
         catch(Exception e) {
             throw new RuntimeException(e);
@@ -169,21 +186,26 @@ public class ContentRepository {
         } catch(JSONException e) {
             saveData = new JSONObject();
         } finally {
-                        fis.close();
-                }
-                } catch(IOException e) {
-                        saveData = new JSONObject();
-                        return;
-                }
+            fis.close();
+        }
+        } catch(IOException e) {
+            saveData = new JSONObject();
+            return;
+        }
     }
 
-    public void saveSaveData() throws IOException {
-                FileOutputStream fos;
-                        fos = ctx.openFileOutput(saveDataFileName, 0);
-                try {
-                        String jsonStr = saveData.toString();
-                        byte[] jsonBytes = jsonStr.getBytes("UTF-8");
-                        fos.write(jsonBytes);
-                } finally { fos.close(); }
-    }    
+    public void saveSaveData() {
+        FileOutputStream fos;
+        try {
+            fos = ctx.openFileOutput(saveDataFileName, 0);
+            try {
+                String jsonStr = saveData.toString();
+                byte[] jsonBytes = jsonStr.getBytes("UTF-8");
+                fos.write(jsonBytes);
+            } finally { fos.close(); }
+        } catch(FileNotFoundException e) {
+        } catch(IOException e) {
+            ctx.deleteFile(saveDataFileName);
+        } 
+    }
 }
