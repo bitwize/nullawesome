@@ -44,7 +44,10 @@ public class NullAwesome extends Activity
         cr.loadBitmap("shock_ray_r", R.drawable.shock_ray);
         cr.flipBitmap("shock_ray_r", "shock_ray_l");
         cr.loadBitmap("end_door_open", R.drawable.end_door_open);
+        cr.loadBitmap("receptionist", R.drawable.receptionist);
+        cr.loadBitmap("recep_desk", R.drawable.recep_desk);
         cr.loadBitmap("pac_font", R.drawable.pac_font);
+        cr.loadBitmap("endscreen_text", R.drawable.endscreen_text);
         cr.loadAnimation("player_stand", R.raw.player_stand);
         cr.loadAnimation("player_walk", R.raw.player_walk);
         cr.loadAnimation("player_jump", R.raw.player_jump);
@@ -58,6 +61,7 @@ public class NullAwesome extends Activity
         cr.loadAnimation("shock_ray_anim", R.raw.shock_ray_anim);
         cr.loadAnimation("sparkles_anim", R.raw.sparkles_anim);
         cr.loadAnimation("end_door_anim", R.raw.end_door_anim);
+        cr.loadAnimation("receptionist", R.raw.receptionist);
         cr.loadStageOrder();
         cr.loadStage("test_level", R.raw.test_level);
         cr.loadStage("stage1_1", R.raw.stage1_1);

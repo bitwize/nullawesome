@@ -181,6 +181,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
             renderAgents.add(new SpriteDisplayAgent(dagent));
             renderAgents.add(new TextRenderAgent(dagent));
             renderAgents.add(new ButtonRenderAgent(dagent));
+            renderAgents.add(new EndScreenRenderAgent(dagent));
         } catch(Exception e) {
             throw new RuntimeException(e);
         }

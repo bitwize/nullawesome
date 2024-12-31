@@ -5,5 +5,6 @@ public enum ThingType {
     DOOR_SLIDE,
     ELEVATOR,
     ENEMY,
-    COLLECTIBLE
+    COLLECTIBLE,
+    RECEPTIONIST
 }

@@ -2,16 +2,20 @@
     "width": 120,
     "height": 10,
     "regions": [
-        {"left": 0, "top": 8, "right": 120, "bottom": 10, "type": 1},
+        {"left": 0, "top": 8, "right": 55, "bottom": 10, "type": 1},
+        {"left": 64, "top": 8, "right": 120, "bottom": 10, "type": 1},
         {"left": 15, "top": 0, "right": 16, "bottom": 6, "type": 1}, 
         {"left": 22, "top": 6, "right": 27, "bottom": 8, "type": 1},
         {"left": 30, "top": 3, "right": 36, "bottom": 4, "type": 1},
         {"left": 40, "top": 5, "right": 42, "bottom": 6, "type": 1},
         {"left": 42, "top": 2, "right": 44, "bottom": 3, "type": 1},
-        {"left": 48, "top": 2, "right": 50, "bottom": 8, "type": 1}
+        {"left": 48, "top": 3, "right": 50, "bottom": 8, "type": 1},
+        {"left": 54, "top": 5, "right": 55, "bottom": 8, "type": 1},
+        {"left": 72, "top": 5, "right": 80, "bottom": 8, "type": 1}
     ],
     "things": [
-        {"x": 416, "y": 240, "type": "terminal_node", "reset_time": 240, "link": 1},
+	{"x": 256, "y": 250, "type": "receptionist"},
+        {"x": 416, "y": 240, "type": "terminal_node", "reset_time": 240, "link": 2},
         {"x": 480, "y": 256, "type": "door_slide"},
         {"x": 576, "y": 240, "type": "collectible", "collectible_type": "intel", "intel_index": 0},
         {"x": 608, "y": 240, "type": "collectible", "collectible_type": "trinket"},
@@ -24,7 +28,25 @@
         {"x": 1328, "y": 144, "type": "collectible", "collectible_type": "trinket"},
         {"x": 1360, "y": 48, "type": "collectible", "collectible_type": "trinket"},
         {"x": 1392, "y": 48, "type": "collectible", "collectible_type": "trinket"},
-        {"x": 1616, "y": 240, "type": "collectible", "collectible_type": "intel", "intel_index": 1}
+        {"x": 1616, "y": 240, "type": "collectible", "collectible_type": "intel", "intel_index": 1},
+        {"x": 1744, "y": 128, "type": "terminal_node", "reset_time": 240, "link": 16},
+        {"x": 2112, "y": 96, "type": "elevator",
+	 "normal_state": {
+	     "type": "stationary",
+	     "fulcrum_x": 0,
+	     "fulcrum_y": 0,
+	     "spring_constant": 0
+	 },
+	 "alt_state": {
+	     "type": "stationary",
+	     "x": 1728,
+	     "y": 96,
+	     "fulcrum_x": 0,
+	     "fulcrum_y": 0,
+	     "spring_constant": 0
+	 }
+	},
+        {"x": 2304, "y": 64, "type": "enemy", "enemy_type": "sentry_drone"}
     ],
     "intel": [
         "Welcome to a New Era of Productivity\n\nYour friends at ZetaCorp HR would like to remind you of some policy changes recently made to address new challenges we face in light of the recent profitability downturn. These changes are intended to boost your productivity, and strike a balance between cost savings and ensuring everyone has the resources needed to complete their work. To that end:\n\n* Quarterly bonuses for everyone below C-level will be suspended indefinitely.\n\n* The amount of time off that accrues to all employees will be reduced by half.\n\n* All employees may be called upon to work an additional two hours per day at the standard time compensation rate (overtime does not apply).\n\n* Drinks in the break rooms will no longer be free.\n\nWe understand that adjusting to these new policies may not be easy for some employees. We hope that, through hardship, you will forge a new commitment to productivity and profitability that will lead to a bright future for us all.\n\nSincerely,\n\nThe ZetaCorp HR Team",

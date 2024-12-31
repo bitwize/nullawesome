@@ -259,53 +259,83 @@ public class ThingFactory {
         return eid;
     }
 
-        public static int createSoldier(int stageEid, PointF location)
-                        throws EntityTableFullException
-        {
-                EntityRepository repo = EntityRepository.get();
-                int eid = repo.newEntity();
-                SpriteShape shp = SpriteShape.loadAnimation(ContentRepository.get().getAnimation("soldier_stand"));
-                SpriteMovement mv = new SpriteMovement();
-                WorldPhysics phys = new WorldPhysics();
-                EnemyInfo ei = new EnemyInfo();
-                EnemyCollider ec = new EnemyCollider();
-                phys.stageEid = stageEid;
-                phys.state = WorldPhysics.State.FALLING;
-                phys.radius = 16;
-                phys.hitbox.left = -16.f;
-                phys.hitbox.top = -16.f;
-                phys.hitbox.right = 16.f;
-                phys.hitbox.bottom = 16.f;
-                phys.flags |= WorldPhysics.SOLID_COLLISION;
-                phys.collider = ec;
-                phys.collisionCriterion = (cEid) -> EntityRepository.get()
-                                .getComponent(cEid, PlayerInfo.class) != null;
-                mv.position.set(location);
-                mv.hotspot.set(16.f, 16.f);
-                ei.type = EnemyType.SOLDIER;
-                ei.currentState = EnemyState.IDLE;
-                ei.targetEid = EntityRepository.NO_ENTITY;
-                ei.flags = 0;
-                ei.walkVel = 0.9f;
-                ei.chaseVel = 1.8f;
-                ei.sightRange = 128;
-                ei.sightFrustum = (float)Math.atan(1);
-                ei.stateActions.put(EnemyState.IDLE,
-                                EnemyBehaviors.groundPatrol);
-                ei.stateActions.put(EnemyState.ATTACKING,
-                                EnemyBehaviors.chase);
-                ei.scriptSet(EnemyState.IDLE,
-                                new EnemyStateTransition(EnemyBehaviors.seesTargetCriterion, EnemyState.ATTACKING));
-                ei.scriptSet(EnemyState.ATTACKING,
-                                new EnemyStateTransition(EnemyBehaviors.doesntSeeTargetCriterion, EnemyState.IDLE));
-                ei.fireCooldown = 12;
-                ei.fireRange = 160;
-                repo.addComponent(eid, shp);
-                repo.addComponent(eid, mv);
-                repo.addComponent(eid, phys);
-                repo.addComponent(eid, ei);
-                return eid;
-        }
+    public static int createSoldier(int stageEid, PointF location)
+        throws EntityTableFullException
+    {
+        EntityRepository repo = EntityRepository.get();
+        int eid = repo.newEntity();
+        SpriteShape shp = SpriteShape.loadAnimation(ContentRepository.get().getAnimation("soldier_stand"));
+        SpriteMovement mv = new SpriteMovement();
+        WorldPhysics phys = new WorldPhysics();
+        EnemyInfo ei = new EnemyInfo();
+        EnemyCollider ec = new EnemyCollider();
+        phys.stageEid = stageEid;
+        phys.state = WorldPhysics.State.FALLING;
+        phys.radius = 16;
+        phys.hitbox.left = -16.f;
+        phys.hitbox.top = -16.f;
+        phys.hitbox.right = 16.f;
+        phys.hitbox.bottom = 16.f;
+        phys.flags |= WorldPhysics.SOLID_COLLISION;
+        phys.collider = ec;
+        phys.collisionCriterion = (cEid) -> EntityRepository.get()
+            .getComponent(cEid, PlayerInfo.class) != null;
+        mv.position.set(location);
+        mv.hotspot.set(16.f, 16.f);
+        ei.type = EnemyType.SOLDIER;
+        ei.currentState = EnemyState.IDLE;
+        ei.targetEid = EntityRepository.NO_ENTITY;
+        ei.flags = 0;
+        ei.walkVel = 0.9f;
+        ei.chaseVel = 1.8f;
+        ei.sightRange = 128;
+        ei.sightFrustum = (float)Math.atan(1);
+        ei.stateActions.put(EnemyState.IDLE,
+                            EnemyBehaviors.groundPatrol);
+        ei.stateActions.put(EnemyState.ATTACKING,
+                            EnemyBehaviors.chase);
+        ei.scriptSet(EnemyState.IDLE,
+                     new EnemyStateTransition(EnemyBehaviors.seesTargetCriterion, EnemyState.ATTACKING));
+        ei.scriptSet(EnemyState.ATTACKING,
+                     new EnemyStateTransition(EnemyBehaviors.doesntSeeTargetCriterion, EnemyState.IDLE));
+        ei.fireCooldown = 12;
+        ei.fireRange = 160;
+        repo.addComponent(eid, shp);
+        repo.addComponent(eid, mv);
+        repo.addComponent(eid, phys);
+        repo.addComponent(eid, ei);
+        return eid;
+    }
+
+    public static int createReceptionist(int stageEid, PointF location)
+        throws EntityTableFullException {
+        EntityRepository repo = EntityRepository.get();
+        int eid = repo.newEntity();
+        SpriteShape shp = SpriteShape.loadAnimation(ContentRepository.get().getAnimation("receptionist"));
+        SpriteShape shp2 = new SpriteShape();
+        shp2.shapes = ContentRepository.get().getBitmap("recep_desk");
+        shp2.subsection = new Rect(0, 0, 96, 24);
+        SpriteMovement mv = new SpriteMovement();
+        WorldPhysics phys = new WorldPhysics();
+        SpriteOverlay ovl = new SpriteOverlay(1)
+            .put(0, shp2, -48.f, -2.f);
+        ovl.draw.set(0, true);
+        mv.position.set(location);
+        mv.hotspot.set(12,8);
+        phys.stageEid = stageEid;
+        phys.state = WorldPhysics.State.FALLING;
+        phys.radius = 22;
+        phys.hitbox.left = -48.f;
+        phys.hitbox.top = -8.f;
+        phys.hitbox.right = 48.f;
+        phys.hitbox.bottom = 22.f;
+        phys.flags |= WorldPhysics.SOLID_COLLISION;
+        repo.addComponent(eid, shp);
+        repo.addComponent(eid, mv);
+        repo.addComponent(eid, phys);
+        repo.addComponent(eid, ovl);
+        return eid;
+    }
 
     public static int createEnemy(int stageEid, EnemyType etype, PointF location)
         throws EntityTableFullException
@@ -462,6 +492,10 @@ public class ThingFactory {
                 CollectibleType ctype = namedCollectibleTypes.get(obj.getString("collectible_type"));
                 int intelIndex = obj.optInt("intel_index");
                 return createCollectible(stageEid, ctype, loc, intelIndex);
+            }
+        case RECEPTIONIST:
+            {
+                return createReceptionist(stageEid, loc);
             }
         default:
             return EntityRepository.NO_ENTITY;
