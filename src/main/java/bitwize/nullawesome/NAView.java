@@ -237,6 +237,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
         WorldPhysics phys = new WorldPhysics();
         SpriteShape shp = new SpriteShape();
         PlayerInfo pli = new PlayerInfo();
+        EndScreenInfo esi = new EndScreenInfo();
         shp.shapes = ContentRepository.get().getBitmap("player_r");
         shp.subsection = new Rect(0, 0, 32, 32);
         SpriteMovement mv = new SpriteMovement();
@@ -258,6 +259,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
         EntityRepository.get().addComponent(playerEid, mv);
         EntityRepository.get().addComponent(playerEid, phys);
         EntityRepository.get().addComponent(playerEid, pli);
+        EntityRepository.get().addComponent(playerEid, esi);
         EntityRepository.get().processEntitiesWithComponent(EnemyInfo.class, (anEid) -> {
                 EnemyInfo ei = (EnemyInfo)EntityRepository.get().getComponent(anEid, EnemyInfo.class);
                 ei.targetEid = playerEid;
