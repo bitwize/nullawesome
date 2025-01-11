@@ -46,6 +46,7 @@ public class EndScreenRenderAgent implements RenderAgent {
     private static final PointF intelSlashLoc = new PointF(350, 118);
     private static final PointF intelTotalLoc = new PointF(380, 118);
     private static final PointF scoreLabelLoc = new PointF(48, 180);
+    private static final PointF scoreStarsLoc = new PointF(256, 162);
     public EndScreenRenderAgent(DrawAgent a) {
         repo = EntityRepository.get();
         dagent = a;
@@ -77,9 +78,9 @@ public class EndScreenRenderAgent implements RenderAgent {
         if(playerinfo == null) {
             return;
         }
-        // if(playerinfo.inputState != InputState.EXIT_LEVEL) {
-        //     return;
-        // }
+        if(playerinfo.inputState != InputState.EXIT_LEVEL) {
+            return;
+        }
         EndScreenInfo endscreeninfo = (EndScreenInfo)repo.getComponent(playerEid, EndScreenInfo.class);
         if(endscreeninfo == null) {
             return;
@@ -93,5 +94,10 @@ public class EndScreenRenderAgent implements RenderAgent {
         drawDigits(c, endscreeninfo.intelCollected, intelCollectedLoc);
         dagent.drawSprite(c, texture, slashRect, intelSlashLoc);
         drawDigits(c, endscreeninfo.intelTotal, intelTotalLoc);
+        digitsPoint.set(scoreStarsLoc);
+        for(int i=0; i<endscreeninfo.score; i++) {
+            dagent.drawSprite(c, texture, starRect, digitsPoint);
+            digitsPoint.x += (starRect.right - starRect.left);
+        }
     }
 }

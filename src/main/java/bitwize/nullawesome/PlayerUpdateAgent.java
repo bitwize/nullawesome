@@ -114,6 +114,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
         SpriteShape shp;
         SpriteMovement mov;
         TextInfo ti;
+        EndScreenInfo esi;
         boolean hasCoyoteTime;
         textEid = repo.findEntityWithComponent(TextInfo.class);
         pi = (PlayerInfo)repo.getComponent(eid, PlayerInfo.class);
@@ -132,6 +133,22 @@ public class PlayerUpdateAgent implements UpdateAgent {
             if(ti != null) {
                 ti.displayTime = ti.maxDisplayTime;
                 ti.textBuffer.append(TextInfo.readyString);
+            }
+        } else if(pi.inputState == InputState.EXIT_LEVEL) {
+            esi = (EndScreenInfo)repo.getComponent(eid, EndScreenInfo.class);
+            if(esi == null) return;
+            long timeElapsed = time - esi.endStageTime;
+            if(esi.hiddenCollectiblesCollected > esi.collectiblesCollected) {
+                esi.collectiblesCollected = (short)(timeElapsed / 100L);
+            }
+            if(esi.hiddenIntelCollected > esi.intelCollected) {
+                esi.intelCollected = (short)(timeElapsed / 100L);
+            }
+            long starDelay = 500 + (esi.hiddenCollectiblesCollected * 100);
+            if(esi.score < esi.hiddenScore) {
+                esi.score = (timeElapsed < starDelay) ?
+                    0 :
+                    (short)((timeElapsed - starDelay) / 200L);
             }
         } else if(pi.inputState == InputState.MOVEMENT) {
             if((pi.keyStatus & PlayerInfo.KEY_HACK) != 0) {
@@ -225,12 +242,45 @@ public class PlayerUpdateAgent implements UpdateAgent {
             phys.thrust.set(0.f, 0.f);
             mov.velocity.set(0.f, 0.f);
             if(pi.inputState != InputState.EXIT_LEVEL) {
+                // start door open sequence
                 repo.processEntitiesWithComponent
                     (FinalDoorInfo.class,
                      (fdEid) -> {
                         FinalDoorInfo fdi = (FinalDoorInfo)repo.getComponent(fdEid, FinalDoorInfo.class);
                         fdi.state = DoorState.OPENING;
                     });
+                // total up collectibles for end level screen
+                esi = (EndScreenInfo)repo.getComponent(eid, EndScreenInfo.class);
+                if(esi != null) {
+                    final EndScreenInfo esi2 = esi;
+                    repo.processEntitiesWithComponent
+                        (CollectibleInfo.class,
+                         (collEid) -> {
+                            CollectibleInfo ci = (CollectibleInfo)repo.getComponent(collEid, CollectibleInfo.class);
+                            switch(ci.type) {
+                            case TRINKET:
+                                esi2.collectiblesTotal++;
+                                if(ci.state == CollectibleState.COLLECTED) {
+                                    esi2.hiddenCollectiblesCollected++;
+                                }
+                                break;
+                            case INTEL:
+                                esi2.intelTotal++;
+                                if(ci.state == CollectibleState.COLLECTED) {
+                                    esi2.hiddenIntelCollected++;
+                                }
+                                break;
+                            }
+                        });
+                    esi.hiddenScore = 1;
+                    if(esi.hiddenCollectiblesCollected >= (esi.collectiblesTotal * 4 / 5)) {
+                        esi.hiddenScore++;
+                    }
+                    if(esi.hiddenIntelCollected == esi.intelTotal) {
+                        esi.hiddenScore++;
+                    }
+                    esi.endStageTime = time;
+                }
             }
             pi.inputState = InputState.EXIT_LEVEL;
         }
