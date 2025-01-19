@@ -56,6 +56,6 @@
     "playerStart": {"x": 64, "y": 224},
     "goal": {"x": 3776, "y": 224},
     "tileImageName": "testTiles",
-    "backgroundImageName": "test_bg"
+    "backgroundImageName": "floor1_bg"
 }
   
