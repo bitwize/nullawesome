@@ -176,6 +176,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
             gameUpdateAgents.add(new StageClearUpdateAgent());
             gameUpdateAgents.add(gra);
             pauseUpdateAgents.add(gra);
+            gameUpdateAgents.add(new SoundUpdateAgent());
             renderAgents.add(new BackgroundRenderAgent(dagent, stageEid));
             renderAgents.add(new SceneryDisplayAgent(dagent, stageEid));
             renderAgents.add(new SpriteDisplayAgent(dagent));
@@ -205,16 +206,22 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
         }
     }
 
+    public void advanceStage() {
+
+    }
+    
     private void initStage() throws InvalidEntityException {
         try { stageEid = EntityRepository.get().newEntity(); }
         catch(EntityTableFullException e) { return; }
         StageInfo info = StageInfo.getInfoNamed(ContentRepository.get().getStageNameAt(currentStage));
         SpriteMovement mv = new SpriteMovement();
+        SoundInfo si = new SoundInfo();
         mv.position = new PointF();
         mv.velocity = new PointF();
         mv.acceleration = new PointF();
         EntityRepository.get().addComponent(stageEid, info);
         EntityRepository.get().addComponent(stageEid, mv);
+        EntityRepository.get().addComponent(stageEid, si);
         try {
             ThingFactory.createThings(stageEid);
         } catch(Exception e) {
@@ -315,11 +322,17 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void pauseGame() {
-        synchronized(thr) { thr.pauseGame(); }
+        synchronized(thr) {
+            ContentRepository.get().getSoundPool().autoPause();
+            thr.pauseGame();
+        }
     }
     
     public void resumeGame() {
-        synchronized(thr) { thr.resumeGame(); }
+        synchronized(thr) {
+            ContentRepository.get().getSoundPool().autoResume();
+            thr.resumeGame();
+        }
     }
     
     private int checkButtonPress(MotionEvent ev, float left, float top, float xSize, float ySize, int buttonBit) {

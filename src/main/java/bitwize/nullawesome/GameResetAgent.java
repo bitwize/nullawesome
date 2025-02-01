@@ -2,10 +2,11 @@ package bitwize.nullawesome;
 
 public class GameResetAgent implements UpdateAgent {
     private NAView myView;
-        private int timer = 0;
+    private int timer = 0;
 
-        private int POSTDEATH_DELAY=350;
-
+    private int POSTDEATH_DELAY=350;
+    private int POSTEXIT_DELAY=500;
+    
     public GameResetAgent(NAView v) {
         myView = v;
     }
@@ -22,6 +23,16 @@ public class GameResetAgent implements UpdateAgent {
             timer++;
             if(timer > POSTDEATH_DELAY) {
                 myView.reset();
+            }
+        } else if((info.inputState == InputState.END_STAGE)) {
+            EndScreenInfo esi = (EndScreenInfo)repo.getComponent(playerEid, EndScreenInfo.class);
+            if(esi == null) return;
+            if(esi.score >= esi.hiddenScore) {
+                timer++;
+                if(timer > POSTEXIT_DELAY) {
+                    myView.advanceStage();
+                    myView.reset();
+                }
             }
         } else if((info.inputState == InputState.MOVEMENT) &&
                   ((info.keyStatus & PlayerInfo.KEY_PAUSE) != 0)) {

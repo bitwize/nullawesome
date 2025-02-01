@@ -78,7 +78,7 @@ public class EndScreenRenderAgent implements RenderAgent {
         if(playerinfo == null) {
             return;
         }
-        if(playerinfo.inputState != InputState.EXIT_LEVEL) {
+        if(playerinfo.inputState != InputState.END_STAGE) {
             return;
         }
         EndScreenInfo endscreeninfo = (EndScreenInfo)repo.getComponent(playerEid, EndScreenInfo.class);

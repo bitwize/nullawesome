@@ -74,6 +74,11 @@ public class NullAwesome extends Activity
         cr.loadString("key_required", R.string.key_required);
         cr.loadString("copy", R.string.copy);
         cr.loadString("copied", R.string.copied);
+        cr.loadSound("jump", R.raw.jump);
+        cr.loadSound("pickup", R.raw.pickup);
+        cr.loadSound("hack_mode", R.raw.hack_mode);
+        cr.loadSound("hack_exit", R.raw.hack_exit);
+        cr.loadSound("access_denied", R.raw.access_denied);        
         cr.loadSaveData();
         nv = new NAView(this);
         setContentView(nv);

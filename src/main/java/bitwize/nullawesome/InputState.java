@@ -5,6 +5,6 @@ public enum InputState {
     MOVEMENT,
     HACKING,
     DEATH,
-    EXIT_LEVEL,
+    END_STAGE,
     PAUSE;
 }

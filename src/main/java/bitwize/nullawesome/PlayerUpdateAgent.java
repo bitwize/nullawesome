@@ -15,6 +15,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
     private SpriteShape putAwayShape;
     private SpriteShape dieShape;
     private int player_eid;
+    private int jumpSound, hackmodeSound, hackexitSound;
     private PointF pt1 = new PointF();
     private RelevantEntitiesHolder htReh = new RelevantEntitiesHolder(RelevantEntitiesHolder.hasComponentCriterion(HackTarget.class));
     private EntityProcessor htProc = (eid) -> {
@@ -37,6 +38,9 @@ public class PlayerUpdateAgent implements UpdateAgent {
         player_eid = eid;
         rightBitmap = content.getBitmap("player_r");
         leftBitmap = content.getBitmap("player_l");
+        jumpSound = content.getSoundID("jump");
+        hackmodeSound = content.getSoundID("hack_mode");
+        hackexitSound = content.getSoundID("hack_exit");
         standShape = SpriteShape.loadAnimation(content.getAnimation("player_stand"));
         walkShape = SpriteShape.loadAnimation(content.getAnimation("player_walk"));
         jumpShape = SpriteShape.loadAnimation(content.getAnimation("player_jump"));
@@ -112,7 +116,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
         PlayerInfo pi;
         WorldPhysics phys;
         SpriteShape shp;
-        SpriteMovement mov;
+        SpriteMovement mov, stageMov;
         TextInfo ti;
         EndScreenInfo esi;
         boolean hasCoyoteTime;
@@ -126,7 +130,10 @@ public class PlayerUpdateAgent implements UpdateAgent {
         phys = (WorldPhysics)repo.getComponent(eid, WorldPhysics.class);
         if(pi == null || shp == null || mov == null || phys == null) return;
         StageInfo info = (StageInfo)repo.getComponent(phys.stageEid, StageInfo.class);
+        SoundInfo sound = (SoundInfo)repo.getComponent(phys.stageEid, SoundInfo.class);
+        stageMov = (SpriteMovement)repo.getComponent(phys.stageEid, SpriteMovement.class);
         if(info == null) return;
+        if(stageMov == null) return;
         if(pi.inputState == InputState.HACKING && ((pi.keyStatus & PlayerInfo.KEY_BACK) != 0)) {
             pi.inputState = InputState.MOVEMENT;
             switchPutAway(shp);
@@ -134,7 +141,10 @@ public class PlayerUpdateAgent implements UpdateAgent {
                 ti.displayTime = ti.maxDisplayTime;
                 ti.textBuffer.append(TextInfo.readyString);
             }
-        } else if(pi.inputState == InputState.EXIT_LEVEL) {
+            if(sound != null) {
+                sound.addSound(hackexitSound, (mov.position.x - stageMov.position.x));
+            }
+        } else if(pi.inputState == InputState.END_STAGE) {
             esi = (EndScreenInfo)repo.getComponent(eid, EndScreenInfo.class);
             if(esi == null) return;
             long timeElapsed = time - esi.endStageTime;
@@ -164,6 +174,9 @@ public class PlayerUpdateAgent implements UpdateAgent {
                     ti.textBuffer.append(TextInfo.selectString);
                 }
                 switchHacking(shp);
+                if(sound != null) {
+                    sound.addSound(hackmodeSound, (mov.position.x - stageMov.position.x));
+                }
             } else if((pi.keyStatus & PlayerInfo.KEY_RIGHT) != 0) {
                 switch(phys.state) {
                 case GROUNDED:
@@ -218,6 +231,9 @@ public class PlayerUpdateAgent implements UpdateAgent {
                 phys.state = WorldPhysics.State.FALLING;
                 pi.flags |= PlayerInfo.JUMPED;
                 switchJumping(shp);
+                if(sound != null) {
+                    sound.addSound(jumpSound, (mov.position.x - stageMov.position.x));
+                }
             }
         
             // If the jump key is released, reset the JUMPED flag.
@@ -241,7 +257,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
             pi.keyStatus = 0;
             phys.thrust.set(0.f, 0.f);
             mov.velocity.set(0.f, 0.f);
-            if(pi.inputState != InputState.EXIT_LEVEL) {
+            if(pi.inputState != InputState.END_STAGE) {
                 // start door open sequence
                 repo.processEntitiesWithComponent
                     (FinalDoorInfo.class,
@@ -282,7 +298,7 @@ public class PlayerUpdateAgent implements UpdateAgent {
                     esi.endStageTime = time;
                 }
             }
-            pi.inputState = InputState.EXIT_LEVEL;
+            pi.inputState = InputState.END_STAGE;
         }
     }
 
