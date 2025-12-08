@@ -48,7 +48,8 @@ public class ThingFactory {
         es.transitioning = true;
     };
 
-
+    private static EntityProcessor sentryDroneAction = (eid) -> {
+    };
     private static EntityProcessor doorAction = (eid) -> {
         EntityRepository repo = EntityRepository.get();
         DoorInfo di = (DoorInfo)repo.getComponent(eid, DoorInfo.class);
@@ -252,10 +253,15 @@ public class ThingFactory {
                      new EnemyStateTransition(EnemyBehaviors.doesntSeeTargetCriterion, EnemyState.IDLE));
         ei.fireCooldown = 192;
         ei.fireRange = 160;
+        HackTarget ht = new HackTarget();
+        ht.width = 32;
+        ht.height = 32;
+        ht.action = sentryDroneAction;
         repo.addComponent(eid, shp);
         repo.addComponent(eid, mv);
         repo.addComponent(eid, phys);
         repo.addComponent(eid, ei);
+        repo.addComponent(eid, ht);
         return eid;
     }
 
