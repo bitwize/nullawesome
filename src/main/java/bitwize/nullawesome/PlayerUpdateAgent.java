@@ -2,6 +2,7 @@ package bitwize.nullawesome;
 
 import android.graphics.Bitmap;
 import android.graphics.PointF;
+import android.util.Log;
 
 public class PlayerUpdateAgent implements UpdateAgent {
     private EntityRepository repo = EntityRepository.get();
@@ -144,6 +145,8 @@ public class PlayerUpdateAgent implements UpdateAgent {
             if(sound != null) {
                 sound.addSound(hackexitSound, (mov.position.x - stageMov.position.x));
             }
+            Log.i("PlayerUpdateAgent", "exiting hack mode");
+            pi.keyStatus = 0;
         } else if(pi.inputState == InputState.END_STAGE) {
             esi = (EndScreenInfo)repo.getComponent(eid, EndScreenInfo.class);
             if(esi == null) return;
@@ -177,6 +180,8 @@ public class PlayerUpdateAgent implements UpdateAgent {
                 if(sound != null) {
                     sound.addSound(hackmodeSound, (mov.position.x - stageMov.position.x));
                 }
+                Log.i("PlayerUpdateAgent", "entering hack mode");
+                pi.keyStatus = 0;
             } else if((pi.keyStatus & PlayerInfo.KEY_RIGHT) != 0) {
                 switch(phys.state) {
                 case GROUNDED:

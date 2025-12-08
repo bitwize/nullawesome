@@ -5,6 +5,7 @@ import android.view.*;
 import android.graphics.*;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import java.util.Arrays;
 
 public class NAView extends SurfaceView implements SurfaceHolder.Callback
@@ -59,78 +60,113 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
                 return 0;
             }
         },
-        new StateEventCallback() {
-            public int getKeyStatus(NAView view, MotionEvent ev) {
-                int a = 0;
-                if(view.isPressOrRelease(ev)) {
-                    a |= view.checkButtonPress(ev,
-                                          ButtonRenderAgent.leftButtonLoc.x,
-                                          ButtonRenderAgent.leftButtonLoc.y,
-                                          ButtonRenderAgent.BUTTON_SIZE,
-                                          ButtonRenderAgent.BUTTON_SIZE,
-                                          PlayerInfo.KEY_LEFT);
-                    a |= view.checkButtonPress(ev,
-                                          ButtonRenderAgent.rightButtonLoc.x,
-                                          ButtonRenderAgent.rightButtonLoc.y,
-                                          ButtonRenderAgent.BUTTON_SIZE,
-                                          ButtonRenderAgent.BUTTON_SIZE,
-                                          PlayerInfo.KEY_RIGHT);
-                    a |= view.checkButtonPress(ev,
-                                          ButtonRenderAgent.jumpButtonLoc.x,
-                                          ButtonRenderAgent.jumpButtonLoc.y,
-                                          ButtonRenderAgent.BUTTON_SIZE,
-                                          ButtonRenderAgent.BUTTON_SIZE,
-                                          PlayerInfo.KEY_JUMP);
-                    a |= view.checkButtonPress(ev,
-                                          ButtonRenderAgent.hackButtonLoc.x,
-                                          ButtonRenderAgent.hackButtonLoc.y,
-                                          ButtonRenderAgent.BUTTON_SIZE,
-                                          ButtonRenderAgent.BUTTON_SIZE,
-                                          PlayerInfo.KEY_HACK);
-                    a |= view.checkButtonPress(ev,
-                                          ButtonRenderAgent.hackButtonLoc.x,
-                                          ButtonRenderAgent.hackButtonLoc.y,
-                                          ButtonRenderAgent.SMALL_BUTTON_SIZE,
-                                          ButtonRenderAgent.SMALL_BUTTON_SIZE,
-                                          PlayerInfo.KEY_HACK);
-                    a |= view.checkButtonPress(ev,
-                                               ButtonRenderAgent.pauseButtonLoc.x,
-                                               ButtonRenderAgent.pauseButtonLoc.y,
-                                               ButtonRenderAgent.SMALL_BUTTON_SIZE,
-                                               ButtonRenderAgent.SMALL_BUTTON_SIZE,
-                                               PlayerInfo.KEY_PAUSE);
-                }
-                return a;
+        (view, ev) -> {
+            PlayerInfo pi;
+            pi = ((PlayerInfo)EntityRepository.get().getComponent(playerEid, PlayerInfo.class));
+            int a = (pi == null ? 0 : pi.keyStatus);
+            Log.i("normalinput", "received MotionEvent, action type " + ev.getActionMasked());
+            if(view.isPress(ev)) {
+                a |= view.checkButtonPress(ev,
+                                           ButtonRenderAgent.leftButtonLoc.x,
+                                           ButtonRenderAgent.leftButtonLoc.y,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           PlayerInfo.KEY_LEFT);
+                a |= view.checkButtonPress(ev,
+                                           ButtonRenderAgent.rightButtonLoc.x,
+                                           ButtonRenderAgent.rightButtonLoc.y,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           PlayerInfo.KEY_RIGHT);
+                a |= view.checkButtonPress(ev,
+                                           ButtonRenderAgent.jumpButtonLoc.x,
+                                           ButtonRenderAgent.jumpButtonLoc.y,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           PlayerInfo.KEY_JUMP);
+                a |= view.checkButtonPress(ev,
+                                           ButtonRenderAgent.hackButtonLoc.x,
+                                           ButtonRenderAgent.hackButtonLoc.y,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           PlayerInfo.KEY_HACK);
+                a |= view.checkButtonPress(ev,
+                                           ButtonRenderAgent.hackButtonLoc.x,
+                                           ButtonRenderAgent.hackButtonLoc.y,
+                                           ButtonRenderAgent.SMALL_BUTTON_SIZE,
+                                           ButtonRenderAgent.SMALL_BUTTON_SIZE,
+                                           PlayerInfo.KEY_HACK);
+                a |= view.checkButtonPress(ev,
+                                           ButtonRenderAgent.pauseButtonLoc.x,
+                                           ButtonRenderAgent.pauseButtonLoc.y,
+                                           ButtonRenderAgent.SMALL_BUTTON_SIZE,
+                                           ButtonRenderAgent.SMALL_BUTTON_SIZE,
+                                           PlayerInfo.KEY_PAUSE);
             }
+            if(view.isRelease(ev)) {
+                a &= view.checkButtonRelease(ev,
+                                           ButtonRenderAgent.leftButtonLoc.x,
+                                           ButtonRenderAgent.leftButtonLoc.y,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           PlayerInfo.KEY_LEFT);
+                a &= view.checkButtonRelease(ev,
+                                           ButtonRenderAgent.rightButtonLoc.x,
+                                           ButtonRenderAgent.rightButtonLoc.y,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           PlayerInfo.KEY_RIGHT);
+                a &= view.checkButtonRelease(ev,
+                                           ButtonRenderAgent.jumpButtonLoc.x,
+                                           ButtonRenderAgent.jumpButtonLoc.y,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           PlayerInfo.KEY_JUMP);
+                a &= view.checkButtonRelease(ev,
+                                           ButtonRenderAgent.hackButtonLoc.x,
+                                           ButtonRenderAgent.hackButtonLoc.y,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           PlayerInfo.KEY_HACK);
+                a &= view.checkButtonRelease(ev,
+                                           ButtonRenderAgent.hackButtonLoc.x,
+                                           ButtonRenderAgent.hackButtonLoc.y,
+                                           ButtonRenderAgent.SMALL_BUTTON_SIZE,
+                                           ButtonRenderAgent.SMALL_BUTTON_SIZE,
+                                           PlayerInfo.KEY_HACK);
+                a &= view.checkButtonRelease(ev,
+                                           ButtonRenderAgent.pauseButtonLoc.x,
+                                           ButtonRenderAgent.pauseButtonLoc.y,
+                                           ButtonRenderAgent.SMALL_BUTTON_SIZE,
+                                           ButtonRenderAgent.SMALL_BUTTON_SIZE,
+                                           PlayerInfo.KEY_PAUSE);
+            }
+            return a;
         },
-        new StateEventCallback() {
-            public int getKeyStatus(NAView view, MotionEvent ev) {
-                int a = 0;
-                if(view.isPressOrRelease(ev)) {
-                    a |= view.checkButtonPress(ev,
-                                               ButtonRenderAgent.backButtonLoc.x,
-                                               ButtonRenderAgent.backButtonLoc.y,
-                                               ButtonRenderAgent.BUTTON_SIZE,
-                                               ButtonRenderAgent.BUTTON_SIZE,
-                                               PlayerInfo.KEY_BACK);
-                    for(int i=0;i<ev.getPointerCount();i++) {
-                        if((ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN ||
-                           (ev.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_POINTER_DOWN) {
-                            checkPoint.x = ev.getX(i);
-                            checkPoint.y = ev.getY(i);
-                            synchronized(thr) {
-                                somethingHacked = false;
-                                EntityRepository.get().processEntitiesWithComponent(HackTarget.class,
-                                                                                    view.hackTargetProcessor);
-                                if(somethingHacked) {
-                                    a |= PlayerInfo.KEY_BACK;
-                                }
-                            }
-                        }
+        (view, ev) -> {
+            int a = 0;
+            if(view.isPress(ev)) {
+                a |= view.checkButtonPress(ev,
+                                           ButtonRenderAgent.backButtonLoc.x,
+                                           ButtonRenderAgent.backButtonLoc.y,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           ButtonRenderAgent.BUTTON_SIZE,
+                                           PlayerInfo.KEY_BACK);
+                int i = ev.getActionIndex();
+                checkPoint.x = ev.getX(i);
+                checkPoint.y = ev.getY(i);
+                synchronized(thr) {
+                    somethingHacked = false;
+                    Log.i("somethingHacked", "" + somethingHacked);
+                    EntityRepository.get().processEntitiesWithComponent(HackTarget.class,
+                                                                        view.hackTargetProcessor);
+                    Log.i("somethingHacked", "" + somethingHacked);
+                    if(somethingHacked) {
+                        a |= PlayerInfo.KEY_BACK;
                     }
                 }
-                return a;
             }
+            return a;
         },
         (view, ev) -> {
             return 0;
@@ -139,7 +175,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
             return 0;
         },
         (view, ev) -> {
-            if(view.isPressOrRelease(ev)) {
+            if(view.isPress(ev)) {
                 return PlayerInfo.KEY_PAUSE;
             }
             return 0;
@@ -183,6 +219,8 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
             renderAgents.add(new TextRenderAgent(dagent));
             renderAgents.add(new ButtonRenderAgent(dagent));
             renderAgents.add(new EndScreenRenderAgent(dagent));
+        } catch(RuntimeException e) {
+            throw e;
         } catch(Exception e) {
             throw new RuntimeException(e);
         }
@@ -216,6 +254,7 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
         StageInfo info = StageInfo.getInfoNamed(ContentRepository.get().getStageNameAt(currentStage));
         SpriteMovement mv = new SpriteMovement();
         SoundInfo si = new SoundInfo();
+        si.setBGM = "floor1_bgm";
         mv.position = new PointF();
         mv.velocity = new PointF();
         mv.acceleration = new PointF();
@@ -234,7 +273,6 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
         catch(EntityTableFullException e) { return; }
         EntityRepository.get().addComponent(textEid, text);
     }
-
     private void initPlayer() throws InvalidEntityException {
         try { playerEid = EntityRepository.get().newEntity(); }
         catch(EntityTableFullException e) { return; }
@@ -311,10 +349,24 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     public void surfaceCreated(SurfaceHolder holder) {
         thr = new GameThread(dagent,gameUpdateAgents, pauseUpdateAgents);
         thr.startRunning();
+        try {
+            android.media.MediaPlayer mp = ContentRepository.get().getBGMPlayer();
+            mp.start();
+        } catch(Exception e) {
+            return;
+        }
     }
     public void surfaceDestroyed(SurfaceHolder holder) {
         if(thr != null) {
             thr.stopRunning();
+        }
+        try {
+            android.media.MediaPlayer mp = ContentRepository.get().getBGMPlayer();
+            if(mp.isPlaying()) {
+                mp.pause();
+            }
+        } catch(Exception e) {
+            return;
         }
     }
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -324,6 +376,14 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     public void pauseGame() {
         synchronized(thr) {
             ContentRepository.get().getSoundPool().autoPause();
+            try {
+                android.media.MediaPlayer mp = ContentRepository.get().getBGMPlayer();
+                if(mp.isPlaying()) {
+                    mp.pause();
+                }
+            } catch(Exception e) {
+                return;
+            }
             thr.pauseGame();
         }
     }
@@ -331,6 +391,12 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
     public void resumeGame() {
         synchronized(thr) {
             ContentRepository.get().getSoundPool().autoResume();
+            try {
+                android.media.MediaPlayer mp = ContentRepository.get().getBGMPlayer();
+                mp.start();
+            } catch(Exception e) {
+                return;
+            }
             thr.resumeGame();
         }
     }
@@ -341,14 +407,24 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
         buttonHitRect.right = left + xSize;
         buttonHitRect.bottom = top + ySize;
         scaleRectToScreen(buttonHitRect);
-        for(int i=0;i<ev.getPointerCount();i++) {
-            if(((ev.getActionMasked() != MotionEvent.ACTION_POINTER_UP) ||
-                (ev.getActionIndex() != i)) &&
-               buttonHitRect.contains((float)ev.getX(i), (float)ev.getY(i))) {
-                return buttonBit;
-            }
+        int i = ev.getActionIndex();
+        if(isPress(ev) && buttonHitRect.contains((float)ev.getX(i), (float)ev.getY(i))) {
+            return buttonBit;
         }
         return 0;
+    }
+
+    private int checkButtonRelease(MotionEvent ev, float left, float top, float xSize, float ySize, int buttonBit) {
+        buttonHitRect.left = left;
+        buttonHitRect.top = top;
+        buttonHitRect.right = left + xSize;
+        buttonHitRect.bottom = top + ySize;
+        scaleRectToScreen(buttonHitRect);
+        int i = ev.getActionIndex();
+        if(isRelease(ev) && buttonHitRect.contains((float)ev.getX(i), (float)ev.getY(i))) {
+            return ~buttonBit;
+        }
+        return ~0;
     }
 
     private static boolean isPressOrRelease(MotionEvent ev) {
@@ -356,7 +432,19 @@ public class NAView extends SurfaceView implements SurfaceHolder.Callback
         
         return action == MotionEvent.ACTION_DOWN ||
             action == MotionEvent.ACTION_POINTER_DOWN ||
-            action == MotionEvent.ACTION_MOVE ||
+            action == MotionEvent.ACTION_UP ||
+            action == MotionEvent.ACTION_POINTER_UP;
+    }
+    private static boolean isPress(MotionEvent ev) {
+        int action = ev.getActionMasked();
+        
+        return action == MotionEvent.ACTION_DOWN ||
+            action == MotionEvent.ACTION_POINTER_DOWN;
+    }
+    private static boolean isRelease(MotionEvent ev) {
+        int action = ev.getActionMasked();
+        
+        return action == MotionEvent.ACTION_UP ||
             action == MotionEvent.ACTION_POINTER_UP;
     }
 
